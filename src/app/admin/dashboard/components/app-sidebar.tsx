@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   LayoutDashboard,
   Users,
@@ -20,34 +20,35 @@ import {
   Bell,
   FileSearch,
   Settings,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { NavMain } from "@/app/admin/dashboard/components/nav-main";
+import { NavUser } from "@/app/admin/dashboard/components/nav-user";
+import { TeamSwitcher } from "@/app/admin/dashboard/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { url } from "inspector";
 
-// Updated Sidebar Menu Data
 const menuItems = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
     id: "dashboard",
+    url: "/admin/dashboard"
   },
   {
     title: "Users & Roles",
     icon: Users,
     id: "users-roles",
     children: [
-      { title: "Users", icon: Users, id: "users" },
-      { title: "Roles", icon: Shield, id: "roles" },
-      { title: "Permissions", icon: CheckSquare, id: "permissions" },
+      { title: "Users", icon: Users, id: "users", url:"/admin/users" },
+      { title: "Roles", icon: Shield, id: "roles", url:"/admin/roles" },
+      { title: "Permissions", icon: CheckSquare, id: "permissions" , url:"admin/permissions"},
     ],
   },
   {
@@ -113,36 +114,32 @@ const menuItems = [
     icon: Settings,
     id: "settings",
   },
-]
-
+];
 
 const data = {
   user: {
     name: "John Doe",
     email: "john@doe.com",
-    role: "Super Admin"
+    role: "Super Admin",
   },
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      {/* Header */}
       <SidebarHeader>
         <TeamSwitcher />
       </SidebarHeader>
 
-      {/* Main Navigation */}
       <SidebarContent>
         <NavMain items={menuItems} />
       </SidebarContent>
 
-      {/* Footer */}
       <SidebarFooter className="pb-5">
         <NavUser user={data.user} />
       </SidebarFooter>
 
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

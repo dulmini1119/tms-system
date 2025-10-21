@@ -19,7 +19,7 @@ export default function LoginLayout({
         <div className="h-[1px] w-full dark:bg-gray-900 bg-gray-100" />
       </div>
 
-      <div className="pt-10">{children}</div>
+      <div className="pt-20">{children}</div>
     </>
   );
 }
