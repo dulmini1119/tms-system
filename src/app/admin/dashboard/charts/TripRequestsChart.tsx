@@ -19,7 +19,7 @@ export default function TripRequestsChart() {
         <CardDescription>Monthly trip requests and completion rates</CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={350}>
+        <ResponsiveContainer width="100%" height={200}>
           <LineChart data={tripRequestsData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
