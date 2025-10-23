@@ -120,9 +120,9 @@ const recentActivity = [
 
 export default function Dashboard() {
   return (
-    <div className="space-y-6">
-      <div className='pt-3'>
-        <h1>DASHBOARD</h1>
+    <div className="space-y-4">
+      <div className='p-3'>
+        <h1 className='text-2xl'>DASHBOARD</h1>
       </div>
 
       {/* Stats Cards */}
