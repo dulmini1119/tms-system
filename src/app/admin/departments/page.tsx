@@ -64,7 +64,7 @@ interface Departments {
   createdAt: string;
 }
 
-const departments = [
+const initialDepartments: Departments[] = [
   {
     id: 1,
     name: "Information Technology",
@@ -144,6 +144,7 @@ export default function Departments() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState<Departments | null>(null);
+  const [departments, setDepartments] = useState<Departments[]>(initialDepartments);
   const [formData,setFormData] = useState<Partial<Departments>>({
     name: "",
     code: "",
@@ -164,6 +165,7 @@ export default function Departments() {
 
   const handleEditDepartment = (department: Departments) => {
     setEditingDepartment(department);
+    setFormData(department);
     setIsDialogOpen(true);
   };
 
@@ -188,6 +190,46 @@ const handleChange = (
     hodEmail: field === "hod" && typeof value === 'string' ? `${value.toLowerCase().replace(" ",".")}@company.com`: prev.hodEmail,
   }))
 }
+
+  const handleSubmit = () => {
+    if (!formData.name || !formData.code || !formData.hod || !formData.businessUnit) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+    if(editingDepartment) {
+      setDepartments((prev) =>
+        prev.map((dept) => 
+          dept.id === editingDepartment.id ? {...dept, ...formData, id: dept.id} : dept
+        )
+      );
+    } else {
+      setDepartments((prev) => [
+        ...prev,
+        {
+          ...formData,
+          id: prev.length+ 1,
+          employeeCount:0,
+          createdAt: formData.createdAt || new Date().toISOString().split("T")[0],
+        }as Departments
+      ])
+    }
+    setIsDialogOpen(false);
+    setFormData({
+      id:0,
+      name:"",
+      code:"",
+      hod:"",
+      hodEmail:"",
+      businessUnit:"",
+      budget:0,
+      employeeCount:0,
+      createdAt: new Date().toISOString().split("T")[0],
+    })
+  }
+
+  const handleDelete = (id: number) => {
+    setDepartments((prev) => prev.filter((dept) => dept.id !== id))
+  }
 
 
   return (
@@ -296,7 +338,9 @@ const handleChange = (
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Department
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem className="text-destructive"
+                          onClick={() => handleDelete(department.id)}
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Delete Department
                         </DropdownMenuItem>
@@ -341,7 +385,8 @@ const handleChange = (
               </Label>
               <Input
                 id="code"
-                defaultValue={editingDepartment?.code || ""}
+                value={formData.code || ""}
+                onChange={(e) => handleChange("code", e.target.value)}
                 className="col-span-3"
                 placeholder="e.g., IT, HR, FIN"
               />
@@ -395,7 +440,7 @@ const handleChange = (
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">
+            <Button type="submit" onClick={handleSubmit}>
               {editingDepartment ? "Update Department" : "Create Department"}
             </Button>
           </DialogFooter>
@@ -404,3 +449,4 @@ const handleChange = (
     </div>
   );
 }
+
