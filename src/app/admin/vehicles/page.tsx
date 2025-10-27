@@ -1,6 +1,5 @@
-"use client"
-import React, { useState } from 'react';
-
+"use client";
+import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Search, 
@@ -10,7 +9,6 @@ import {
   Car,
   Fuel,
   Calendar,
-  MapPin,
   Settings,
   AlertTriangle
 } from 'lucide-react';
@@ -25,25 +23,49 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 
 interface Vehicles {
-  id: number,
-  registrationNo: string,
-  make: string,
-  model:string,
-  year: number,
-  type: string,
-  source: string,
-  fuelType : string,
-  seatingCapacity: number,
-  status: string,
-  currentDriver:string,
-  lastService: string,
-  nextService: string,
-  mileage: number,
-  insuranceExpiry : string,
-  location: string
+  id: number;
+  registrationNo: string;
+  make: string;
+  model: string;
+  year: number;
+  type: string;
+  source: string;
+  fuelType: string;
+  seatingCapacity: number;
+  status: string;
+  currentDriver: string;
+  lastService: string;
+  nextService: string;
+  mileage: number;
+  insuranceExpiry: string;
 }
 
-const vehicles = [
+interface VehicleFormData {
+  registrationNo: string;
+  make: string;
+  model: string;
+  year: string;
+  type: string;
+  source: string;
+  fuelType: string;
+  seatingCapacity: string;
+  status: string;
+  currentDriver: string;
+  lastService: string;
+  nextService: string;
+  mileage: string;
+  insuranceExpiry: string;
+}
+
+interface MaintenanceRecord {
+  id: number;
+  vehicleId: number;
+  date: string;
+  description: string;
+  cost: number;
+}
+
+const initialVehicles: Vehicles[] = [
   {
     id: 1,
     registrationNo: "MH-12-AB-1234",
@@ -60,7 +82,6 @@ const vehicles = [
     nextService: "2024-04-10",
     mileage: 45000,
     insuranceExpiry: "2024-12-15",
-    location: "Mumbai - Andheri"
   },
   {
     id: 2,
@@ -78,7 +99,6 @@ const vehicles = [
     nextService: "2024-04-05",
     mileage: 62000,
     insuranceExpiry: "2024-11-30",
-    location: "Delhi - Gurgaon"
   },
   {
     id: 3,
@@ -96,7 +116,6 @@ const vehicles = [
     nextService: "2024-03-20",
     mileage: 28000,
     insuranceExpiry: "2025-01-20",
-    location: "Bangalore - Whitefield"
   },
   {
     id: 4,
@@ -114,7 +133,6 @@ const vehicles = [
     nextService: "2024-04-15",
     mileage: 35000,
     insuranceExpiry: "2024-10-25",
-    location: "Chennai - OMR"
   },
   {
     id: 5,
@@ -132,7 +150,30 @@ const vehicles = [
     nextService: "2024-04-08",
     mileage: 78000,
     insuranceExpiry: "2024-09-10",
-    location: "Pune - Hinjewadi"
+  }
+];
+
+const initialMaintenanceRecords: MaintenanceRecord[] = [
+  {
+    id: 1,
+    vehicleId: 1,
+    date: "2024-01-10",
+    description: "Oil change and tire rotation",
+    cost: 5000
+  },
+  {
+    id: 2,
+    vehicleId: 1,
+    date: "2023-07-15",
+    description: "Brake pad replacement",
+    cost: 8000
+  },
+  {
+    id: 3,
+    vehicleId: 2,
+    date: "2024-01-05",
+    description: "CNG system inspection",
+    cost: 3000
   }
 ];
 
@@ -147,8 +188,13 @@ export default function Vehicles() {
   const [statusFilter, setStatusFilter] = useState('all-status');
   const [sourceFilter, setSourceFilter] = useState('all-sources');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isMaintenanceDialogOpen, setIsMaintenanceDialogOpen] = useState(false);
+  const [isScheduleServiceDialogOpen, setIsScheduleServiceDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicles | null>(null);
-  const [formData, setFormData] = useState({
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicles | null>(null);
+  const [vehicles, setVehicles] = useState<Vehicles[]>(initialVehicles);
+  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>(initialMaintenanceRecords);
+  const [formData, setFormData] = useState<VehicleFormData>({
     registrationNo: '',
     make: '',
     model: '',
@@ -163,8 +209,60 @@ export default function Vehicles() {
     nextService: '',
     mileage: '',
     insuranceExpiry: '',
-    location: ''
-  })
+  });
+  const [maintenanceFormData, setMaintenanceFormData] = useState<{
+    date: string;
+    description: string;
+    cost: string;
+  }>({
+    date: '',
+    description: '',
+    cost: ''
+  });
+  const [scheduleServiceFormData, setScheduleServiceFormData] = useState<{
+    nextService: string;
+  }>({
+    nextService: ''
+  });
+
+  // Initialize formData when editing a vehicle
+  useEffect(() => {
+    if (editingVehicle) {
+      setFormData({
+        registrationNo: editingVehicle.registrationNo,
+        make: editingVehicle.make,
+        model: editingVehicle.model,
+        year: editingVehicle.year.toString(),
+        type: editingVehicle.type,
+        source: editingVehicle.source,
+        fuelType: editingVehicle.fuelType,
+        seatingCapacity: editingVehicle.seatingCapacity.toString(),
+        status: editingVehicle.status,
+        currentDriver: editingVehicle.currentDriver,
+        lastService: editingVehicle.lastService,
+        nextService: editingVehicle.nextService,
+        mileage: editingVehicle.mileage.toString(),
+        insuranceExpiry: editingVehicle.insuranceExpiry,
+      });
+    } else {
+      setFormData({
+        registrationNo: '',
+        make: '',
+        model: '',
+        year: '',
+        type: '',
+        source: '',
+        fuelType: '',
+        seatingCapacity: '',
+        status: '',
+        currentDriver: '',
+        lastService: '',
+        nextService: '',
+        mileage: '',
+        insuranceExpiry: '',
+      });
+    }
+  }, [editingVehicle]);
 
   const filteredVehicles = vehicles.filter(vehicle => {
     return (
@@ -186,6 +284,135 @@ export default function Vehicles() {
   const handleCreateVehicle = () => {
     setEditingVehicle(null);
     setIsDialogOpen(true);
+  };
+
+  const handleViewMaintenanceLog = (vehicle: Vehicles) => {
+    setSelectedVehicle(vehicle);
+    setIsMaintenanceDialogOpen(true);
+  };
+
+  const handleScheduleService = (vehicle: Vehicles) => {
+    setSelectedVehicle(vehicle);
+    setScheduleServiceFormData({ nextService: vehicle.nextService });
+    setIsScheduleServiceDialogOpen(true);
+  };
+
+  const handleDeleteVehicle = (id: number) => {
+    if (confirm('Are you sure you want to delete this vehicle?')) {
+      setVehicles(vehicles.filter(v => v.id !== id));
+      setMaintenanceRecords(maintenanceRecords.filter(record => record.vehicleId !== id));
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleMaintenanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setMaintenanceFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleScheduleServiceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setScheduleServiceFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.registrationNo || !formData.make || !formData.model) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    if (Number(formData.year) < 1900 || Number(formData.year) > new Date().getFullYear()) {
+      alert('Please enter a valid year');
+      return;
+    }
+    if (Number(formData.seatingCapacity) <= 0) {
+      alert('Seating capacity must be a positive number');
+      return;
+    }
+    if (Number(formData.mileage) < 0) {
+      alert('Mileage cannot be negative');
+      return;
+    }
+    const vehicleData: Vehicles = {
+      id: editingVehicle ? editingVehicle.id : Date.now(),
+      registrationNo: formData.registrationNo || '',
+      make: formData.make || '',
+      model: formData.model || '',
+      year: Number(formData.year) || 0,
+      type: formData.type || '',
+      source: formData.source || '',
+      fuelType: formData.fuelType || '',
+      seatingCapacity: Number(formData.seatingCapacity) || 0,
+      status: formData.status || '',
+      currentDriver: formData.currentDriver || '',
+      lastService: formData.lastService || '',
+      nextService: formData.nextService || '',
+      mileage: Number(formData.mileage) || 0,
+      insuranceExpiry: formData.insuranceExpiry || '',
+    };
+    if (editingVehicle) {
+      setVehicles(vehicles.map(v => (v.id === editingVehicle.id ? vehicleData : v)));
+    } else {
+      setVehicles([...vehicles, vehicleData]);
+    }
+    setIsDialogOpen(false);
+  };
+
+  const handleMaintenanceSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedVehicle) return;
+    if (!maintenanceFormData.date || !maintenanceFormData.description || !maintenanceFormData.cost) {
+      alert('Please fill in all maintenance fields');
+      return;
+    }
+    if (Number(maintenanceFormData.cost) < 0) {
+      alert('Cost cannot be negative');
+      return;
+    }
+    const newRecord: MaintenanceRecord = {
+      id: Date.now(),
+      vehicleId: selectedVehicle.id,
+      date: maintenanceFormData.date,
+      description: maintenanceFormData.description,
+      cost: Number(maintenanceFormData.cost)
+    };
+    setMaintenanceRecords([...maintenanceRecords, newRecord]);
+    setMaintenanceFormData({ date: '', description: '', cost: '' });
+    // Optionally update lastService if this is a service record
+    setVehicles(vehicles.map(v => 
+      v.id === selectedVehicle.id 
+        ? { ...v, lastService: maintenanceFormData.date }
+        : v
+    ));
+  };
+
+  const handleScheduleServiceSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedVehicle || !scheduleServiceFormData.nextService) {
+      alert('Please select a valid service date');
+      return;
+    }
+    const serviceDate = new Date(scheduleServiceFormData.nextService);
+    const today = new Date();
+    if (serviceDate <= today) {
+      alert('Service date must be in the future');
+      return;
+    }
+    setVehicles(vehicles.map(v => 
+      v.id === selectedVehicle.id 
+        ? { ...v, nextService: scheduleServiceFormData.nextService }
+        : v
+    ));
+    setIsScheduleServiceDialogOpen(false);
+    setScheduleServiceFormData({ nextService: '' });
+  };
+
+  const handleSelectChange = (field: string) => (value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const getStatusBadge = (status: string) => {
@@ -212,13 +439,13 @@ export default function Vehicles() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className='p-3'>
-          <h1 className='text-2xl'>Vehicle Management</h1>
+          <h1 className='text-2xl'>VEHICLE MANAGEMENT</h1>
           <p className="text-muted-foreground text-xs">
             Manage your fleet vehicles and their status
           </p>
         </div>
         <Button onClick={handleCreateVehicle}>
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4"/>
           Add Vehicle
         </Button>
       </div>
@@ -231,7 +458,6 @@ export default function Vehicles() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Filters */}
           <div className="flex items-center space-x-4 mb-6 flex-wrap gap-2">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -277,7 +503,6 @@ export default function Vehicles() {
             </Select>
           </div>
 
-          {/* Vehicles Table */}
           <Table>
             <TableHeader>
               <TableRow>
@@ -286,7 +511,6 @@ export default function Vehicles() {
                 <TableHead>Status</TableHead>
                 <TableHead>Service</TableHead>
                 <TableHead>Mileage</TableHead>
-                <TableHead>Location</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -342,12 +566,6 @@ export default function Vehicles() {
                   <TableCell>
                     <span className="font-mono text-sm">{vehicle.mileage.toLocaleString()} km</span>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center text-sm">
-                      <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
-                      {vehicle.location}
-                    </div>
-                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -360,15 +578,15 @@ export default function Vehicles() {
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Vehicle
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleViewMaintenanceLog(vehicle)}>
                           <Settings className="h-4 w-4 mr-2" />
                           Maintenance Log
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleScheduleService(vehicle)}>
                           <Calendar className="h-4 w-4 mr-2" />
                           Schedule Service
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteVehicle(vehicle.id)}>
                           <Trash2 className="h-4 w-4 mr-2" />
                           Remove Vehicle
                         </DropdownMenuItem>
@@ -382,120 +600,331 @@ export default function Vehicles() {
         </CardContent>
       </Card>
 
-      {/* Create/Edit Vehicle Dialog */}
+      {/* Add/Edit Vehicle Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[625px]">
+        <DialogContent className="sm:w-[90vw] md:w-[90vw] lg:w-[925px] max-h-[90vh] overflow-y-auto p-4 sm:p-6 rounded-2xl overflow-x-hidden">
+          <form onSubmit={handleSubmit}>
+            <DialogHeader>
+              <DialogTitle>
+                {editingVehicle ? 'Edit Vehicle' : 'Add New Vehicle'}
+              </DialogTitle>
+              <DialogDescription>
+                {editingVehicle 
+                  ? 'Update vehicle information and details'
+                  : 'Register a new vehicle in the fleet'
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="registrationNo">
+                  Registration No.
+                </Label>
+                <Input
+                  id="registrationNo"
+                  value={formData.registrationNo}
+                  onChange={handleChange}
+                  className="col-span-3"
+                  placeholder="MH-12-AB-1234"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-4 items-center gap-6">
+                  <Label htmlFor="make" className="text-right col-span-2">
+                    Make
+                  </Label>
+                  <Input
+                    id="make"
+                    value={formData.make}
+                    onChange={handleChange}
+                    className="col-span-2"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center">
+                  <Label htmlFor="model" className="text-right col-span-1">
+                    Model
+                  </Label>
+                  <Input
+                    id="model"
+                    value={formData.model}
+                    onChange={handleChange}
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-4 items-center gap-6">
+                  <Label htmlFor="year" className="text-right col-span-2">
+                    Year
+                  </Label>
+                  <Input
+                    id="year"
+                    type="number"
+                    value={formData.year}
+                    onChange={handleChange}
+                    className="col-span-2"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="type" className="text-right col-span-1">
+                    Type
+                  </Label>
+                  <Select value={formData.type} onValueChange={handleSelectChange('type')}>
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vehicleTypes.map(type => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-4 items-center gap-6">
+                  <Label htmlFor="fuelType" className="text-right col-span-2">
+                    Fuel Type
+                  </Label>
+                  <Select value={formData.fuelType} onValueChange={handleSelectChange('fuelType')}>
+                    <SelectTrigger className="col-span-2">
+                      <SelectValue placeholder="Select fuel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fuelTypes.map(fuel => (
+                        <SelectItem key={fuel} value={fuel}>{fuel}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="source" className="text-right col-span-1">
+                    Source
+                  </Label>
+                  <Select value={formData.source} onValueChange={handleSelectChange('source')}>
+                    <SelectTrigger className="col-span-2">
+                      <SelectValue placeholder="Select source" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sourceTypes.map(source => (
+                        <SelectItem key={source} value={source}>{source}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="seatingCapacity">
+                  Seating Capacity
+                </Label>
+                <Input
+                  id="seatingCapacity"
+                  type="number"
+                  value={formData.seatingCapacity}
+                  onChange={handleChange}
+                  className="col-span-3"
+                  placeholder="e.g., 5"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="status" className="text-right">
+                  Status
+                </Label>
+                <Select value={formData.status} onValueChange={handleSelectChange('status')}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusTypes.map(status => (
+                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="currentDriver" className="text-right">
+                  Current Driver
+                </Label>
+                <Input
+                  id="currentDriver"
+                  value={formData.currentDriver}
+                  onChange={handleChange}
+                  className="col-span-3"
+                  placeholder="e.g., John Doe"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="lastService" className="text-right">
+                  Last Service
+                </Label>
+                <Input
+                  id="lastService"
+                  type="date"
+                  value={formData.lastService}
+                  onChange={handleChange}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="nextService" className="text-right">
+                  Next Service
+                </Label>
+                <Input
+                  id="nextService"
+                  type="date"
+                  value={formData.nextService}
+                  onChange={handleChange}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="mileage" className="text-right">
+                  Mileage (km)
+                </Label>
+                <Input
+                  id="mileage"
+                  type="number"
+                  value={formData.mileage}
+                  onChange={handleChange}
+                  className="col-span-3"
+                  placeholder="e.g., 45000"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="insuranceExpiry">
+                  Insurance Expiry
+                </Label>
+                <Input
+                  id="insuranceExpiry"
+                  type="date"
+                  value={formData.insuranceExpiry}
+                  onChange={handleChange}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">
+                {editingVehicle ? 'Update Vehicle' : 'Add Vehicle'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Maintenance Log Dialog */}
+      <Dialog open={isMaintenanceDialogOpen} onOpenChange={setIsMaintenanceDialogOpen}>
+        <DialogContent className="sm:w-[90vw] md:w-[90vw] lg:w-[925px] max-h-[90vh] overflow-y-auto p-4 sm:p-6 rounded-2xl overflow-x-hidden">
           <DialogHeader>
-            <DialogTitle>
-              {editingVehicle ? 'Edit Vehicle' : 'Add New Vehicle'}
-            </DialogTitle>
+            <DialogTitle>Maintenance Log for {selectedVehicle?.registrationNo}</DialogTitle>
             <DialogDescription>
-              {editingVehicle 
-                ? 'Update vehicle information and details'
-                : 'Register a new vehicle in the fleet'
-              }
+              View and add maintenance records for this vehicle.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="registrationNo" className="text-right">
-                Registration No.
-              </Label>
-              <Input
-                id="registrationNo"
-                defaultValue={editingVehicle?.registrationNo || ''}
-                className="col-span-3"
-                placeholder="MH-12-AB-1234"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="make" className="text-right col-span-2">
-                  Make
-                </Label>
-                <Input
-                  id="make"
-                  defaultValue={editingVehicle?.make || ''}
-                  className="col-span-2"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="model" className="text-right col-span-2">
-                  Model
-                </Label>
-                <Input
-                  id="model"
-                  defaultValue={editingVehicle?.model || ''}
-                  className="col-span-2"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="year" className="text-right col-span-2">
-                  Year
-                </Label>
-                <Input
-                  id="year"
-                  type="number"
-                  defaultValue={editingVehicle?.year || ''}
-                  className="col-span-2"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="type" className="text-right col-span-2">
-                  Type
-                </Label>
-                <Select defaultValue={editingVehicle?.type || ''}>
-                  <SelectTrigger className="col-span-2">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {vehicleTypes.map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold">Maintenance History</h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Cost (Rs.)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {maintenanceRecords
+                    .filter(record => record.vehicleId === selectedVehicle?.id)
+                    .map(record => (
+                      <TableRow key={record.id}>
+                        <TableCell>{record.date}</TableCell>
+                        <TableCell>{record.description}</TableCell>
+                        <TableCell>{record.cost.toLocaleString()}</TableCell>
+                      </TableRow>
                     ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                </TableBody>
+              </Table>
+              {maintenanceRecords.filter(record => record.vehicleId === selectedVehicle?.id).length === 0 && (
+                <p className="text-sm text-muted-foreground">No maintenance records found.</p>
+              )}
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="fuelType" className="text-right col-span-2">
-                  Fuel Type
-                </Label>
-                <Select defaultValue={editingVehicle?.fuelType || ''}>
-                  <SelectTrigger className="col-span-2">
-                    <SelectValue placeholder="Select fuel" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {fuelTypes.map(fuel => (
-                      <SelectItem key={fuel} value={fuel}>{fuel}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <form onSubmit={handleMaintenanceSubmit}>
+              <h3 className="text-lg font-semibold">Add New Maintenance Record</h3>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="date" className="text-right">
+                    Date
+                  </Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={maintenanceFormData.date}
+                    onChange={handleMaintenanceChange}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-right">
+                    Description
+                  </Label>
+                  <Input
+                    id="description"
+                    value={maintenanceFormData.description}
+                    onChange={handleMaintenanceChange}
+                    className="col-span-3"
+                    placeholder="e.g., Oil change and tire rotation"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="cost" className="text-right">
+                    Cost (Rs.)
+                  </Label>
+                  <Input
+                    id="cost"
+                    type="number"
+                    value={maintenanceFormData.cost}
+                    onChange={handleMaintenanceChange}
+                    className="col-span-3"
+                    placeholder="e.g., 5000"
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="source" className="text-right col-span-2">
-                  Source
-                </Label>
-                <Select defaultValue={editingVehicle?.source || ''}>
-                  <SelectTrigger className="col-span-2">
-                    <SelectValue placeholder="Select source" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sourceTypes.map(source => (
-                      <SelectItem key={source} value={source}>{source}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+              <DialogFooter>
+                <Button type="submit">Add Record</Button>
+              </DialogFooter>
+            </form>
           </div>
-          <DialogFooter>
-            <Button type="submit">
-              {editingVehicle ? 'Update Vehicle' : 'Add Vehicle'}
-            </Button>
-          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Schedule Service Dialog */}
+      <Dialog open={isScheduleServiceDialogOpen} onOpenChange={setIsScheduleServiceDialogOpen}>
+        <DialogContent className="sm:w-[90vw] md:w-[90vw] lg:w-[600px] p-4 sm:p-6 rounded-2xl">
+          <form onSubmit={handleScheduleServiceSubmit}>
+            <DialogHeader>
+              <DialogTitle>Schedule Service for {selectedVehicle?.registrationNo}</DialogTitle>
+              <DialogDescription>
+                Set the next service date for this vehicle.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="nextService" className="text-right">
+                  Next Service Date
+                </Label>
+                <Input
+                  id="nextService"
+                  type="date"
+                  value={scheduleServiceFormData.nextService}
+                  onChange={handleScheduleServiceChange}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Schedule Service</Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
