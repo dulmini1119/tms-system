@@ -423,7 +423,7 @@ export default function CabServices() {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
+              <Label htmlFor="name">
                 Company Name
               </Label>
               <Input
@@ -434,7 +434,7 @@ export default function CabServices() {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="businessRegNo" className="text-right">
+              <Label htmlFor="businessRegNo">
                 Business Reg No.
               </Label>
               <Input
@@ -465,7 +465,7 @@ export default function CabServices() {
                 value={formData.phone || ""}
                 onChange={(e) => handleChange("phone", e.target.value)}
                 className="col-span-3"
-                placeholder="+91 9876543210"
+                placeholder="+94 765432100"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
