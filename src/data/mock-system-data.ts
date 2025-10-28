@@ -1275,7 +1275,8 @@ export const mockVehicleDocuments: VehicleDocument[] = [
     ],
     createdAt: "2024-12-16T09:30:00Z",
     updatedAt: "2024-12-16T11:15:00Z"
-  }
+  },
+  
 ];
 
 // Mock Driver Documents Data
