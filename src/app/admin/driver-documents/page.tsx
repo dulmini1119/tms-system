@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   FileText,
   User,
@@ -15,12 +15,9 @@ import {
   Clock,
   AlertTriangle,
   Shield,
-  Star,
   RefreshCw,
   Archive,
-  Heart,
-  GraduationCap,
-  CreditCard,
+
 } from 'lucide-react';
 import { DriverDocument } from '@/types/system-interfaces';
 import { mockSystemData } from '@/data/mock-system-data';
@@ -68,6 +65,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { VariantProps } from 'class-variance-authority';
 import { toast } from 'sonner';
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 export default function DriverDocuments() {
   /* -------------------------- STATE -------------------------- */
@@ -81,30 +80,31 @@ export default function DriverDocuments() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<DriverDocument | null>(null);
-
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   const [DriverDocuments, setDriverDocuments] = useState<DriverDocument[]>(
     mockSystemData.driverDocuments
   );
 
-  const documentTypeMap: Record<string, DriverDocument['documentType']> = {
+  // Type-safe document type mapping
+  const documentTypeMap = {
     'driving-license': 'Driving_License',
     'medical-certificate': 'Medical_Certificate',
     'police-verification': 'Police_Verification',
     'training-certificate': 'Training_Certificate',
     'insurance-policy': 'Insurance_Policy',
-  };
+  } as const;
 
-  /* Upload form */
-  const [uploadForm, setUploadForm] = useState({
-    driverName: '',
-    documentType: '',
-    documentName: '',
-    documentNumber: '',
-    issueDate: '',
-    expiryDate: '',
-    issuingAuthority: '',
-    notes: '',
-  });
+  type DocumentTypeKey = keyof typeof documentTypeMap;
+
+  // Category mapping
+  const categoryMap = {
+    Driving_License: 'Identity',
+    Medical_Certificate: 'Medical',
+    Police_Verification: 'Legal',
+    Training_Certificate: 'Training',
+    Insurance_Policy: 'Insurance',
+  } as const;
 
   /* Edit form */
   const [editFormData, setEditFormData] = useState<Partial<DriverDocument>>({
@@ -186,6 +186,23 @@ export default function DriverDocuments() {
     return matchesSearch && matchesStatus && matchesType && matchesCategory && matchesDriver;
   });
 
+    const totalPages =
+    pageSize > 0 ? Math.ceil(filteredDocuments.length / pageSize) : 1;
+  const paginatedDocuments = filteredDocuments.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+    // Reset page when any filter changes
+    useEffect(() => {
+      setCurrentPage(1);
+    }, [
+      searchTerm,
+      statusFilter,
+      typeFilter,
+      categoryFilter,
+    ]);
+
   const stats = {
     totalDocuments: DriverDocuments.length,
     validDocuments: DriverDocuments.filter((d) => d.status === 'Valid').length,
@@ -207,12 +224,16 @@ export default function DriverDocuments() {
     setIsDetailsDialogOpen(true);
   };
 
-  const handleDownload = (document: DriverDocument) => {
-    if (document.fileUrl) {
-      window.open(document.fileUrl, '_blank');
-    } else {
-      toast.error('No file available for download');
+  const handleDownload = (doc: DriverDocument) => {
+    if (!doc.fileUrl) {
+      toast.error("No file attached");
+      return;
     }
+    const a = document.createElement("a");
+    a.href = doc.fileUrl;
+    a.download = doc.fileName || `${doc.documentName}.pdf`;
+    a.click();
+    toast.success("Download started");
   };
 
   const handleEdit = (document: DriverDocument) => {
@@ -226,6 +247,16 @@ export default function DriverDocuments() {
     });
     setIsEditMode(true);
     setIsDetailsDialogOpen(true);
+  };
+
+  const handleRenew = (document: DriverDocument) => {
+    handleEdit(document);
+    setEditFormData(prev => ({
+      ...prev,
+      issueDate: new Date().toISOString().split('T')[0],
+      expiryDate: '',
+      renewalCost: 0,
+    }));
   };
 
   const handleSubmit = useCallback(() => {
@@ -269,7 +300,7 @@ export default function DriverDocuments() {
       priority: (editFormData.priority as DriverDocument['priority']) || 'Medium',
 
       fileName: selectedFile?.name || selectedDocument.fileName,
-      fileType: selectedFile?.type || selectedDocument.fileType,
+      fileType: selectedFile?.type.split('/')[1].toUpperCase() || selectedDocument.fileType,
       fileSize: selectedFile
         ? `${(selectedFile.size / 1024).toFixed(2)} KB`
         : selectedDocument.fileSize,
@@ -335,19 +366,40 @@ export default function DriverDocuments() {
     toast.success('Document deleted');
   };
 
-  const handleUploadSubmit = () => {
-    const { driverName, documentType, documentName, documentNumber, issueDate, expiryDate, issuingAuthority, notes } = uploadForm;
+  const handleUploadSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
 
-    if (!driverName || !documentType || !documentName || !issueDate) {
-      toast.error('Please fill all required fields');
+    const driverName = fd.get("driverName") as string;
+    const documentTypeKey = fd.get("documentType") as string;
+    const documentName = fd.get("documentName") as string;
+    const documentNumber = fd.get("documentNumber") as string;
+    const issueDate = fd.get("issueDate") as string;
+    const expiryDate = fd.get("expiryDate") as string;
+    const issuingAuthority = fd.get("issuingAuthority") as string;
+    const notes = fd.get("notes") as string;
+
+    const missing = [
+      driverName,
+      documentTypeKey,
+      documentName,
+      documentNumber,
+      issueDate,
+      issuingAuthority,
+    ].some(v => !v);
+
+    if (missing || !selectedFile) {
+      toast.error("Please fill all required fields and select a PDF");
       return;
     }
 
-    const mappedDocType = documentTypeMap[documentType];
-    if (!mappedDocType) {
-      toast.error('Invalid document type');
+    if (!(documentTypeKey in documentTypeMap)) {
+      toast.error("Invalid document type");
       return;
     }
+
+    const mappedDocType = documentTypeMap[documentTypeKey as DocumentTypeKey];
+    const category = categoryMap[mappedDocType] || 'Compliance';
 
     const newDoc: DriverDocument = {
       id: `doc-${Date.now()}`,
@@ -358,7 +410,7 @@ export default function DriverDocuments() {
       documentName,
       documentNumber: documentNumber || undefined,
       documentType: mappedDocType,
-      category: 'Legal',
+      category,
       priority: 'Medium',
       status: 'Pending_Verification',
       issueDate: new Date(issueDate).toISOString(),
@@ -373,10 +425,10 @@ export default function DriverDocuments() {
       score: undefined,
       remindersSent: 0,
       lastReminderDate: undefined,
-      fileName: 'uploaded-file.pdf',
-      fileSize: '1.2 MB',
+      fileName: selectedFile.name,
+      fileSize: `${(selectedFile.size / 1024).toFixed(2)} KB`,
       fileType: 'PDF',
-      fileUrl: '#',
+      fileUrl: URL.createObjectURL(selectedFile),
       uploadedBy: 'Current User',
       uploadedAt: new Date().toISOString(),
       verifiedBy: undefined,
@@ -404,16 +456,7 @@ export default function DriverDocuments() {
 
     setDriverDocuments((prev) => [...prev, newDoc]);
     setIsUploadDialogOpen(false);
-    setUploadForm({
-      driverName: '',
-      documentType: '',
-      documentName: '',
-      documentNumber: '',
-      issueDate: '',
-      expiryDate: '',
-      issuingAuthority: '',
-      notes: '',
-    });
+    setSelectedFile(null);
     toast.success('Document uploaded successfully');
   };
 
@@ -479,28 +522,17 @@ export default function DriverDocuments() {
     );
   };
 
-  const getCategoryBadge = (category: string) => {
-    const variants: Record<string, { variant: VariantProps<typeof badgeVariants>['variant']; color: string; icon: React.ReactNode }> = {
-      Legal: { variant: 'default', color: 'text-blue-600', icon: <FileText className="h-3 w-3" /> },
-      Medical: { variant: 'secondary', color: 'text-red-600', icon: <Heart className="h-3 w-3" /> },
-      Training: { variant: 'outline', color: 'text-purple-600', icon: <GraduationCap className="h-3 w-3" /> },
-      Verification: { variant: 'default', color: 'text-green-600', icon: <Shield className="h-3 w-3" /> },
-      Insurance: { variant: 'secondary', color: 'text-orange-600', icon: <CreditCard className="h-3 w-3" /> },
-      Identity: { variant: 'outline', color: 'text-gray-600', icon: <User className="h-3 w-3" /> },
-    };
-    const cfg = variants[category] ?? variants['Legal'];
-    return (
-      <Badge variant={cfg.variant} className={`flex items-center gap-1 ${cfg.color}`}>
-        {cfg.icon}
-        {category}
-      </Badge>
-    );
-  };
-
-  const formatDate = (dateString: string) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+  const formatDate = useCallback(
+    (s?: string) =>
+      s
+        ? new Date(s).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : "N/A",
+    []
+  );
 
   const getDaysToExpiryColor = (days: number | undefined) => {
     if (days === undefined) return 'text-gray-600';
@@ -509,6 +541,86 @@ export default function DriverDocuments() {
     if (days <= 90) return 'text-yellow-600';
     return 'text-green-600';
   };
+
+  /* ────────────────────── ADD THIS HANDLER ────────────────────── */
+  const handleExportToExcel = useCallback(async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Driver Documents");
+
+    // Define columns
+    worksheet.columns = [
+      { header: "Driver", key: "driverName", width: 25 },
+      { header: "Document", key: "document", width: 30 },
+      { header: "Number", key: "number", width: 18 },
+      { header: "Type", key: "type", width: 22 },
+      { header: "Category", key: "category", width: 15 },
+      { header: "Status", key: "status", width: 16 },
+      { header: "Issued", key: "issued", width: 14 },
+      { header: "Expires", key: "expires", width: 14 },
+      { header: "Days Left", key: "daysLeft", width: 12 },
+      { header: "Compliance %", key: "compliance", width: 14 },
+      { header: "Risk", key: "risk", width: 10 },
+      { header: "Priority", key: "priority", width: 12 },
+      { header: "Authority", key: "authority", width: 25 },
+      { header: "Renewal Cost", key: "cost", width: 16 },
+      { header: "Vendor", key: "vendor", width: 20 },
+      { header: "Contact", key: "contact", width: 18 },
+      { header: "Reminders Sent", key: "reminders", width: 15 },
+    ];
+
+    // Add rows
+    filteredDocuments.forEach((doc) => {
+      worksheet.addRow({
+        driverName: `${doc.driverName} (${doc.driverId} ${doc.driverEmployeeId})`,
+        document: doc.documentName,
+        number: doc.documentNumber,
+        type: doc.documentType.replace(/_/g, " "),
+        category: doc.category,
+        status: doc.status.replace(/_/g, " "),
+        issued: formatDate(doc.issueDate),
+        expires: doc.expiryDate ? formatDate(doc.expiryDate) : "N/A",
+        daysLeft:
+          doc.daysToExpiry !== undefined
+            ? doc.daysToExpiry < 0
+              ? `-${Math.abs(doc.daysToExpiry)}`
+              : doc.daysToExpiry
+            : "N/A",
+        compliance: doc.complianceScore,
+        risk: doc.riskLevel,
+        priority: doc.priority,
+        authority: doc.issuingAuthority,
+        cost: doc.renewalCost ? `${doc.renewalCost} ${doc.currency || ""}` : "",
+        vendor: doc.vendor || "",
+        contact: doc.contactNumber || "",
+        reminders: doc.remindersSent,
+      });
+    });
+
+    // Style header row
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFE6E6E6" },
+    };
+
+    // Generate buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    // Trigger download
+    const fileName = `Driver_Documents_${new Date()
+      .toISOString()
+      .slice(0, 10)}.xlsx`;
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, fileName);
+
+    toast.success("Exported to Excel", {
+      description: `${filteredDocuments.length} document(s)`,
+    });
+  }, [filteredDocuments, formatDate]);
+
 
   /* -------------------------- RENDER -------------------------- */
   return (
@@ -522,7 +634,7 @@ export default function DriverDocuments() {
           </p>
         </div>
         <div className="space-x-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExportToExcel}>
             <Download className="h-4 w-4" />
             Export Report
           </Button>
@@ -633,7 +745,7 @@ export default function DriverDocuments() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredDocuments.map((doc) => (
+              {paginatedDocuments.map((doc) => (
                 <TableRow key={doc.id}>
                   <TableCell>
                     <div className="space-y-1">
@@ -643,8 +755,7 @@ export default function DriverDocuments() {
                       </div>
                       <div className="text-sm text-muted-foreground">{doc.driverEmployeeId}</div>
                       <div className="text-sm font-medium">{doc.documentName}</div>
-                      {getCategoryBadge(doc.category)}
-                      <div className="text-xs text-muted-foreground">License: {doc.licenseNumber}</div>
+                      
                     </div>
                   </TableCell>
 
@@ -658,10 +769,7 @@ export default function DriverDocuments() {
                       <div className="text-xs text-muted-foreground">
                         Type: {doc.documentType.replace('_', ' ')}
                       </div>
-                      <div className="text-xs text-muted-foreground">File: {doc.fileName}</div>
-                      <div className="text-xs text-muted-foreground">
-                        Size: {doc.fileSize} • {doc.fileType}
-                      </div>
+                      
                     </div>
                   </TableCell>
 
@@ -692,12 +800,7 @@ export default function DriverDocuments() {
                         <span className="text-sm">{doc.complianceScore}%</span>
                       </div>
                       {getRiskBadge(doc.riskLevel)}
-                      {doc.score && (
-                        <div className="text-xs text-muted-foreground flex items-center">
-                          <Star className="h-3 w-3 mr-1" />
-                          Score: {doc.score}%
-                        </div>
-                      )}
+                     
                       <div className="text-xs text-muted-foreground">Reminders: {doc.remindersSent}</div>
                     </div>
                   </TableCell>
@@ -719,7 +822,7 @@ export default function DriverDocuments() {
                         <DropdownMenuItem onClick={() => handleEdit(doc)}>
                           <Edit className="h-4 w-4 mr-2" /> Edit Document
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEdit(doc)}>
+                        <DropdownMenuItem onClick={() => handleRenew(doc)}>
                           <RefreshCw className="h-4 w-4 mr-2" /> Renew Document
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleVerify(doc)}>
@@ -735,6 +838,99 @@ export default function DriverDocuments() {
               ))}
             </TableBody>
           </Table>
+
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Show</span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-16">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50, 100].map((s) => (
+                    <SelectItem key={s} value={s.toString()}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-muted-foreground">
+                of {filteredDocuments.length} documents
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </Button>
+
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let num;
+                  if (totalPages <= 5) num = i + 1;
+                  else if (currentPage <= 3) num = i + 1;
+                  else if (currentPage >= totalPages - 2)
+                    num = totalPages - 4 + i;
+                  else num = currentPage - 2 + i;
+                  return num;
+                }).map((num) => (
+                  <Button
+                    key={num}
+                    variant={currentPage === num ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => setCurrentPage(num)}
+                    className="w-9 h-9"
+                  >
+                    {num}
+                  </Button>
+                ))}
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </Button>
+              </div>
+            </div>
+          </div>
+
         </CardContent>
       </Card>
 
@@ -785,9 +981,9 @@ export default function DriverDocuments() {
                       <div className="text-sm text-muted-foreground">Renewal Cost</div>
                     </CardContent></Card>
                   </div>
- {/* Driver Information */}
+{/* Vehicle Information */}
                   <div className="space-y-2">
-                    <h4 className="font-medium">Driver Information</h4>
+                    <h4 className="font-medium">Vehicle Information</h4>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         Driver Name: {selectedDocument.driverName}
@@ -1110,47 +1306,33 @@ export default function DriverDocuments() {
             <DialogTitle>Upload Driver Document</DialogTitle>
             <DialogDescription>Upload a new document for driver compliance and record keeping</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-          <form onSubmit={handleUploadSubmit} className="space-y-4 py-4">
+
+          <form onSubmit={handleUploadSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Driver</Label>
-                <Select name="vehicle">
+                <Label>Driver *</Label>
+                <Select name="driverName" required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select Driver" />
                   </SelectTrigger>
                   <SelectContent>
                     {uniqueDrivers.map((v) => (
-                      <SelectItem key={v} value={v}>
-                        {v}
-                      </SelectItem>
+                      <SelectItem key={v} value={v}>{v}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label>Document Type</Label>
-                <Select name="documentType">
-                  <SelectTrigger className='w-36'>
+                <Label>Document Type *</Label>
+                <Select name="documentType" required>
+                  <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[
-                      "Medical_Certificate",
-                      "Insurance_Policy",
-                      "Pollution_Certificate",
-                      "Fitness_Certificate",
-                      "Route_Permit",
-                      "Tax_Receipt",
-                      "Service_Record",
-                      "Inspection_Report",
-                      "Ownership_Transfer",
-                      "Hypothecation",
-                      "No_Objection_Certificate",
-                    ].map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t.replace(/_/g, " ")}
+                    {Object.entries(documentTypeMap).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>
+                        {value.replace(/_/g, ' ')}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1159,19 +1341,19 @@ export default function DriverDocuments() {
             </div>
 
             <div className="space-y-2">
-              <Label>Document Name</Label>
-              <Input name="documentName" placeholder="Enter name" />
+              <Label>Document Name *</Label>
+              <Input name="documentName" placeholder="Enter name" required />
             </div>
 
             <div className="space-y-2">
-              <Label>Document Number</Label>
-              <Input name="documentNumber" placeholder="Enter number" />
+              <Label>Document Number *</Label>
+              <Input name="documentNumber" placeholder="Enter number" required />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Issue Date</Label>
-                <Input name="issueDate" type="date" />
+                <Label>Issue Date *</Label>
+                <Input name="issueDate" type="date" required />
               </div>
               <div className="space-y-2">
                 <Label>Expiry Date</Label>
@@ -1180,12 +1362,12 @@ export default function DriverDocuments() {
             </div>
 
             <div className="space-y-2">
-              <Label>Issuing Authority</Label>
-              <Input name="issuingAuthority" placeholder="Enter authority" />
+              <Label>Issuing Authority *</Label>
+              <Input name="issuingAuthority" placeholder="Enter authority" required />
             </div>
 
             <div className="space-y-2">
-              <Label>File Upload</Label>
+              <Label>File Upload *</Label>
               <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
                 <Input
                   id="uploadFile"
@@ -1193,6 +1375,7 @@ export default function DriverDocuments() {
                   accept="application/pdf"
                   onChange={handleFileChange}
                   className="hidden"
+                  required
                 />
                 <label
                   htmlFor="uploadFile"
@@ -1218,17 +1401,12 @@ export default function DriverDocuments() {
             </div>
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsUploadDialogOpen(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit">Upload Document</Button>
             </DialogFooter>
           </form>
-          </div>
         </DialogContent>
       </Dialog>
     </div>
