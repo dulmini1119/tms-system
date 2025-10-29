@@ -216,57 +216,46 @@ export default function VehicleDocuments() {
   }, [requiredDocumentTypes, vehicleDocuments]);
 
   /* ────────────────────── FILTER / SORT / PAGE ────────────────────── */
-  const filteredDocuments = useMemo(() => {
-    const list = vehicleDocuments
-      .map((doc) => ({
-        ...doc,
-        daysToExpiry: calculateDaysToExpiry(doc.expiryDate),
-        complianceScore: calculateComplianceScore(doc),
-        riskLevel: calculateRiskLevel(doc),
-      }))
-      .filter(
-        (doc) =>
-          (doc.documentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            doc.vehicleNumber
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            doc.documentNumber
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            doc.issuingAuthority
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())) &&
-          (statusFilter === "all" ||
-            doc.status.toLowerCase().replace("_", "-") === statusFilter) &&
-          (typeFilter === "all" ||
-            doc.documentType.toLowerCase().replace("_", "-") === typeFilter) &&
-          (categoryFilter === "all" ||
-            doc.category.toLowerCase() === categoryFilter) &&
-          (vehicleFilter === "all" || doc.vehicleNumber === vehicleFilter) &&
-          (riskFilter === "all" ||
-            calculateRiskLevel(doc).toLowerCase() === riskFilter)
-      );
+const filteredDocuments = useMemo(() => {
+  const list = vehicleDocuments
+    .map((doc) => ({
+      ...doc,
+      daysToExpiry: calculateDaysToExpiry(doc.expiryDate),
+    }))
+    .filter(
+      (doc) =>
+        (doc.documentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          doc.vehicleNumber
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          doc.documentNumber
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          doc.issuingAuthority
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())) &&
+        (statusFilter === "all" ||
+          doc.status.toLowerCase().replace("_", "-") === statusFilter) &&
+        (typeFilter === "all" ||
+          doc.documentType.toLowerCase().replace("_", "-") === typeFilter) &&
+        (categoryFilter === "all" ||
+          doc.category.toLowerCase() === categoryFilter) &&
+        (vehicleFilter === "all" || doc.vehicleNumber === vehicleFilter)
+    );
 
-    if (sortBy === "riskLevel") {
-      const order = { Critical: 0, High: 1, Medium: 2, Low: 3 };
-      list.sort((a, b) => order[a.riskLevel] - order[b.riskLevel]);
-    } else if (sortBy === "complianceScore") {
-      list.sort((a, b) => b.complianceScore - a.complianceScore);
-    }
-    return list;
-  }, [
-    searchTerm,
-    statusFilter,
-    typeFilter,
-    categoryFilter,
-    vehicleFilter,
-    riskFilter,
-    sortBy,
-    vehicleDocuments,
-    calculateComplianceScore,
-    calculateRiskLevel,
-    calculateDaysToExpiry,
-  ]);
+  // 🔥 remove sorting by complianceScore and riskLevel
+  // you can keep other sort logic if needed, e.g., by expiry date
+  return list;
+}, [
+  searchTerm,
+  statusFilter,
+  typeFilter,
+  categoryFilter,
+  vehicleFilter,
+  vehicleDocuments,
+  calculateDaysToExpiry,
+]);
+
 
   const totalPages =
     pageSize > 0 ? Math.ceil(filteredDocuments.length / pageSize) : 1;
@@ -996,7 +985,7 @@ export default function VehicleDocuments() {
               </SelectContent>
             </Select>
 
-            <Select value={riskFilter} onValueChange={setRiskFilter}>
+            {/* <Select value={riskFilter} onValueChange={setRiskFilter}>
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Risk" />
               </SelectTrigger>
@@ -1008,9 +997,9 @@ export default function VehicleDocuments() {
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
+            </Select> */}
 
-            <Select
+            {/* <Select
               value={sortBy}
               onValueChange={(v: typeof sortBy) => setSortBy(v)}
             >
@@ -1024,7 +1013,7 @@ export default function VehicleDocuments() {
                   Compliance Score
                 </SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
 
           {/* Table */}

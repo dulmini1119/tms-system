@@ -1,9 +1,9 @@
 import React from 'react'
 
-const TripLogs = () => {
+const page = () => {
   return (
-    <div>TripLogs</div>
+    <div>page</div>
   )
 }
 
-export default TripLogs
+export default page
