@@ -74,10 +74,7 @@ export default function VehicleDocuments() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [vehicleFilter, setVehicleFilter] = useState("all");
-  const [riskFilter, setRiskFilter] = useState("all");
-  const [sortBy, setSortBy] = useState<
-    "none" | "riskLevel" | "complianceScore"
-  >("none");
+ 
 
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -273,8 +270,6 @@ const filteredDocuments = useMemo(() => {
     typeFilter,
     categoryFilter,
     vehicleFilter,
-    riskFilter,
-    sortBy,
   ]);
 
   const uniqueVehicles = [
@@ -1279,7 +1274,7 @@ const filteredDocuments = useMemo(() => {
           }
         }}
       >
-        <DialogContent className="sm:max-w-5xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               {selectedDocument?.documentName} -{" "}
