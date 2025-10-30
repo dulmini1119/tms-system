@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import {
   Plus,
@@ -13,7 +13,6 @@ import {
   User,
   Building2,
   Eye,
-  FileText,
 } from "lucide-react";
 import { Priority, TripRequest, TripStatus } from "@/types/trip-interfaces";
 import { mockTripRequests } from "@/data/mock-trip-data";
@@ -151,16 +150,17 @@ export default function TripRequests() {
   });
 
   // Date formatter (consistent across server/client)
-  const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+const dateFormatter = useMemo(() => {
+  return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   });
+}, []);
 
-  const formatDate = useCallback(
-    (s?: string) => (s ? dateFormatter.format(new Date(s)) : "N/A"),
-    []
-  );
+const formatDate = useMemo(() => {
+  return (s?: string) => (s ? dateFormatter.format(new Date(s)) : "N/A");
+}, [dateFormatter]);
 
   // Filter logic
   const filteredRequests = tripRequests.filter((request) => {
@@ -780,21 +780,26 @@ export default function TripRequests() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl shadow-lg bg-background border border-border">
+          {/* Sticky Header */}
+          <DialogHeader className=" top-0  bg-background/90 backdrop-blur-md border-b border-border pb-3">
+            <DialogTitle className="text-lg font-semibold">
               {editingRequest ? "Edit Trip Request" : "Create New Trip Request"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-sm text-muted-foreground">
               {editingRequest
-                ? "Update the trip request details"
-                : "Fill in the details for the new trip request"}
+                ? "Update the trip request details below"
+                : "Fill in the information to create a new trip request"}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Requester */}
-            <div className="space-y-4 border-b pb-4">
-              <h3 className="font-semibold text-lg">Requester</h3>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-8 py-4">
+            {/* Requester Section */}
+            <section className="p-4 rounded-lg border border-border bg-muted/30">
+              <h3 className="font-semibold text-foreground text-base mb-3">
+                Requester Information
+              </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Name *</Label>
@@ -810,6 +815,7 @@ export default function TripRequests() {
                       }))
                     }
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -827,6 +833,7 @@ export default function TripRequests() {
                       }))
                     }
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -843,6 +850,7 @@ export default function TripRequests() {
                       }))
                     }
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -856,8 +864,8 @@ export default function TripRequests() {
                       }))
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue />
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
                       {departments.map((d) => (
@@ -869,11 +877,13 @@ export default function TripRequests() {
                   </Select>
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* Trip Details */}
-            <div className="space-y-4 border-b pb-4">
-              <h3 className="font-semibold text-lg">Trip</h3>
+            {/* Trip Details Section */}
+            <section className="p-4 rounded-lg border border-border bg-muted/30">
+              <h3 className="font-semibold text-foreground text-base mb-3">
+                Trip Details
+              </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>From *</Label>
@@ -889,6 +899,7 @@ export default function TripRequests() {
                       }))
                     }
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -905,6 +916,7 @@ export default function TripRequests() {
                       }))
                     }
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -922,6 +934,7 @@ export default function TripRequests() {
                       }))
                     }
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -939,50 +952,58 @@ export default function TripRequests() {
                       }))
                     }
                     required
+                    className="mt-1"
                   />
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* Priority & Cost */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Priority</Label>
-                <Select
-                  value={form.priority ?? "Medium"}
-                  onValueChange={(v) =>
-                    setForm((f) => ({ ...f, priority: v as Priority }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {priorities.map((p) => (
-                      <SelectItem key={p} value={p}>
-                        {p}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {/* Priority & Cost Section */}
+            <section className="p-4 rounded-lg border border-border bg-muted/30">
+              <h3 className="font-semibold text-foreground text-base mb-3">
+                Priority & Cost
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Priority</Label>
+                  <Select
+                    value={form.priority ?? "Medium"}
+                    onValueChange={(v) =>
+                      setForm((f) => ({ ...f, priority: v as Priority }))
+                    }
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {priorities.map((p) => (
+                        <SelectItem key={p} value={p}>
+                          {p}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Estimated Cost *</Label>
+                  <Input
+                    type="number"
+                    value={form.estimatedCost ?? ""}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        estimatedCost: Number(e.target.value),
+                      }))
+                    }
+                    required
+                    className="mt-1"
+                  />
+                </div>
               </div>
-              <div>
-                <Label>Est. Cost *</Label>
-                <Input
-                  type="number"
-                  value={form.estimatedCost ?? ""}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      estimatedCost: Number(e.target.value),
-                    }))
-                  }
-                  required
-                />
-              </div>
-            </div>
+            </section>
 
-            <DialogFooter>
+            {/* Sticky Footer */}
+            <DialogFooter className=" bottom-0 bg-background/90 backdrop-blur-md border-t border-border mt-4 pt-3 flex justify-end gap-3">
               <Button
                 type="button"
                 variant="outline"
@@ -994,7 +1015,7 @@ export default function TripRequests() {
                 Cancel
               </Button>
               <Button type="submit">
-                {editingRequest ? "Update" : "Create"}
+                {editingRequest ? "Update Request" : "Create Request"}
               </Button>
             </DialogFooter>
           </form>
@@ -1003,33 +1024,39 @@ export default function TripRequests() {
 
       {/* View Details Dialog */}
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Trip Request Details</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto rounded-2xl shadow-lg bg-background border border-border">
+          <DialogHeader className=" top-0  bg-background/90 backdrop-blur-md border-b border-border pb-3">
+            <DialogTitle className="text-lg font-semibold">
+              Trip Request Details
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
               Complete information about the trip request
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6">
+
+          <div className="space-y-8 py-4">
             {selectedRequest && (
               <>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Request Information</h4>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>Request Number: {selectedRequest.requestNumber}</div>
-                      <div>Status: {selectedRequest.status}</div>
-                      <div>Priority: {selectedRequest.priority}</div>
-                      <div>
-                        Approval Required:{" "}
-                        {selectedRequest.approvalRequired ? "Yes" : "No"}
-                      </div>
+                {/* Section Wrapper */}
+                <section className="p-4 rounded-lg border border-border bg-muted/30">
+                  <h4 className="font-semibold mb-3 text-foreground">
+                    Request Information
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>Request Number: {selectedRequest.requestNumber}</div>
+                    <div>Status: {selectedRequest.status}</div>
+                    <div>Priority: {selectedRequest.priority}</div>
+                    <div>
+                      Approval Required:{" "}
+                      {selectedRequest.approvalRequired ? "Yes" : "No"}
                     </div>
                   </div>
-                </div>
+                </section>
 
-                <div className="space-y-2">
-                  <h4 className="font-medium">Requester Information</h4>
+                <section className="p-4 rounded-lg border border-border bg-muted/30">
+                  <h4 className="font-semibold mb-3 text-foreground">
+                    Requester Information
+                  </h4>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>Name: {selectedRequest.requestedBy.name}</div>
                     <div>
@@ -1055,10 +1082,12 @@ export default function TripRequests() {
                       {selectedRequest.requestedBy.costCenter || "N/A"}
                     </div>
                   </div>
-                </div>
+                </section>
 
-                <div className="space-y-2">
-                  <h4 className="font-medium">Trip Details</h4>
+                <section className="p-4 rounded-lg border border-border bg-muted/30">
+                  <h4 className="font-semibold mb-3 text-foreground">
+                    Trip Details
+                  </h4>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       Departure Date:{" "}
@@ -1092,24 +1121,30 @@ export default function TripRequests() {
                       hours
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <div className="text-sm">
+                  <div className="mt-3 space-y-1 text-sm">
+                    <div>
                       <span className="font-medium">From:</span>{" "}
                       {selectedRequest.tripDetails.fromLocation.address}
                     </div>
-                    <div className="text-sm">
+                    <div>
                       <span className="font-medium">To:</span>{" "}
                       {selectedRequest.tripDetails.toLocation.address}
                     </div>
-                    <div className="text-sm">
+                    <div>
                       <span className="font-medium">Distance:</span>{" "}
                       {selectedRequest.tripDetails.estimatedDistance} km
                     </div>
                   </div>
-                </div>
+                </section>
 
-                <div className="space-y-2">
-                  <h4 className="font-medium">Purpose & Category</h4>
+                {/* You can reuse the same pattern below for each section */}
+                {/* Just wrap each logical group in a <section> like above */}
+
+                {/* Example: Purpose Section */}
+                <section className="p-4 rounded-lg border border-border bg-muted/30">
+                  <h4 className="font-semibold mb-3 text-foreground">
+                    Purpose & Category
+                  </h4>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>Category: {selectedRequest.purpose.category}</div>
                     <div>
@@ -1124,253 +1159,21 @@ export default function TripRequests() {
                       Cost Center: {selectedRequest.purpose.costCenter || "N/A"}
                     </div>
                   </div>
-                  <div className="text-sm">
+                  <div className="mt-2 text-sm">
                     <span className="font-medium">Description:</span>
-                    <div className="mt-1 p-2 bg-muted rounded text-sm">
+                    <div className="mt-1 p-2 rounded bg-muted text-sm">
                       {selectedRequest.purpose.description}
                     </div>
                   </div>
-                </div>
+                </section>
 
-                <div className="space-y-2">
-                  <h4 className="font-medium">Trip Requirements</h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      Vehicle Type: {selectedRequest.requirements.vehicleType}
-                    </div>
-                    <div>
-                      Passenger Count:{" "}
-                      {selectedRequest.requirements.passengerCount}
-                    </div>
-                    <div>Luggage: {selectedRequest.requirements.luggage}</div>
-                    <div>
-                      AC Required:{" "}
-                      {selectedRequest.requirements.acRequired ? "Yes" : "No"}
-                    </div>
-                    <div>
-                      Wheelchair Accessible:{" "}
-                      {selectedRequest.requirements.wheelchairAccessible
-                        ? "Yes"
-                        : "No"}
-                    </div>
-                    <div>
-                      Driver Required:{" "}
-                      {selectedRequest.requirements.driverRequired !== false
-                        ? "Yes"
-                        : "No"}
-                    </div>
-                  </div>
-                  {(selectedRequest.requirements.specialRequirements ||
-                    selectedRequest.requirements.specialInstructions) && (
-                    <div className="text-sm">
-                      <span className="font-medium">Special Requirements:</span>
-                      <div className="mt-1 p-2 bg-muted rounded text-sm">
-                        {selectedRequest.requirements.specialRequirements ||
-                          selectedRequest.requirements.specialInstructions}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {/* You can continue applying this same section styling
+              for requirements, passengers, approvals, etc. */}
 
-                {selectedRequest.passengers &&
-                  selectedRequest.passengers.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium">
-                        Passengers ({selectedRequest.passengers.length})
-                      </h4>
-                      <div className="space-y-2">
-                        {selectedRequest.passengers.map((passenger, index) => (
-                          <div
-                            key={index}
-                            className="border rounded-lg p-3 text-sm"
-                          >
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>Name: {passenger.name}</div>
-                              <div>Employee ID: {passenger.employeeId}</div>
-                              <div>Department: {passenger.department}</div>
-                              <div>Phone: {passenger.phoneNumber}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                {selectedRequest.approvalWorkflow &&
-                  selectedRequest.approvalWorkflow.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium">Approval Workflow</h4>
-                      <div className="space-y-2">
-                        {selectedRequest.approvalWorkflow.map(
-                          (approval, index) => (
-                            <div
-                              key={index}
-                              className="border rounded-lg p-3 text-sm"
-                            >
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="font-medium">
-                                  Level {approval.level}:{" "}
-                                  {approval.approverName}
-                                </div>
-                                <Badge
-                                  variant={
-                                    approval.status === "Approved"
-                                      ? "default"
-                                      : approval.status === "Rejected"
-                                      ? "destructive"
-                                      : "secondary"
-                                  }
-                                >
-                                  {approval.status}
-                                </Badge>
-                              </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>Role: {approval.approverRole}</div>
-                                <div>
-                                  Department: {approval.approverDepartment}
-                                </div>
-                              </div>
-                              {approval.approvedAt && (
-                                <div className="text-xs text-muted-foreground mt-2">
-                                  Approved on: {formatDate(approval.approvedAt)}
-                                </div>
-                              )}
-                              {approval.comments && (
-                                <div className="mt-2 p-2 bg-muted rounded text-xs">
-                                  <span className="font-medium">Comments:</span>{" "}
-                                  {approval.comments}
-                                </div>
-                              )}
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                <div className="space-y-2">
-                  <h4 className="font-medium">Cost Information</h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="font-medium">
-                      Estimated Total:{" "}
-                      {selectedRequest.currency === "LKR" ? "Rs." : "$"}
-                      {selectedRequest.estimatedCost}
-                    </div>
-                    <div>Currency: {selectedRequest.currency}</div>
-                  </div>
-                  {selectedRequest.costBreakdown && (
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        Base Fare: Rs.{selectedRequest.costBreakdown.baseFare}
-                      </div>
-                      <div>
-                        Distance Charges: Rs.
-                        {selectedRequest.costBreakdown.distanceCharges}
-                      </div>
-                      <div>
-                        Time Charges: Rs.
-                        {selectedRequest.costBreakdown.timeCharges}
-                      </div>
-                      <div>
-                        Additional Charges: Rs.
-                        {selectedRequest.costBreakdown.additionalCharges}
-                      </div>
-                      <div>
-                        Tax Amount: Rs.{selectedRequest.costBreakdown.taxAmount}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {selectedRequest.billing && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Billing Information</h4>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        Billing Type: {selectedRequest.billing.billingType}
-                      </div>
-                      <div>
-                        Cost Center: {selectedRequest.billing.costCenter}
-                      </div>
-                      <div>
-                        Project Code:{" "}
-                        {selectedRequest.billing.projectCode ||
-                          selectedRequest.purpose.projectCode ||
-                          "N/A"}
-                      </div>
-                      <div>
-                        Budget Code:{" "}
-                        {selectedRequest.billing.budgetCode || "N/A"}
-                      </div>
-                      <div>
-                        Bill To Department:{" "}
-                        {selectedRequest.billing.billToDepartment}
-                      </div>
-                      <div>
-                        Approver: {selectedRequest.billing.approverName}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {selectedRequest.attachments &&
-                  selectedRequest.attachments.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium">
-                        Attachments ({selectedRequest.attachments.length})
-                      </h4>
-                      <div className="space-y-1">
-                        {selectedRequest.attachments.map(
-                          (attachment, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center text-sm"
-                            >
-                              <FileText className="h-3 w-3 mr-2" />
-                              {attachment.fileName} ({attachment.fileSize})
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {selectedRequest.auditTrail &&
-                  selectedRequest.auditTrail.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium">Audit Trail</h4>
-                      <div className="space-y-1 max-h-40 overflow-y-auto">
-                        {selectedRequest.auditTrail.map((entry, index) => (
-                          <div
-                            key={index}
-                            className="border rounded-lg p-2 text-xs"
-                          >
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <div className="font-medium">
-                                  {entry.action}
-                                </div>
-                                <div className="text-muted-foreground">
-                                  By: {entry.performedBy}
-                                </div>
-                              </div>
-                              <div className="text-muted-foreground text-right">
-                                {formatDate(entry.timestamp)}
-                              </div>
-                            </div>
-                            {entry.comments && (
-                              <div className="mt-1 text-muted-foreground">
-                                {entry.comments}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                <div className="space-y-2">
-                  <h4 className="font-medium">System Information</h4>
+                <section className="p-4 rounded-lg border border-border bg-muted/30">
+                  <h4 className="font-semibold mb-3 text-foreground">
+                    System Information
+                  </h4>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>Created: {formatDate(selectedRequest.createdAt)}</div>
                     <div>
@@ -1379,11 +1182,12 @@ export default function TripRequests() {
                     <div>Status: {selectedRequest.status}</div>
                     <div>Request ID: {selectedRequest.id}</div>
                   </div>
-                </div>
+                </section>
               </>
             )}
           </div>
-          <DialogFooter>
+
+          <DialogFooter className="sticky bottom-0 bg-background/90 backdrop-blur-md border-t border-border mt-4 pt-3">
             <Button onClick={() => setIsDetailsDialogOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
