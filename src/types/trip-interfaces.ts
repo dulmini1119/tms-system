@@ -9,17 +9,10 @@ export interface TripRequest {
     email: string;
     department: string;
     employeeId: string;
-    phoneNumber?: string;
-    designation?: string;
-    managerName?: string;
-    costCenter?: string;
-  };
-  requestedFor?: {
-    id: string;
-    name: string;
-    email: string;
-    department: string;
-    employeeId: string;
+    phoneNumber: string;
+    designation: string;
+    managerName: string;
+    costCenter: string;
   };
   tripDetails: {
     fromLocation: {
@@ -34,80 +27,74 @@ export interface TripRequest {
     };
     departureDate: string;
     departureTime: string;
-    returnDate?: string;
-    returnTime?: string;
+    returnDate?: string | undefined;
+    returnTime?: string | undefined;
     isRoundTrip: boolean;
     estimatedDistance: number; // in km
     estimatedDuration: number; // in minutes
-    tripType?: string;
   };
   purpose: {
-    category: 'Business Meeting' | 'Client Visit' | 'Conference' | 'Training' | 'Airport Transfer' | 'Other';
+    category: string;
     description: string;
-    projectCode?: string;
-    costCenter?: string;
-    businessJustification?: string;
+    projectCode: string;
+    costCenter: string;
+    businessJustification: string;
   };
   requirements: {
-    vehicleType: 'Sedan' | 'SUV' | 'Hatchback' | 'Van' | 'Any';
+    vehicleType: string;
     passengerCount: number;
     specialRequirements?: string;
     acRequired: boolean;
-    luggage: 'Light' | 'Medium' | 'Heavy';
-    luggageRequirements?: string;
-    wheelchairAccessible?: boolean;
-    driverRequired?: boolean;
-    specialInstructions?: string;
+    luggage: string;
   };
-  priority: 'Low' | 'Medium' | 'High' | 'Urgent';
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Cancelled' | 'Assigned' | 'In Progress' | 'Completed';
+  priority: string;
+  status: string;
   createdAt: string;
   updatedAt: string;
   approvalRequired: boolean;
   estimatedCost: number;
   currency: string;
-  passengers?: {
+  passengers: {
     name: string;
     employeeId: string;
     department: string;
     phoneNumber: string;
   }[];
-  approvalWorkflow?: {
+  approvalWorkflow: {
     level: number;
     approverRole: string;
     approverName: string;
     approverDepartment: string;
-    status: 'Pending' | 'Approved' | 'Rejected';
-    approvedAt?: string;
-    comments?: string;
+    status: string;
+    approvedAt: string;
+    comments: string;
   }[];
-  costBreakdown?: {
+  costBreakdown: {
     baseFare: number;
     distanceCharges: number;
     timeCharges: number;
     additionalCharges: number;
     taxAmount: number;
   };
-  billing?: {
+  billing: {
     billingType: string;
     costCenter: string;
-    projectCode?: string;
-    budgetCode?: string;
+    projectCode: string;
+    budgetCode: string;
     billToDepartment: string;
     approverName: string;
   };
-  attachments?: {
+  attachments: {
     fileName: string;
     fileSize: string;
   }[];
-  auditTrail?: {
+  auditTrail: {
     action: string;
     performedBy: string;
     timestamp: string;
-    comments?: string;
+    comments: string;
   }[];
 }
-
 export interface TripApproval {
   id: string;
   tripRequestId: string;
@@ -152,37 +139,15 @@ export interface TripAssignment {
   id: string;
   tripRequestId: string;
   requestNumber: string;
-  assignedVehicle: {
-    id: string;
-    vehicleNumber: string;
-    make: string;
-    model: string;
-    type: string;
-    fuelType: string;
-    currentMileage: number;
-    lastServiceDate: string;
-    insuranceExpiryDate: string;
-    registrationExpiryDate: string;
-  };
-  assignedDriver: {
-    id: string;
-    name: string;
-    licenseNumber: string;
-    phoneNumber: string;
-    email?: string;
-    licenseExpiryDate: string;
-    experience: number; // years
-    rating: number; // 1-5
-    currentLocation?: { lat: number; lng: number };
-    isAvailable: boolean;
-  };
+  assignedVehicle: Vehicle;
+  assignedDriver: Driver;
   assignedBy: {
     id: string;
     name: string;
     role: string;
     timestamp: string;
   };
-  assignmentStatus: 'Assigned' | 'Accepted' | 'Rejected' | 'Started' | 'Completed' | 'Cancelled';
+  assignmentStatus: "Assigned" | "Accepted" | "Rejected" | "Started" | "Completed" | "Cancelled";
   scheduledDeparture: string;
   scheduledReturn?: string;
   actualDeparture?: string;
@@ -193,7 +158,7 @@ export interface TripAssignment {
     timestamp?: string;
     comments?: string;
   };
-  preTrip: {
+  preTrip?: {
     checklist: {
       fuelLevel: number;
       vehicleCondition: 'Good' | 'Fair' | 'Poor';
@@ -429,3 +394,35 @@ export interface TripFilters {
   assignedDriver?: string;
   assignedVehicle?: string;
 }
+
+export interface Vehicle {
+  id: number; // Changed from string to number to match vehicle page
+  registrationNo: string; // Changed from vehicleNumber
+  make: string;
+  model: string;
+  year: number;
+  type: string;
+  source: string;
+  fuelType: string;
+  seatingCapacity: number;
+  status: string;
+  currentDriver: string; // String for now, to be mapped to Driver later
+  lastService: string; // Changed from lastServiceDate
+  nextService: string;
+  mileage: number; // Changed from currentMileage
+  insuranceExpiry: string; // Changed from insuranceExpiryDate
+  registrationExpiry?: string; // Optional, as not present in vehicle page
+}
+export interface Driver {
+  id: string;
+  name: string;
+  licenseNumber: string;
+  phoneNumber: string;
+  email: string;
+  licenseExpiryDate: string;
+  experience: number;
+  rating: number;
+  currentLocation: { lat: number; lng: number };
+  isAvailable: boolean;
+}
+
