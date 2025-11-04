@@ -1,26 +1,58 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Search, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
+import React, { useState, useEffect } from "react";
+import {
+  Plus,
+  Search,
+  MoreHorizontal,
+  Edit,
+  Trash2,
   Car,
   Fuel,
   Calendar,
   Settings,
-  AlertTriangle
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+  AlertTriangle,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 interface Vehicles {
   id: number;
@@ -150,7 +182,7 @@ const initialVehicles: Vehicles[] = [
     nextService: "2024-04-08",
     mileage: 78000,
     insuranceExpiry: "2024-09-10",
-  }
+  },
 ];
 
 const initialMaintenanceRecords: MaintenanceRecord[] = [
@@ -159,22 +191,22 @@ const initialMaintenanceRecords: MaintenanceRecord[] = [
     vehicleId: 1,
     date: "2024-01-10",
     description: "Oil change and tire rotation",
-    cost: 5000
+    cost: 5000,
   },
   {
     id: 2,
     vehicleId: 1,
     date: "2023-07-15",
     description: "Brake pad replacement",
-    cost: 8000
+    cost: 8000,
   },
   {
     id: 3,
     vehicleId: 2,
     date: "2024-01-05",
     description: "CNG system inspection",
-    cost: 3000
-  }
+    cost: 3000,
+  },
 ];
 
 const vehicleTypes = ["Sedan", "SUV", "Hatchback", "Van", "Truck"];
@@ -183,48 +215,53 @@ const sourceTypes = ["Owned", "Leased", "Rented"];
 const statusTypes = ["Available", "On Trip", "Under Repair", "Maintenance"];
 
 export default function Vehicles() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState('all-types');
-  const [statusFilter, setStatusFilter] = useState('all-status');
-  const [sourceFilter, setSourceFilter] = useState('all-sources');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all-types");
+  const [statusFilter, setStatusFilter] = useState("all-status");
+  const [sourceFilter, setSourceFilter] = useState("all-sources");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isMaintenanceDialogOpen, setIsMaintenanceDialogOpen] = useState(false);
-  const [isScheduleServiceDialogOpen, setIsScheduleServiceDialogOpen] = useState(false);
+  const [isScheduleServiceDialogOpen, setIsScheduleServiceDialogOpen] =
+    useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicles | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicles | null>(null);
   const [vehicles, setVehicles] = useState<Vehicles[]>(initialVehicles);
-  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>(initialMaintenanceRecords);
+  const [maintenanceRecords, setMaintenanceRecords] = useState<
+    MaintenanceRecord[]
+  >(initialMaintenanceRecords);
   const [formData, setFormData] = useState<VehicleFormData>({
-    registrationNo: '',
-    make: '',
-    model: '',
-    year: '',
-    type: '',
-    source: '',
-    fuelType: '',
-    seatingCapacity: '',
-    status: '',
-    currentDriver: '',
-    lastService: '',
-    nextService: '',
-    mileage: '',
-    insuranceExpiry: '',
+    registrationNo: "",
+    make: "",
+    model: "",
+    year: "",
+    type: "",
+    source: "",
+    fuelType: "",
+    seatingCapacity: "",
+    status: "",
+    currentDriver: "",
+    lastService: "",
+    nextService: "",
+    mileage: "",
+    insuranceExpiry: "",
   });
   const [maintenanceFormData, setMaintenanceFormData] = useState<{
     date: string;
     description: string;
     cost: string;
   }>({
-    date: '',
-    description: '',
-    cost: ''
+    date: "",
+    description: "",
+    cost: "",
   });
   const [scheduleServiceFormData, setScheduleServiceFormData] = useState<{
     nextService: string;
   }>({
-    nextService: ''
+    nextService: "",
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   // Initialize formData when editing a vehicle
   useEffect(() => {
     if (editingVehicle) {
@@ -246,34 +283,38 @@ export default function Vehicles() {
       });
     } else {
       setFormData({
-        registrationNo: '',
-        make: '',
-        model: '',
-        year: '',
-        type: '',
-        source: '',
-        fuelType: '',
-        seatingCapacity: '',
-        status: '',
-        currentDriver: '',
-        lastService: '',
-        nextService: '',
-        mileage: '',
-        insuranceExpiry: '',
+        registrationNo: "",
+        make: "",
+        model: "",
+        year: "",
+        type: "",
+        source: "",
+        fuelType: "",
+        seatingCapacity: "",
+        status: "",
+        currentDriver: "",
+        lastService: "",
+        nextService: "",
+        mileage: "",
+        insuranceExpiry: "",
       });
     }
   }, [editingVehicle]);
 
-  const filteredVehicles = vehicles.filter(vehicle => {
+  const filteredVehicles = vehicles.filter((vehicle) => {
     return (
-      vehicle.registrationNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.currentDriver.toLowerCase().includes(searchTerm.toLowerCase())
-    ) &&
-    (typeFilter === 'all-types' || vehicle.type === typeFilter) &&
-    (statusFilter === 'all-status' || vehicle.status === statusFilter) &&
-    (sourceFilter === 'all-sources' || vehicle.source === sourceFilter);
+      (vehicle.registrationNo
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+        vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicle.currentDriver
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) &&
+      (typeFilter === "all-types" || vehicle.type === typeFilter) &&
+      (statusFilter === "all-status" || vehicle.status === statusFilter) &&
+      (sourceFilter === "all-sources" || vehicle.source === sourceFilter)
+    );
   });
 
   const handleEditVehicle = (vehicle: Vehicles) => {
@@ -298,64 +339,73 @@ export default function Vehicles() {
   };
 
   const handleDeleteVehicle = (id: number) => {
-    if (confirm('Are you sure you want to delete this vehicle?')) {
-      setVehicles(vehicles.filter(v => v.id !== id));
-      setMaintenanceRecords(maintenanceRecords.filter(record => record.vehicleId !== id));
+    if (confirm("Are you sure you want to delete this vehicle?")) {
+      setVehicles(vehicles.filter((v) => v.id !== id));
+      setMaintenanceRecords(
+        maintenanceRecords.filter((record) => record.vehicleId !== id)
+      );
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleMaintenanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setMaintenanceFormData(prev => ({ ...prev, [id]: value }));
+    setMaintenanceFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleScheduleServiceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleScheduleServiceChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { id, value } = e.target;
-    setScheduleServiceFormData(prev => ({ ...prev, [id]: value }));
+    setScheduleServiceFormData((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.registrationNo || !formData.make || !formData.model) {
-      alert('Please fill in all required fields');
+      toast.error("Please fill in all required fields");
       return;
     }
-    if (Number(formData.year) < 1900 || Number(formData.year) > new Date().getFullYear()) {
-      alert('Please enter a valid year');
+    if (
+      Number(formData.year) < 1900 ||
+      Number(formData.year) > new Date().getFullYear()
+    ) {
+      toast.error("Please enter a valid year");
       return;
     }
     if (Number(formData.seatingCapacity) <= 0) {
-      alert('Seating capacity must be a positive number');
+      toast.error("Seating capacity must be a positive number");
       return;
     }
     if (Number(formData.mileage) < 0) {
-      alert('Mileage cannot be negative');
+      toast.error("Mileage cannot be negative");
       return;
     }
     const vehicleData: Vehicles = {
       id: editingVehicle ? editingVehicle.id : Date.now(),
-      registrationNo: formData.registrationNo || '',
-      make: formData.make || '',
-      model: formData.model || '',
+      registrationNo: formData.registrationNo || "",
+      make: formData.make || "",
+      model: formData.model || "",
       year: Number(formData.year) || 0,
-      type: formData.type || '',
-      source: formData.source || '',
-      fuelType: formData.fuelType || '',
+      type: formData.type || "",
+      source: formData.source || "",
+      fuelType: formData.fuelType || "",
       seatingCapacity: Number(formData.seatingCapacity) || 0,
-      status: formData.status || '',
-      currentDriver: formData.currentDriver || '',
-      lastService: formData.lastService || '',
-      nextService: formData.nextService || '',
+      status: formData.status || "",
+      currentDriver: formData.currentDriver || "",
+      lastService: formData.lastService || "",
+      nextService: formData.nextService || "",
       mileage: Number(formData.mileage) || 0,
-      insuranceExpiry: formData.insuranceExpiry || '',
+      insuranceExpiry: formData.insuranceExpiry || "",
     };
     if (editingVehicle) {
-      setVehicles(vehicles.map(v => (v.id === editingVehicle.id ? vehicleData : v)));
+      setVehicles(
+        vehicles.map((v) => (v.id === editingVehicle.id ? vehicleData : v))
+      );
     } else {
       setVehicles([...vehicles, vehicleData]);
     }
@@ -365,12 +415,16 @@ export default function Vehicles() {
   const handleMaintenanceSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedVehicle) return;
-    if (!maintenanceFormData.date || !maintenanceFormData.description || !maintenanceFormData.cost) {
-      alert('Please fill in all maintenance fields');
+    if (
+      !maintenanceFormData.date ||
+      !maintenanceFormData.description ||
+      !maintenanceFormData.cost
+    ) {
+      alert("Please fill in all maintenance fields");
       return;
     }
     if (Number(maintenanceFormData.cost) < 0) {
-      alert('Cost cannot be negative');
+      alert("Cost cannot be negative");
       return;
     }
     const newRecord: MaintenanceRecord = {
@@ -378,52 +432,61 @@ export default function Vehicles() {
       vehicleId: selectedVehicle.id,
       date: maintenanceFormData.date,
       description: maintenanceFormData.description,
-      cost: Number(maintenanceFormData.cost)
+      cost: Number(maintenanceFormData.cost),
     };
     setMaintenanceRecords([...maintenanceRecords, newRecord]);
-    setMaintenanceFormData({ date: '', description: '', cost: '' });
+    setMaintenanceFormData({ date: "", description: "", cost: "" });
     // Optionally update lastService if this is a service record
-    setVehicles(vehicles.map(v => 
-      v.id === selectedVehicle.id 
-        ? { ...v, lastService: maintenanceFormData.date }
-        : v
-    ));
+    setVehicles(
+      vehicles.map((v) =>
+        v.id === selectedVehicle.id
+          ? { ...v, lastService: maintenanceFormData.date }
+          : v
+      )
+    );
   };
 
   const handleScheduleServiceSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedVehicle || !scheduleServiceFormData.nextService) {
-      alert('Please select a valid service date');
+      alert("Please select a valid service date");
       return;
     }
     const serviceDate = new Date(scheduleServiceFormData.nextService);
     const today = new Date();
     if (serviceDate <= today) {
-      alert('Service date must be in the future');
+      alert("Service date must be in the future");
       return;
     }
-    setVehicles(vehicles.map(v => 
-      v.id === selectedVehicle.id 
-        ? { ...v, nextService: scheduleServiceFormData.nextService }
-        : v
-    ));
+    setVehicles(
+      vehicles.map((v) =>
+        v.id === selectedVehicle.id
+          ? { ...v, nextService: scheduleServiceFormData.nextService }
+          : v
+      )
+    );
     setIsScheduleServiceDialogOpen(false);
-    setScheduleServiceFormData({ nextService: '' });
+    setScheduleServiceFormData({ nextService: "" });
   };
 
   const handleSelectChange = (field: string) => (value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const getStatusBadge = (status: string) => {
-    const variant = status === 'Available' ? 'default' : 
-                   status === 'On Trip' ? 'secondary' : 
-                   status === 'Under Repair' ? 'destructive' : 'outline';
+    const variant =
+      status === "Available"
+        ? "default"
+        : status === "On Trip"
+        ? "secondary"
+        : status === "Under Repair"
+        ? "destructive"
+        : "outline";
     return <Badge variant={variant}>{status}</Badge>;
   };
 
   const getSourceBadge = (source: string) => {
-    const variant = source === 'Owned' ? 'default' : 'outline';
+    const variant = source === "Owned" ? "default" : "outline";
     return <Badge variant={variant}>{source}</Badge>;
   };
 
@@ -435,17 +498,24 @@ export default function Vehicles() {
     return diffDays <= 7 && diffDays > 0;
   };
 
+  const totalPages =
+    pageSize > 0 ? Math.ceil(filteredVehicles.length / pageSize) : 1;
+  const paginatedDocuments = filteredVehicles.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className='p-3'>
-          <h1 className='text-2xl'>VEHICLE MANAGEMENT</h1>
+        <div className="p-3">
+          <h1 className="text-2xl">VEHICLE MANAGEMENT</h1>
           <p className="text-muted-foreground text-xs">
             Manage your fleet vehicles and their status
           </p>
         </div>
         <Button onClick={handleCreateVehicle}>
-          <Plus className="h-4 w-4"/>
+          <Plus className="h-4 w-4" />
           Add Vehicle
         </Button>
       </div>
@@ -474,8 +544,10 @@ export default function Vehicles() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all-types">All Types</SelectItem>
-                {vehicleTypes.map(type => (
-                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                {vehicleTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -485,8 +557,10 @@ export default function Vehicles() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all-status">All Status</SelectItem>
-                {statusTypes.map(status => (
-                  <SelectItem key={status} value={status}>{status}</SelectItem>
+                {statusTypes.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -496,8 +570,10 @@ export default function Vehicles() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all-sources">All Sources</SelectItem>
-                {sourceTypes.map(source => (
-                  <SelectItem key={source} value={source}>{source}</SelectItem>
+                {sourceTypes.map((source) => (
+                  <SelectItem key={source} value={source}>
+                    {source}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -515,13 +591,15 @@ export default function Vehicles() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredVehicles.map((vehicle) => (
+              {paginatedDocuments.map((vehicle) => (
                 <TableRow key={vehicle.id}>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Car className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <div className="font-medium">{vehicle.registrationNo}</div>
+                        <div className="font-medium">
+                          {vehicle.registrationNo}
+                        </div>
                         <div className="text-sm text-muted-foreground">
                           {vehicle.make} {vehicle.model} ({vehicle.year})
                         </div>
@@ -530,7 +608,10 @@ export default function Vehicles() {
                             {vehicle.type}
                           </Badge>
                           {getSourceBadge(vehicle.source)}
-                          <Badge variant="secondary" className="text-xs flex items-center">
+                          <Badge
+                            variant="secondary"
+                            className="text-xs flex items-center"
+                          >
                             <Fuel className="h-3 w-3 mr-1" />
                             {vehicle.fuelType}
                           </Badge>
@@ -546,9 +627,7 @@ export default function Vehicles() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    {getStatusBadge(vehicle.status)}
-                  </TableCell>
+                  <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
                   <TableCell>
                     <div className="space-y-1">
                       <div className="text-sm flex items-center">
@@ -564,7 +643,9 @@ export default function Vehicles() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="font-mono text-sm">{vehicle.mileage.toLocaleString()} km</span>
+                    <span className="font-mono text-sm">
+                      {vehicle.mileage.toLocaleString()} km
+                    </span>
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -574,19 +655,28 @@ export default function Vehicles() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditVehicle(vehicle)}>
+                        <DropdownMenuItem
+                          onClick={() => handleEditVehicle(vehicle)}
+                        >
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Vehicle
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleViewMaintenanceLog(vehicle)}>
+                        <DropdownMenuItem
+                          onClick={() => handleViewMaintenanceLog(vehicle)}
+                        >
                           <Settings className="h-4 w-4 mr-2" />
                           Maintenance Log
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleScheduleService(vehicle)}>
+                        <DropdownMenuItem
+                          onClick={() => handleScheduleService(vehicle)}
+                        >
                           <Calendar className="h-4 w-4 mr-2" />
                           Schedule Service
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteVehicle(vehicle.id)}>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => handleDeleteVehicle(vehicle.id)}
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Remove Vehicle
                         </DropdownMenuItem>
@@ -597,6 +687,98 @@ export default function Vehicles() {
               ))}
             </TableBody>
           </Table>
+
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Show</span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-16">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50, 100].map((s) => (
+                    <SelectItem key={s} value={s.toString()}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-muted-foreground">
+                of {filteredVehicles.length} documents
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </Button>
+
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let num;
+                  if (totalPages <= 5) num = i + 1;
+                  else if (currentPage <= 3) num = i + 1;
+                  else if (currentPage >= totalPages - 2)
+                    num = totalPages - 4 + i;
+                  else num = currentPage - 2 + i;
+                  return num;
+                }).map((num) => (
+                  <Button
+                    key={num}
+                    variant={currentPage === num ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => setCurrentPage(num)}
+                    className="w-9 h-9"
+                  >
+                    {num}
+                  </Button>
+                ))}
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -606,20 +788,17 @@ export default function Vehicles() {
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>
-                {editingVehicle ? 'Edit Vehicle' : 'Add New Vehicle'}
+                {editingVehicle ? "Edit Vehicle" : "Add New Vehicle"}
               </DialogTitle>
               <DialogDescription>
-                {editingVehicle 
-                  ? 'Update vehicle information and details'
-                  : 'Register a new vehicle in the fleet'
-                }
+                {editingVehicle
+                  ? "Update vehicle information and details"
+                  : "Register a new vehicle in the fleet"}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="registrationNo">
-                  Registration No.
-                </Label>
+                <Label htmlFor="registrationNo">Registration No.</Label>
                 <Input
                   id="registrationNo"
                   value={formData.registrationNo}
@@ -669,13 +848,18 @@ export default function Vehicles() {
                   <Label htmlFor="type" className="text-right col-span-1">
                     Type
                   </Label>
-                  <Select value={formData.type} onValueChange={handleSelectChange('type')}>
+                  <Select
+                    value={formData.type}
+                    onValueChange={handleSelectChange("type")}
+                  >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {vehicleTypes.map(type => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      {vehicleTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -686,13 +870,18 @@ export default function Vehicles() {
                   <Label htmlFor="fuelType" className="text-right col-span-2">
                     Fuel Type
                   </Label>
-                  <Select value={formData.fuelType} onValueChange={handleSelectChange('fuelType')}>
+                  <Select
+                    value={formData.fuelType}
+                    onValueChange={handleSelectChange("fuelType")}
+                  >
                     <SelectTrigger className="col-span-2">
                       <SelectValue placeholder="Select fuel" />
                     </SelectTrigger>
                     <SelectContent>
-                      {fuelTypes.map(fuel => (
-                        <SelectItem key={fuel} value={fuel}>{fuel}</SelectItem>
+                      {fuelTypes.map((fuel) => (
+                        <SelectItem key={fuel} value={fuel}>
+                          {fuel}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -701,22 +890,25 @@ export default function Vehicles() {
                   <Label htmlFor="source" className="text-right col-span-1">
                     Source
                   </Label>
-                  <Select value={formData.source} onValueChange={handleSelectChange('source')}>
+                  <Select
+                    value={formData.source}
+                    onValueChange={handleSelectChange("source")}
+                  >
                     <SelectTrigger className="col-span-2">
                       <SelectValue placeholder="Select source" />
                     </SelectTrigger>
                     <SelectContent>
-                      {sourceTypes.map(source => (
-                        <SelectItem key={source} value={source}>{source}</SelectItem>
+                      {sourceTypes.map((source) => (
+                        <SelectItem key={source} value={source}>
+                          {source}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="seatingCapacity">
-                  Seating Capacity
-                </Label>
+                <Label htmlFor="seatingCapacity">Seating Capacity</Label>
                 <Input
                   id="seatingCapacity"
                   type="number"
@@ -730,13 +922,18 @@ export default function Vehicles() {
                 <Label htmlFor="status" className="text-right">
                   Status
                 </Label>
-                <Select value={formData.status} onValueChange={handleSelectChange('status')}>
+                <Select
+                  value={formData.status}
+                  onValueChange={handleSelectChange("status")}
+                >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {statusTypes.map(status => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                    {statusTypes.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -791,9 +988,7 @@ export default function Vehicles() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="insuranceExpiry">
-                  Insurance Expiry
-                </Label>
+                <Label htmlFor="insuranceExpiry">Insurance Expiry</Label>
                 <Input
                   id="insuranceExpiry"
                   type="date"
@@ -805,7 +1000,7 @@ export default function Vehicles() {
             </div>
             <DialogFooter>
               <Button type="submit">
-                {editingVehicle ? 'Update Vehicle' : 'Add Vehicle'}
+                {editingVehicle ? "Update Vehicle" : "Add Vehicle"}
               </Button>
             </DialogFooter>
           </form>
@@ -813,10 +1008,15 @@ export default function Vehicles() {
       </Dialog>
 
       {/* Maintenance Log Dialog */}
-      <Dialog open={isMaintenanceDialogOpen} onOpenChange={setIsMaintenanceDialogOpen}>
+      <Dialog
+        open={isMaintenanceDialogOpen}
+        onOpenChange={setIsMaintenanceDialogOpen}
+      >
         <DialogContent className="sm:w-[90vw] md:w-[90vw] lg:w-[925px] max-h-[90vh] overflow-y-auto p-4 sm:p-6 rounded-2xl overflow-x-hidden">
           <DialogHeader>
-            <DialogTitle>Maintenance Log for {selectedVehicle?.registrationNo}</DialogTitle>
+            <DialogTitle>
+              Maintenance Log for {selectedVehicle?.registrationNo}
+            </DialogTitle>
             <DialogDescription>
               View and add maintenance records for this vehicle.
             </DialogDescription>
@@ -834,8 +1034,10 @@ export default function Vehicles() {
                 </TableHeader>
                 <TableBody>
                   {maintenanceRecords
-                    .filter(record => record.vehicleId === selectedVehicle?.id)
-                    .map(record => (
+                    .filter(
+                      (record) => record.vehicleId === selectedVehicle?.id
+                    )
+                    .map((record) => (
                       <TableRow key={record.id}>
                         <TableCell>{record.date}</TableCell>
                         <TableCell>{record.description}</TableCell>
@@ -844,12 +1046,18 @@ export default function Vehicles() {
                     ))}
                 </TableBody>
               </Table>
-              {maintenanceRecords.filter(record => record.vehicleId === selectedVehicle?.id).length === 0 && (
-                <p className="text-sm text-muted-foreground">No maintenance records found.</p>
+              {maintenanceRecords.filter(
+                (record) => record.vehicleId === selectedVehicle?.id
+              ).length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No maintenance records found.
+                </p>
               )}
             </div>
             <form onSubmit={handleMaintenanceSubmit}>
-              <h3 className="text-lg font-semibold">Add New Maintenance Record</h3>
+              <h3 className="text-lg font-semibold">
+                Add New Maintenance Record
+              </h3>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="date" className="text-right">
@@ -898,11 +1106,16 @@ export default function Vehicles() {
       </Dialog>
 
       {/* Schedule Service Dialog */}
-      <Dialog open={isScheduleServiceDialogOpen} onOpenChange={setIsScheduleServiceDialogOpen}>
+      <Dialog
+        open={isScheduleServiceDialogOpen}
+        onOpenChange={setIsScheduleServiceDialogOpen}
+      >
         <DialogContent className="sm:w-[90vw] md:w-[90vw] lg:w-[600px] p-4 sm:p-6 rounded-2xl">
           <form onSubmit={handleScheduleServiceSubmit}>
             <DialogHeader>
-              <DialogTitle>Schedule Service for {selectedVehicle?.registrationNo}</DialogTitle>
+              <DialogTitle>
+                Schedule Service for {selectedVehicle?.registrationNo}
+              </DialogTitle>
               <DialogDescription>
                 Set the next service date for this vehicle.
               </DialogDescription>

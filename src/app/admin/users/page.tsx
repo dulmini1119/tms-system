@@ -85,7 +85,7 @@ const initialUsers: User[] = [
     department: "Marketing",
     businessUnit: "Sales & Marketing",
     status: "Active",
-    lastLogin: "2024-01-15 09:15 AM"
+    lastLogin: "2024-01-15 09:15 AM",
   },
   {
     id: 3,
@@ -96,7 +96,7 @@ const initialUsers: User[] = [
     department: "HR",
     businessUnit: "Administration",
     status: "Inactive",
-    lastLogin: "2024-01-12 03:45 PM"
+    lastLogin: "2024-01-12 03:45 PM",
   },
   {
     id: 4,
@@ -107,7 +107,7 @@ const initialUsers: User[] = [
     department: "Finance",
     businessUnit: "Finance",
     status: "Active",
-    lastLogin: "2024-01-15 08:20 AM"
+    lastLogin: "2024-01-15 08:20 AM",
   },
   {
     id: 5,
@@ -118,13 +118,19 @@ const initialUsers: User[] = [
     department: "Operations",
     businessUnit: "Operations",
     status: "Active",
-    lastLogin: "2024-01-15 07:00 AM"
-  }
+    lastLogin: "2024-01-15 07:00 AM",
+  },
 ];
 
 const roles = ["Admin", "Manager", "Employee", "Driver", "HOD"];
 const departments = ["IT", "Marketing", "HR", "Finance", "Operations"];
-const businessUnits = ["Technology", "Sales & Marketing", "Administration", "Finance", "Operations"];
+const businessUnits = [
+  "Technology",
+  "Sales & Marketing",
+  "Administration",
+  "Finance",
+  "Operations",
+];
 
 export default function Users() {
   const [users, setUsers] = useState<User[]>(initialUsers);
@@ -143,9 +149,14 @@ export default function Users() {
     businessUnit: "",
     status: "Active",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Handle form input changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | string, field: keyof User) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement> | string,
+    field: keyof User
+  ) => {
     if (typeof e === "string") {
       // Handle Select component changes
       setFormData((prev) => ({ ...prev, [field]: e }));
@@ -237,7 +248,8 @@ export default function Users() {
       (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (roleFilter === "all-roles" || user.role === roleFilter) &&
-      (departmentFilter === "all-departments" || user.department === departmentFilter) &&
+      (departmentFilter === "all-departments" ||
+        user.department === departmentFilter) &&
       (statusFilter === "all-status" || user.status === statusFilter)
   );
 
@@ -248,6 +260,13 @@ export default function Users() {
       </Badge>
     );
   };
+
+  const totalPages =
+    pageSize > 0 ? Math.ceil(filteredUsers.length / pageSize) : 1;
+  const paginatedDocuments = filteredUsers.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   return (
     <div className="space-y-4 space-x-4">
@@ -267,7 +286,9 @@ export default function Users() {
       <Card>
         <CardHeader>
           <CardTitle>Users</CardTitle>
-          <CardDescription>A list of all users in your organization</CardDescription>
+          <CardDescription>
+            A list of all users in your organization
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">
@@ -293,7 +314,10 @@ export default function Users() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+            <Select
+              value={departmentFilter}
+              onValueChange={setDepartmentFilter}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by department" />
               </SelectTrigger>
@@ -332,7 +356,7 @@ export default function Users() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user) => (
+              {paginatedDocuments.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <div>
@@ -370,11 +394,15 @@ export default function Users() {
                           <Edit className="h-4 w-4 mr-2" />
                           Edit User
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleResetPassword(user.id)}>
+                        <DropdownMenuItem
+                          onClick={() => handleResetPassword(user.id)}
+                        >
                           <RefreshCw className="h-4 w-4 mr-2" />
                           Reset Password
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDeactivateUser(user.id)}>
+                        <DropdownMenuItem
+                          onClick={() => handleDeactivateUser(user.id)}
+                        >
                           <UserX className="h-4 w-4 mr-2" />
                           Deactivate
                         </DropdownMenuItem>
@@ -392,13 +420,103 @@ export default function Users() {
               ))}
             </TableBody>
           </Table>
+
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Show</span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-16">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50, 100].map((s) => (
+                    <SelectItem key={s} value={s.toString()}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-muted-foreground">
+                of {filteredUsers.length} documents
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </Button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let num;
+                  if (totalPages <= 5) num = i + 1;
+                  else if (currentPage <= 3) num = i + 1;
+                  else if (currentPage >= totalPages - 2)
+                    num = totalPages - 4 + i;
+                  else num = currentPage - 2 + i;
+                  return num;
+                }).map((num) => (
+                  <Button
+                    key={num}
+                    variant={currentPage === num ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => setCurrentPage(num)}
+                    className="w-9 h-9"
+                  >
+                    {num}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{editingUser ? "Edit User" : "Create New User"}</DialogTitle>
+            <DialogTitle>
+              {editingUser ? "Edit User" : "Create New User"}
+            </DialogTitle>
             <DialogDescription>
               {editingUser
                 ? "Update user information and settings"
