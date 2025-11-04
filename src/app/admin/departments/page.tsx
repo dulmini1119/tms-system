@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Plus,
@@ -143,18 +143,22 @@ const businessUnits = [
 export default function Departments() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingDepartment, setEditingDepartment] = useState<Departments | null>(null);
-  const [departments, setDepartments] = useState<Departments[]>(initialDepartments);
-  const [formData,setFormData] = useState<Partial<Departments>>({
+  const [editingDepartment, setEditingDepartment] =
+    useState<Departments | null>(null);
+  const [departments, setDepartments] =
+    useState<Departments[]>(initialDepartments);
+  const [formData, setFormData] = useState<Partial<Departments>>({
     name: "",
     code: "",
-    hod:"",
+    hod: "",
     hodEmail: "",
     businessUnit: "",
-    budget:0,
-    employeeCount:0,
+    budget: 0,
+    employeeCount: 0,
     createdAt: new Date().toISOString().split("T")[0],
-  })
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const filteredDepartments = departments.filter(
     (dept) =>
@@ -174,32 +178,39 @@ export default function Departments() {
     setIsDialogOpen(true);
   };
 
-const formatCurrency = (amount: number) => {
-  return `Rs. ${new Intl.NumberFormat("en-LK", {
-    maximumFractionDigits: 0,
-  }).format(amount)}`;
-};
+  const formatCurrency = (amount: number) => {
+    return `Rs. ${new Intl.NumberFormat("en-LK", {
+      maximumFractionDigits: 0,
+    }).format(amount)}`;
+  };
 
-const handleChange = (
-  field: keyof Departments,
-  value: string | number
-) => {
-  setFormData((prev) => ({
-    ...prev,
-    [field]: value,
-    hodEmail: field === "hod" && typeof value === 'string' ? `${value.toLowerCase().replace(" ",".")}@company.com`: prev.hodEmail,
-  }))
-}
+  const handleChange = (field: keyof Departments, value: string | number) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+      hodEmail:
+        field === "hod" && typeof value === "string"
+          ? `${value.toLowerCase().replace(" ", ".")}@company.com`
+          : prev.hodEmail,
+    }));
+  };
 
   const handleSubmit = () => {
-    if (!formData.name || !formData.code || !formData.hod || !formData.businessUnit) {
+    if (
+      !formData.name ||
+      !formData.code ||
+      !formData.hod ||
+      !formData.businessUnit
+    ) {
       alert("Please fill in all required fields.");
       return;
     }
-    if(editingDepartment) {
+    if (editingDepartment) {
       setDepartments((prev) =>
-        prev.map((dept) => 
-          dept.id === editingDepartment.id ? {...dept, ...formData, id: dept.id} : dept
+        prev.map((dept) =>
+          dept.id === editingDepartment.id
+            ? { ...dept, ...formData, id: dept.id }
+            : dept
         )
       );
     } else {
@@ -207,30 +218,41 @@ const handleChange = (
         ...prev,
         {
           ...formData,
-          id: prev.length+ 1,
-          employeeCount:0,
-          createdAt: formData.createdAt || new Date().toISOString().split("T")[0],
-        }as Departments
-      ])
+          id: prev.length + 1,
+          employeeCount: 0,
+          createdAt:
+            formData.createdAt || new Date().toISOString().split("T")[0],
+        } as Departments,
+      ]);
     }
     setIsDialogOpen(false);
     setFormData({
-      id:0,
-      name:"",
-      code:"",
-      hod:"",
-      hodEmail:"",
-      businessUnit:"",
-      budget:0,
-      employeeCount:0,
+      id: 0,
+      name: "",
+      code: "",
+      hod: "",
+      hodEmail: "",
+      businessUnit: "",
+      budget: 0,
+      employeeCount: 0,
       createdAt: new Date().toISOString().split("T")[0],
-    })
-  }
+    });
+  };
 
   const handleDelete = (id: number) => {
-    setDepartments((prev) => prev.filter((dept) => dept.id !== id))
-  }
+    setDepartments((prev) => prev.filter((dept) => dept.id !== id));
+  };
 
+  const totalPages =
+    pageSize > 0 ? Math.ceil(filteredDepartments.length / pageSize) : 1;
+  const paginatedDocuments = filteredDepartments.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   return (
     <div className="space-y-4">
@@ -282,7 +304,7 @@ const handleChange = (
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredDepartments.map((department) => (
+              {paginatedDocuments.map((department) => (
                 <TableRow key={department.id}>
                   <TableCell>
                     <div className="flex items-center space-x-2">
@@ -338,7 +360,8 @@ const handleChange = (
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Department
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive"
+                        <DropdownMenuItem
+                          className="text-destructive"
                           onClick={() => handleDelete(department.id)}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
@@ -351,6 +374,93 @@ const handleChange = (
               ))}
             </TableBody>
           </Table>
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Show</span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-16">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50, 100].map((s) => (
+                    <SelectItem key={s} value={s.toString()}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-muted-foreground">
+                of {filteredDepartments.length} documents
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </Button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let num;
+                  if (totalPages <= 5) num = i + 1;
+                  else if (currentPage <= 3) num = i + 1;
+                  else if (currentPage >= totalPages - 2)
+                    num = totalPages - 4 + i;
+                  else num = currentPage - 2 + i;
+                  return num;
+                }).map((num) => (
+                  <Button
+                    key={num}
+                    variant={currentPage === num ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => setCurrentPage(num)}
+                    className="w-9 h-9"
+                  >
+                    {num}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -374,7 +484,7 @@ const handleChange = (
               </Label>
               <Input
                 id="name"
-                value={formData.name || ""} 
+                value={formData.name || ""}
                 onChange={(e) => handleChange("name", e.target.value)}
                 className="col-span-3"
               />
@@ -395,7 +505,10 @@ const handleChange = (
               <Label htmlFor="hod" className="text-right">
                 Head of Dept.
               </Label>
-              <Select value={formData.hod || ""} onValueChange={(value) => handleChange("hod",value)}>
+              <Select
+                value={formData.hod || ""}
+                onValueChange={(value) => handleChange("hod", value)}
+              >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select HOD" />
                 </SelectTrigger>
@@ -412,7 +525,10 @@ const handleChange = (
               <Label htmlFor="businessUnit" className="text-right">
                 Business Unit
               </Label>
-              <Select value={formData.businessUnit || ""} onValueChange={(value) => handleChange("businessUnit",value)}>
+              <Select
+                value={formData.businessUnit || ""}
+                onValueChange={(value) => handleChange("businessUnit", value)}
+              >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select business unit" />
                 </SelectTrigger>
@@ -449,4 +565,3 @@ const handleChange = (
     </div>
   );
 }
-

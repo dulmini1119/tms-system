@@ -1,41 +1,73 @@
-"use client"
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
 
-import { 
-  Plus, 
-  Search, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  MoreHorizontal,
+  Edit,
+  Trash2,
   Users,
-  Shield
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+  Shield,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Roles {
   id: number;
   name: string;
   description: string;
-  userCount:number;
+  userCount: number;
   createdAt: string;
 }
 
-const initialRole : Roles[] = [
+const initialRole: Roles[] = [
   {
     id: 1,
     name: "Admin",
     description: "Full system access with all administrative privileges",
     userCount: 3,
-  
-    createdAt: "2024-01-01"
+
+    createdAt: "2024-01-01",
   },
   {
     id: 2,
@@ -43,7 +75,7 @@ const initialRole : Roles[] = [
     description: "Department-level management with approval rights",
     userCount: 12,
     //permissions: ["trip_approval", "user_view", "vehicle_view", "reports"],
-    createdAt: "2024-01-01"
+    createdAt: "2024-01-01",
   },
   {
     id: 3,
@@ -51,7 +83,7 @@ const initialRole : Roles[] = [
     description: "Standard user with trip request capabilities",
     userCount: 156,
     //permissions: ["trip_request", "profile_edit", "trip_view"],
-    createdAt: "2024-01-01"
+    createdAt: "2024-01-01",
   },
   {
     id: 4,
@@ -59,7 +91,7 @@ const initialRole : Roles[] = [
     description: "Driver-specific access for trip execution",
     userCount: 45,
     //permissions: ["trip_execution", "vehicle_status", "trip_logs"],
-    createdAt: "2024-01-01"
+    createdAt: "2024-01-01",
   },
   {
     id: 5,
@@ -67,69 +99,72 @@ const initialRole : Roles[] = [
     description: "Head of Department with departmental oversight",
     userCount: 8,
     //permissions: ["trip_approval", "department_reports", "user_view", "budget_view"],
-    createdAt: "2024-01-01"
-  }
+    createdAt: "2024-01-01",
+  },
 ];
 
 export default function Roles() {
   const [roles, setRoles] = useState<Roles[]>(initialRole);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Roles | null>(null);
-   const [formData, setFormData] = useState<Partial<Roles>>({
-      name: "",
-      description:"",
-      userCount:0 ,
-      createdAt: new Date().toISOString().split("T")[0],
-    });
+  const [formData, setFormData] = useState<Partial<Roles>>({
+    name: "",
+    description: "",
+    userCount: 0,
+    createdAt: new Date().toISOString().split("T")[0],
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-  const filteredRoles = roles.filter(role =>
-    role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRoles = roles.filter(
+    (role) =>
+      role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      role.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     field: keyof Roles
-  )=> {
-    setFormData((prev) => ({...prev, [field]:e.target.value}));
-  }
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+  };
 
   const handleSubmit = () => {
-    if(!formData.name || !formData.description){
+    if (!formData.name || !formData.description) {
       alert("name and description are required");
       return;
     }
-    if(editingRole){
-      setRoles((prev) => 
-            prev.map((role) => 
-              role.id === editingRole.id ? {...role, ...formData} : role
-    )
-  );}
-  else{
-    const newRole: Roles = {
-      id: roles.length + 1,
-      userCount:0,
+    if (editingRole) {
+      setRoles((prev) =>
+        prev.map((role) =>
+          role.id === editingRole.id ? { ...role, ...formData } : role
+        )
+      );
+    } else {
+      const newRole: Roles = {
+        id: roles.length + 1,
+        userCount: 0,
+        createdAt: new Date().toISOString().split("T")[0],
+        description: formData.description,
+        name: formData.name,
+      } as Roles;
+      setRoles((prev) => [...prev, newRole]);
+    }
+    setIsDialogOpen(false);
+    setFormData({
+      name: "",
+      description: "",
+      userCount: 0,
       createdAt: new Date().toISOString().split("T")[0],
-      description: formData.description,
-      name: formData.name,
-    } as Roles;
-    setRoles((prev) => [...prev, newRole]);
-  }
-  setIsDialogOpen(false);
-  setFormData({
-    name:"",
-    description:"",
-    userCount:0,
-    createdAt: new Date().toISOString().split("T")[0],
-  });
-  }
+    });
+  };
 
   const handleEditRole = (role: Roles) => {
     setEditingRole(role);
     setFormData({
       name: role.name,
-      description:role.description,
+      description: role.description,
       userCount: role.userCount,
       createdAt: role.createdAt,
     });
@@ -140,29 +175,36 @@ export default function Roles() {
     setEditingRole(null);
     setFormData({
       name: "",
-      description:"",
-      userCount:0,
+      description: "",
+      userCount: 0,
       createdAt: new Date().toISOString().split("T")[0],
-    })
+    });
     setIsDialogOpen(true);
   };
 
   const handleDeleteRole = (roleId: number) => {
-    if(confirm("Are you sure you want to delete this role?")){
+    if (confirm("Are you sure you want to delete this role?")) {
       setRoles((prev) => prev.filter((role) => role.id !== roleId));
     }
   };
 
+  const totalPages =
+    pageSize > 0 ? Math.ceil(filteredRoles.length / pageSize) : 1;
+  const paginatedDocuments = filteredRoles.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className='p-3'>
-          <h1 className='text-2xl'>ROLE MANAGEMENT</h1>
+        <div className="p-3">
+          <h1 className="text-2xl">ROLE MANAGEMENT</h1>
           <p className="text-muted-foreground text-xs">
             Manage user roles and their associated permissions
           </p>
         </div>
-        <Button onClick={handleCreateRole} className='hover:bg-cyan-700'>
+        <Button onClick={handleCreateRole} className="hover:bg-cyan-700">
           <Plus className="h-4 w-4" />
           Add Role
         </Button>
@@ -201,7 +243,7 @@ export default function Roles() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredRoles.map((role) => (
+              {paginatedDocuments.map((role) => (
                 <TableRow key={role.id}>
                   <TableCell>
                     <div className="flex items-center space-x-2">
@@ -220,7 +262,7 @@ export default function Roles() {
                       <span>{role.userCount}</span>
                     </div>
                   </TableCell>
-                
+
                   <TableCell className="text-sm text-muted-foreground">
                     {role.createdAt}
                   </TableCell>
@@ -236,7 +278,10 @@ export default function Roles() {
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Role
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteRole(role.id)}>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => handleDeleteRole(role.id)}
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Delete Role
                         </DropdownMenuItem>
@@ -247,6 +292,94 @@ export default function Roles() {
               ))}
             </TableBody>
           </Table>
+
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Show</span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-16">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50, 100].map((s) => (
+                    <SelectItem key={s} value={s.toString()}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-muted-foreground">
+                of {filteredRoles.length} documents
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </Button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let num;
+                  if (totalPages <= 5) num = i + 1;
+                  else if (currentPage <= 3) num = i + 1;
+                  else if (currentPage >= totalPages - 2)
+                    num = totalPages - 4 + i;
+                  else num = currentPage - 2 + i;
+                  return num;
+                }).map((num) => (
+                  <Button
+                    key={num}
+                    variant={currentPage === num ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => setCurrentPage(num)}
+                    className="w-9 h-9"
+                  >
+                    {num}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -255,13 +388,12 @@ export default function Roles() {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
-              {editingRole ? 'Edit Role' : 'Create New Role'}
+              {editingRole ? "Edit Role" : "Create New Role"}
             </DialogTitle>
             <DialogDescription>
-              {editingRole 
-                ? 'Update role information and permissions'
-                : 'Create a new role with specific permissions'
-              }
+              {editingRole
+                ? "Update role information and permissions"
+                : "Create a new role with specific permissions"}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -271,8 +403,8 @@ export default function Roles() {
               </Label>
               <Input
                 id="roleName"
-                value= {formData.name || ""}
-                onChange={(e) => handleChange(e,"name")}
+                value={formData.name || ""}
+                onChange={(e) => handleChange(e, "name")}
                 className="col-span-3"
               />
             </div>
@@ -291,7 +423,7 @@ export default function Roles() {
           </div>
           <DialogFooter>
             <Button type="submit" onClick={handleSubmit}>
-              {editingRole ? 'Update Role' : 'Create Role'}
+              {editingRole ? "Update Role" : "Create Role"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -122,7 +122,8 @@ export default function CabServices() {
   const [statusFilter, setStatusFilter] = useState("all-status");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<CabService | null>(null);
-  const [cabServices, setCabServices] = useState<CabService[]>(initialCabServices);
+  const [cabServices, setCabServices] =
+    useState<CabService[]>(initialCabServices);
   const [formData, setFormData] = useState<Partial<CabService>>({
     name: "",
     businessRegNo: "",
@@ -133,6 +134,8 @@ export default function CabServices() {
     status: "Active",
     joinedDate: new Date().toISOString().split("T")[0],
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     const fetchVehicleCounts = async () => {
@@ -146,7 +149,9 @@ export default function CabServices() {
 
       setCabServices((prev) =>
         prev.map((service) => {
-          const count = mockResponse.find((r) => r.id === service.id)?.vehicleCount || service.vehicleCount;
+          const count =
+            mockResponse.find((r) => r.id === service.id)?.vehicleCount ||
+            service.vehicleCount;
           return { ...service, vehicleCount: count };
         })
       );
@@ -157,8 +162,12 @@ export default function CabServices() {
   const filteredServices = cabServices.filter(
     (service) =>
       (service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.businessRegNo.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        service.contactPerson
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        service.businessRegNo
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) &&
       (statusFilter === "all-status" || service.status === statusFilter)
   );
 
@@ -183,10 +192,7 @@ export default function CabServices() {
     setIsDialogOpen(true);
   };
 
-  const handleChange = (
-    field: keyof CabService,
-    value: string | number
-  ) => {
+  const handleChange = (field: keyof CabService, value: string | number) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -234,7 +240,12 @@ export default function CabServices() {
       setCabServices((prev) =>
         prev.map((service) =>
           service.id === editingService.id
-            ? { ...service, ...formData, id: service.id, vehicleCount: service.vehicleCount }
+            ? {
+                ...service,
+                ...formData,
+                id: service.id,
+                vehicleCount: service.vehicleCount,
+              }
             : service
         )
       );
@@ -244,7 +255,7 @@ export default function CabServices() {
         {
           ...formData,
           id: prev.length + 1,
-          vehicleCount: 0, 
+          vehicleCount: 0,
         } as CabService,
       ]);
     }
@@ -272,6 +283,13 @@ export default function CabServices() {
       </Badge>
     );
   };
+
+  const totalPages =
+    pageSize > 0 ? Math.ceil(filteredServices.length / pageSize) : 1;
+  const paginatedDocuments = filteredServices.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   return (
     <div className="space-y-4">
@@ -321,8 +339,7 @@ export default function CabServices() {
             </Select>
           </div>
 
-         <div className="overflow-x-auto">
-           <Table>
+          <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Service Provider</TableHead>
@@ -334,7 +351,7 @@ export default function CabServices() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredServices.map((service) => (
+              {paginatedDocuments.map((service) => (
                 <TableRow key={service.id}>
                   <TableCell>
                     <div className="flex items-center space-x-2">
@@ -363,7 +380,9 @@ export default function CabServices() {
                   <TableCell>
                     <div className="flex items-center space-x-1">
                       <FileText className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-sm font-mono">{service.businessRegNo}</span>
+                      <span className="text-sm font-mono">
+                        {service.businessRegNo}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -381,12 +400,16 @@ export default function CabServices() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditService(service)}>
+                        <DropdownMenuItem
+                          onClick={() => handleEditService(service)}
+                        >
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Service
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => alert(`Viewing agreements for ${service.name}`)}
+                          onClick={() =>
+                            alert(`Viewing agreements for ${service.name}`)
+                          }
                         >
                           <FileText className="h-4 w-4 mr-2" />
                           View Agreements
@@ -405,7 +428,94 @@ export default function CabServices() {
               ))}
             </TableBody>
           </Table>
-         </div>
+
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Show</span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-16">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50, 100].map((s) => (
+                    <SelectItem key={s} value={s.toString()}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-muted-foreground">
+                of {filteredServices.length} documents
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </Button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let num;
+                  if (totalPages <= 5) num = i + 1;
+                  else if (currentPage <= 3) num = i + 1;
+                  else if (currentPage >= totalPages - 2)
+                    num = totalPages - 4 + i;
+                  else num = currentPage - 2 + i;
+                  return num;
+                }).map((num) => (
+                  <Button
+                    key={num}
+                    variant={currentPage === num ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => setCurrentPage(num)}
+                    className="w-9 h-9"
+                  >
+                    {num}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -423,9 +533,7 @@ export default function CabServices() {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name">
-                Company Name
-              </Label>
+              <Label htmlFor="name">Company Name</Label>
               <Input
                 id="name"
                 value={formData.name || ""}
@@ -434,9 +542,7 @@ export default function CabServices() {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="businessRegNo">
-                Business Reg No.
-              </Label>
+              <Label htmlFor="businessRegNo">Business Reg No.</Label>
               <Input
                 id="businessRegNo"
                 value={formData.businessRegNo || ""}

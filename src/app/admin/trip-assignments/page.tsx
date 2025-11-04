@@ -1,4 +1,3 @@
-// src/app/admin/trip-assignments/page.tsx
 "use client";
 import React, { useEffect, useState } from "react";
 import {
@@ -143,6 +142,7 @@ export default function TripAssignments() {
       setSelectedRequest(request);
       setIsDetailsDialogOpen(true);
     } catch (error) {
+      console.error("Error in handleViewDetails:", error);
       toast.error("Error in handleViewDetails:");
     }
   };
@@ -215,6 +215,7 @@ export default function TripAssignments() {
 
       setIsAssignDialogOpen(true);
     } catch (error) {
+      console.error("Error in handleViewDetails:", error);
       toast.error("Error in handleEditAssignment:");
     }
   };
@@ -392,6 +393,7 @@ export default function TripAssignments() {
 
       toast.success("Assignment updated successfully!");
     } catch (error) {
+      console.error("Error in handleUpdateAssignment:", error);
       toast.error("Error in handleUpdateAssignment");
     }
   };
@@ -480,25 +482,25 @@ export default function TripAssignments() {
     currentPage * pageSize
   );
 
-  const handleVehicleChange = (vehicleId: string) => {
-    const vehicle = mockTripData.vehicles.find(
-      (v) => v.id === parseInt(vehicleId)
-    );
-    if (!vehicle) {
-      toast.error("Selected vehicle not found");
-      return;
-    }
+  // const handleVehicleChange = (vehicleId: string) => {
+  //   const vehicle = mockTripData.vehicles.find(
+  //     (v) => v.id === parseInt(vehicleId)
+  //   );
+  //   if (!vehicle) {
+  //     toast.error("Selected vehicle not found");
+  //     return;
+  //   }
 
-    // Update form state with vehicle details
-    setEditVehicleId(vehicleId);
-    setEditMileage(vehicle.mileage.toString());
-    setEditSeatingCapacity(vehicle.seatingCapacity.toString());
-    setEditInsuranceExpiry(vehicle.insuranceExpiry || "");
-    setEditLastService(vehicle.lastService);
-    setEditNextService(vehicle.nextService);
-    setEditStatus(vehicle.status);
-    setEditCurrentDriver(vehicle.currentDriver || "");
-  };
+  //   // Update form state with vehicle details
+  //   setEditVehicleId(vehicleId);
+  //   setEditMileage(vehicle.mileage.toString());
+  //   setEditSeatingCapacity(vehicle.seatingCapacity.toString());
+  //   setEditInsuranceExpiry(vehicle.insuranceExpiry || "");
+  //   setEditLastService(vehicle.lastService);
+  //   setEditNextService(vehicle.nextService);
+  //   setEditStatus(vehicle.status);
+  //   setEditCurrentDriver(vehicle.currentDriver || "");
+  // };
 
   const handlePreTripChecklist = (assignment: TripAssignment) => {
     setSelectedPreTrip(assignment.preTrip || null);
@@ -737,7 +739,7 @@ export default function TripAssignments() {
               })}
             </TableBody>
           </Table>
-
+          {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
             <div className="flex items-center gap-2 text-sm">
               <span className="text-muted-foreground">Show</span>
