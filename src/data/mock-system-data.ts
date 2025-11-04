@@ -1,12 +1,12 @@
-import type { 
-  GPSLog, 
-  ExpiryAlert, 
-  Notification, 
-  AuditLog, 
+import type {
+  GPSLog,
+  ExpiryAlert,
+  Notification,
+  AuditLog,
   SystemSetting,
   VehicleDocument,
-  DriverDocument
-} from '../types/system-interfaces';
+  DriverDocument,
+} from "../types/system-interfaces";
 
 // Mock GPS Logs Data
 export const mockGPSLogs: GPSLog[] = [
@@ -20,13 +20,13 @@ export const mockGPSLogs: GPSLog[] = [
     requestNumber: "TR-2024-001",
     location: {
       latitude: 28.6139,
-      longitude: 77.2090,
+      longitude: 77.209,
       altitude: 220,
       accuracy: 5,
       timestamp: "2024-12-29T10:30:00Z",
       address: "Sector 62, Noida, Uttar Pradesh",
       speed: 45,
-      heading: 135
+      heading: 135,
     },
     status: "Active",
     ignitionStatus: "On",
@@ -40,7 +40,7 @@ export const mockGPSLogs: GPSLog[] = [
       currentSpeed: 45,
       speedLimit: 50,
       isViolation: false,
-      violationCount: 0
+      violationCount: 0,
     },
     panicButton: false,
     engineTemperature: 85,
@@ -49,16 +49,16 @@ export const mockGPSLogs: GPSLog[] = [
       frontLeft: false,
       frontRight: false,
       rearLeft: false,
-      rearRight: false
+      rearRight: false,
     },
     deviceInfo: {
       deviceId: "GPS-001-DEV",
       imei: "865123045678901",
       firmwareVersion: "2.4.1",
-      networkProvider: "Airtel"
+      networkProvider: "Airtel",
     },
     createdAt: "2024-12-29T10:30:00Z",
-    updatedAt: "2024-12-29T10:30:00Z"
+    updatedAt: "2024-12-29T10:30:00Z",
   },
   {
     id: "gps-002",
@@ -76,7 +76,7 @@ export const mockGPSLogs: GPSLog[] = [
       timestamp: "2024-12-29T10:25:00Z",
       address: "India Expo Mart, Greater Noida",
       speed: 0,
-      heading: 0
+      heading: 0,
     },
     status: "Idle",
     ignitionStatus: "Off",
@@ -90,7 +90,7 @@ export const mockGPSLogs: GPSLog[] = [
       currentSpeed: 0,
       speedLimit: 40,
       isViolation: false,
-      violationCount: 2
+      violationCount: 2,
     },
     panicButton: false,
     engineTemperature: 45,
@@ -99,16 +99,16 @@ export const mockGPSLogs: GPSLog[] = [
       frontLeft: true,
       frontRight: false,
       rearLeft: false,
-      rearRight: false
+      rearRight: false,
     },
     deviceInfo: {
       deviceId: "GPS-002-DEV",
       imei: "865123045678902",
       firmwareVersion: "2.4.1",
-      networkProvider: "Jio"
+      networkProvider: "Jio",
     },
     createdAt: "2024-12-29T10:25:00Z",
-    updatedAt: "2024-12-29T10:25:00Z"
+    updatedAt: "2024-12-29T10:25:00Z",
   },
   {
     id: "gps-003",
@@ -117,14 +117,14 @@ export const mockGPSLogs: GPSLog[] = [
     driverId: "drv-003",
     driverName: "Priya Sharma",
     location: {
-      latitude: 19.0760,
+      latitude: 19.076,
       longitude: 72.8777,
       altitude: 15,
       accuracy: 12,
       timestamp: "2024-12-29T10:20:00Z",
       address: "Bandra Kurla Complex, Mumbai",
       speed: 65,
-      heading: 270
+      heading: 270,
     },
     status: "Active",
     ignitionStatus: "On",
@@ -138,7 +138,7 @@ export const mockGPSLogs: GPSLog[] = [
       currentSpeed: 65,
       speedLimit: 60,
       isViolation: true,
-      violationCount: 1
+      violationCount: 1,
     },
     panicButton: false,
     engineTemperature: 92,
@@ -147,16 +147,16 @@ export const mockGPSLogs: GPSLog[] = [
       frontLeft: false,
       frontRight: false,
       rearLeft: false,
-      rearRight: false
+      rearRight: false,
     },
     deviceInfo: {
       deviceId: "GPS-003-DEV",
       imei: "865123045678903",
       firmwareVersion: "2.3.8",
-      networkProvider: "Vi"
+      networkProvider: "Vi",
     },
     createdAt: "2024-12-29T10:20:00Z",
-    updatedAt: "2024-12-29T10:20:00Z"
+    updatedAt: "2024-12-29T10:20:00Z",
   },
   {
     id: "gps-004",
@@ -172,7 +172,7 @@ export const mockGPSLogs: GPSLog[] = [
       timestamp: "2024-12-29T10:15:00Z",
       address: "Electronic City, Bangalore",
       speed: 0,
-      heading: 0
+      heading: 0,
     },
     status: "Offline",
     ignitionStatus: "Off",
@@ -186,7 +186,7 @@ export const mockGPSLogs: GPSLog[] = [
       currentSpeed: 0,
       speedLimit: 50,
       isViolation: false,
-      violationCount: 5
+      violationCount: 5,
     },
     panicButton: false,
     engineTemperature: 35,
@@ -195,17 +195,17 @@ export const mockGPSLogs: GPSLog[] = [
       frontLeft: false,
       frontRight: false,
       rearLeft: false,
-      rearRight: false
+      rearRight: false,
     },
     deviceInfo: {
       deviceId: "GPS-004-DEV",
       imei: "865123045678904",
       firmwareVersion: "2.2.1",
-      networkProvider: "BSNL"
+      networkProvider: "BSNL",
     },
     createdAt: "2024-12-29T09:45:00Z",
-    updatedAt: "2024-12-29T09:45:00Z"
-  }
+    updatedAt: "2024-12-29T09:45:00Z",
+  },
 ];
 
 // Mock Expiry Alerts Data
@@ -233,12 +233,12 @@ export const mockExpiryAlerts: ExpiryAlert[] = [
     renewalProcess: {
       processStarted: true,
       documentsSubmitted: false,
-      paymentMade: false
+      paymentMade: false,
     },
     notes: "Comprehensive insurance with zero depreciation cover",
     attachments: ["insurance_policy_2024.pdf", "previous_claim_history.pdf"],
     createdAt: "2024-12-15T09:00:00Z",
-    updatedAt: "2024-12-20T10:30:00Z"
+    updatedAt: "2024-12-20T10:30:00Z",
   },
   {
     id: "alert-002",
@@ -263,12 +263,12 @@ export const mockExpiryAlerts: ExpiryAlert[] = [
     renewalProcess: {
       processStarted: false,
       documentsSubmitted: false,
-      paymentMade: false
+      paymentMade: false,
     },
     notes: "Driver needs to complete medical examination before renewal",
     attachments: ["license_copy.pdf", "medical_certificate.pdf"],
     createdAt: "2024-12-01T10:00:00Z",
-    updatedAt: "2024-12-25T14:20:00Z"
+    updatedAt: "2024-12-25T14:20:00Z",
   },
   {
     id: "alert-003",
@@ -295,14 +295,14 @@ export const mockExpiryAlerts: ExpiryAlert[] = [
       documentsSubmitted: true,
       paymentMade: true,
       newExpiryDate: "2025-06-20",
-      renewalReference: "PUC-NEW-2024-001"
+      renewalReference: "PUC-NEW-2024-001",
     },
     notes: "Vehicle tested and passed. New certificate issued.",
     attachments: ["new_puc_certificate.pdf", "emission_test_report.pdf"],
     createdAt: "2024-11-20T08:00:00Z",
     updatedAt: "2024-12-21T11:45:00Z",
     resolvedAt: "2024-12-21T11:45:00Z",
-    resolvedBy: "fleet.admin@company.com"
+    resolvedBy: "fleet.admin@company.com",
   },
   {
     id: "alert-004",
@@ -326,12 +326,12 @@ export const mockExpiryAlerts: ExpiryAlert[] = [
     renewalProcess: {
       processStarted: false,
       documentsSubmitted: false,
-      paymentMade: false
+      paymentMade: false,
     },
     notes: "15-year registration validity",
     attachments: ["registration_certificate.pdf"],
     createdAt: "2024-09-15T12:00:00Z",
-    updatedAt: "2024-09-15T12:00:00Z"
+    updatedAt: "2024-09-15T12:00:00Z",
   },
   {
     id: "alert-005",
@@ -356,13 +356,13 @@ export const mockExpiryAlerts: ExpiryAlert[] = [
     renewalProcess: {
       processStarted: true,
       documentsSubmitted: false,
-      paymentMade: false
+      paymentMade: false,
     },
     notes: "Annual medical checkup required for commercial drivers",
     attachments: ["medical_report_2024.pdf"],
     createdAt: "2024-12-15T09:00:00Z",
-    updatedAt: "2024-12-28T16:30:00Z"
-  }
+    updatedAt: "2024-12-28T16:30:00Z",
+  },
 ];
 
 // Mock Notifications Data
@@ -370,60 +370,68 @@ export const mockNotifications: Notification[] = [
   {
     id: "notif-001",
     title: "Trip Request Approved",
-    message: "Your trip request TR-2024-001 for airport transfer has been approved by David Wilson",
+    message:
+      "Your trip request TR-2024-001 for airport transfer has been approved by David Wilson",
     type: "Success",
     category: "Trip",
     severity: "Medium",
     priority: "Normal",
     status: "Unread",
     recipientType: "User",
-    recipients: [{
-      userId: "emp-001",
-      userName: "John Smith"
-    }],
+    recipients: [
+      {
+        userId: "emp-001",
+        userName: "John Smith",
+      },
+    ],
     sender: {
       userId: "mgr-001",
       userName: "David Wilson",
-      system: false
+      system: false,
     },
     relatedEntity: {
       type: "Trip",
       id: "req-001",
-      name: "TR-2024-001"
+      name: "TR-2024-001",
     },
     actionable: true,
-    actions: [{
-      id: "view-trip",
-      label: "View Trip Details",
-      action: "navigate",
-      parameters: { route: "/trips/TR-2024-001" }
-    }],
+    actions: [
+      {
+        id: "view-trip",
+        label: "View Trip Details",
+        action: "navigate",
+        parameters: { route: "/trips/TR-2024-001" },
+      },
+    ],
     tags: ["trip", "approval", "airport"],
     readBy: [],
     createdAt: "2024-12-25T11:30:00Z",
-    updatedAt: "2024-12-25T11:30:00Z"
+    updatedAt: "2024-12-25T11:30:00Z",
   },
   {
     id: "notif-002",
     title: "Vehicle Insurance Expiring Soon",
-    message: "Insurance for vehicle DL-3C-AA-1234 (Honda City) expires in 168 days. Please initiate renewal process.",
+    message:
+      "Insurance for vehicle DL-3C-AA-1234 (Honda City) expires in 168 days. Please initiate renewal process.",
     type: "Warning",
     category: "Vehicle",
     severity: "High",
     priority: "High",
     status: "Read",
     recipientType: "Department",
-    recipients: [{
-      departmentId: "dept-fleet",
-      departmentName: "Fleet Management"
-    }],
+    recipients: [
+      {
+        departmentId: "dept-fleet",
+        departmentName: "Fleet Management",
+      },
+    ],
     sender: {
-      system: true
+      system: true,
     },
     relatedEntity: {
       type: "Vehicle",
       id: "veh-001",
-      name: "DL-3C-AA-1234"
+      name: "DL-3C-AA-1234",
     },
     actionable: true,
     actions: [
@@ -431,28 +439,31 @@ export const mockNotifications: Notification[] = [
         id: "view-insurance",
         label: "View Insurance Details",
         action: "navigate",
-        parameters: { route: "/vehicles/veh-001/insurance" }
+        parameters: { route: "/vehicles/veh-001/insurance" },
       },
       {
         id: "start-renewal",
         label: "Start Renewal Process",
         action: "api_call",
-        parameters: { endpoint: "/api/insurance/renew", vehicleId: "veh-001" }
-      }
+        parameters: { endpoint: "/api/insurance/renew", vehicleId: "veh-001" },
+      },
     ],
     tags: ["insurance", "expiry", "vehicle", "renewal"],
-    readBy: [{
-      userId: "fleet-001",
-      userName: "Fleet Manager",
-      readAt: "2024-12-26T09:15:00Z"
-    }],
+    readBy: [
+      {
+        userId: "fleet-001",
+        userName: "Fleet Manager",
+        readAt: "2024-12-26T09:15:00Z",
+      },
+    ],
     createdAt: "2024-12-15T09:00:00Z",
-    updatedAt: "2024-12-26T09:15:00Z"
+    updatedAt: "2024-12-26T09:15:00Z",
   },
   {
     id: "notif-003",
     title: "Emergency Alert: Panic Button Pressed",
-    message: "EMERGENCY: Panic button pressed in vehicle HR-26-CX-9876 driven by Amit Singh. Location: India Expo Mart, Greater Noida",
+    message:
+      "EMERGENCY: Panic button pressed in vehicle HR-26-CX-9876 driven by Amit Singh. Location: India Expo Mart, Greater Noida",
     type: "Error",
     category: "Emergency",
     severity: "Critical",
@@ -462,20 +473,20 @@ export const mockNotifications: Notification[] = [
     recipients: [
       {
         roleId: "role-fleet-manager",
-        roleName: "Fleet Manager"
+        roleName: "Fleet Manager",
       },
       {
         roleId: "role-security",
-        roleName: "Security Team"
-      }
+        roleName: "Security Team",
+      },
     ],
     sender: {
-      system: true
+      system: true,
     },
     relatedEntity: {
       type: "Vehicle",
       id: "veh-002",
-      name: "HR-26-CX-9876"
+      name: "HR-26-CX-9876",
     },
     actionable: true,
     actions: [
@@ -483,20 +494,20 @@ export const mockNotifications: Notification[] = [
         id: "track-vehicle",
         label: "Track Vehicle Live",
         action: "navigate",
-        parameters: { route: "/tracking/veh-002" }
+        parameters: { route: "/tracking/veh-002" },
       },
       {
         id: "contact-driver",
         label: "Contact Driver",
         action: "call",
-        parameters: { phone: "+91-9123456789" }
+        parameters: { phone: "+91-9123456789" },
       },
       {
         id: "dispatch-help",
         label: "Dispatch Emergency Help",
         action: "api_call",
-        parameters: { endpoint: "/api/emergency/dispatch" }
-      }
+        parameters: { endpoint: "/api/emergency/dispatch" },
+      },
     ],
     scheduledFor: "2024-12-28T14:30:00Z",
     tags: ["emergency", "panic", "security", "immediate"],
@@ -504,85 +515,95 @@ export const mockNotifications: Notification[] = [
       {
         userId: "fleet-001",
         userName: "Fleet Manager",
-        readAt: "2024-12-28T14:31:00Z"
+        readAt: "2024-12-28T14:31:00Z",
       },
       {
         userId: "security-001",
         userName: "Security Officer",
-        readAt: "2024-12-28T14:32:00Z"
-      }
+        readAt: "2024-12-28T14:32:00Z",
+      },
     ],
     acknowledgedBy: {
       userId: "security-001",
       userName: "Security Officer",
       acknowledgedAt: "2024-12-28T14:35:00Z",
-      comments: "Emergency response team dispatched. ETA 15 minutes."
+      comments: "Emergency response team dispatched. ETA 15 minutes.",
     },
     createdAt: "2024-12-28T14:30:00Z",
-    updatedAt: "2024-12-28T14:35:00Z"
+    updatedAt: "2024-12-28T14:35:00Z",
   },
   {
     id: "notif-004",
     title: "Speed Limit Violation",
-    message: "Vehicle MH-12-DE-3456 driven by Priya Sharma exceeded speed limit (65 km/h in 60 km/h zone) at BKC, Mumbai",
+    message:
+      "Vehicle MH-12-DE-3456 driven by Priya Sharma exceeded speed limit (65 km/h in 60 km/h zone) at BKC, Mumbai",
     type: "Warning",
     category: "Driver",
     severity: "Medium",
     priority: "Normal",
     status: "Read",
     recipientType: "User",
-    recipients: [{
-      userId: "drv-003",
-      userName: "Priya Sharma"
-    }],
+    recipients: [
+      {
+        userId: "drv-003",
+        userName: "Priya Sharma",
+      },
+    ],
     sender: {
-      system: true
+      system: true,
     },
     relatedEntity: {
       type: "Vehicle",
       id: "veh-003",
-      name: "MH-12-DE-3456"
+      name: "MH-12-DE-3456",
     },
     actionable: false,
     tags: ["speed", "violation", "driving", "safety"],
-    readBy: [{
-      userId: "drv-003",
-      userName: "Priya Sharma",
-      readAt: "2024-12-29T10:25:00Z"
-    }],
+    readBy: [
+      {
+        userId: "drv-003",
+        userName: "Priya Sharma",
+        readAt: "2024-12-29T10:25:00Z",
+      },
+    ],
     createdAt: "2024-12-29T10:20:00Z",
-    updatedAt: "2024-12-29T10:25:00Z"
+    updatedAt: "2024-12-29T10:25:00Z",
   },
   {
     id: "notif-005",
     title: "Monthly Trip Report Generated",
-    message: "December 2024 trip report has been generated and is ready for review. Total trips: 145, Total cost: ₹2,84,500",
+    message:
+      "December 2024 trip report has been generated and is ready for review. Total trips: 145, Total cost: ₹2,84,500",
     type: "Info",
     category: "System",
     severity: "Low",
     priority: "Normal",
     status: "Unread",
     recipientType: "Role",
-    recipients: [{
-      roleId: "role-finance-manager",
-      roleName: "Finance Manager"
-    }],
+    recipients: [
+      {
+        roleId: "role-finance-manager",
+        roleName: "Finance Manager",
+      },
+    ],
     sender: {
-      system: true
+      system: true,
     },
     actionable: true,
-    actions: [{
-      id: "download-report",
-      label: "Download Report",
-      action: "download",
-      parameters: { reportId: "RPT-2024-12", format: "pdf" }
-    }],
+    actions: [
+      {
+        id: "download-report",
+        label: "Download Report",
+        action: "download",
+        parameters: { reportId: "RPT-2024-12", format: "pdf" },
+      },
+    ],
     expiresAt: "2025-01-15T23:59:59Z",
     tags: ["report", "monthly", "finance", "trips"],
     readBy: [],
     createdAt: "2024-12-29T08:00:00Z",
-    updatedAt: "2024-12-29T08:00:00Z"
-  }
+    updatedAt: "2024-12-29T08:00:00Z",
+  },
 ];
 
 // Mock Audit Logs Data
@@ -604,22 +625,23 @@ export const mockAuditLogs: AuditLog[] = [
       {
         field: "destination",
         oldValue: null,
-        newValue: "Client Office, Pune"
+        newValue: "Client Office, Pune",
       },
       {
         field: "departureDate",
         oldValue: null,
-        newValue: "2024-12-30"
+        newValue: "2024-12-30",
       },
       {
         field: "estimatedCost",
         oldValue: null,
-        newValue: 3500
-      }
+        newValue: 3500,
+      },
     ],
     metadata: {
       ipAddress: "192.168.1.101",
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       browser: "Chrome 120.0.0.0",
       operatingSystem: "Windows 10",
       device: "Desktop",
@@ -628,13 +650,13 @@ export const mockAuditLogs: AuditLog[] = [
         city: "Noida",
         coordinates: {
           latitude: 28.6139,
-          longitude: 77.2090,
+          longitude: 77.209,
           accuracy: 50,
-          timestamp: "2024-12-29T10:30:00Z"
-        }
+          timestamp: "2024-12-29T10:30:00Z",
+        },
       },
       sessionId: "sess-2024-001-john",
-      requestId: "req-api-12345"
+      requestId: "req-api-12345",
     },
     severity: "Info",
     status: "Success",
@@ -642,7 +664,7 @@ export const mockAuditLogs: AuditLog[] = [
     tags: ["trip", "create", "employee"],
     archived: false,
     retentionDate: "2025-12-29T10:30:00Z",
-    createdAt: "2024-12-29T10:30:00Z"
+    createdAt: "2024-12-29T10:30:00Z",
   },
   {
     id: "audit-002",
@@ -661,31 +683,32 @@ export const mockAuditLogs: AuditLog[] = [
       {
         field: "status",
         oldValue: "Pending Approval",
-        newValue: "Approved"
+        newValue: "Approved",
       },
       {
         field: "approvedBy",
         oldValue: null,
-        newValue: "David Wilson"
+        newValue: "David Wilson",
       },
       {
         field: "approvalComments",
         oldValue: null,
-        newValue: "Approved for client meeting"
-      }
+        newValue: "Approved for client meeting",
+      },
     ],
     metadata: {
       ipAddress: "192.168.1.105",
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      userAgent:
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       browser: "Chrome 120.0.0.0",
       operatingSystem: "macOS 10.15.7",
       device: "Desktop",
       location: {
         country: "India",
-        city: "Delhi"
+        city: "Delhi",
       },
       sessionId: "sess-2024-002-david",
-      requestId: "req-api-12346"
+      requestId: "req-api-12346",
     },
     severity: "Info",
     status: "Success",
@@ -693,7 +716,7 @@ export const mockAuditLogs: AuditLog[] = [
     tags: ["trip", "approval", "manager"],
     archived: false,
     retentionDate: "2025-12-29T09:45:00Z",
-    createdAt: "2024-12-29T09:45:00Z"
+    createdAt: "2024-12-29T09:45:00Z",
   },
   {
     id: "audit-003",
@@ -707,25 +730,27 @@ export const mockAuditLogs: AuditLog[] = [
     description: "Multiple failed login attempts detected for user account",
     metadata: {
       ipAddress: "103.25.67.89",
-      userAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      userAgent:
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       browser: "Chrome 120.0.0.0",
       operatingSystem: "Linux",
       device: "Desktop",
       location: {
         country: "India",
-        city: "Mumbai"
+        city: "Mumbai",
       },
       sessionId: "sess-failed-001",
-      requestId: "req-api-12347"
+      requestId: "req-api-12347",
     },
     severity: "Warning",
     status: "Failed",
     duration: 3000,
-    errorMessage: "Invalid credentials provided. Account temporarily locked after 5 failed attempts.",
+    errorMessage:
+      "Invalid credentials provided. Account temporarily locked after 5 failed attempts.",
     tags: ["authentication", "security", "failed-login"],
     archived: false,
     retentionDate: "2025-12-29T08:15:00Z",
-    createdAt: "2024-12-29T08:15:00Z"
+    createdAt: "2024-12-29T08:15:00Z",
   },
   {
     id: "audit-004",
@@ -744,31 +769,32 @@ export const mockAuditLogs: AuditLog[] = [
       {
         field: "nextServiceDate",
         oldValue: "2024-12-15",
-        newValue: "2025-03-15"
+        newValue: "2025-03-15",
       },
       {
         field: "lastServiceMileage",
         oldValue: 44850,
-        newValue: 45230
+        newValue: 45230,
       },
       {
         field: "maintenanceStatus",
         oldValue: "Due",
-        newValue: "Completed"
-      }
+        newValue: "Completed",
+      },
     ],
     metadata: {
       ipAddress: "192.168.1.110",
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0",
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0",
       browser: "Firefox 120.0",
       operatingSystem: "Windows 10",
       device: "Desktop",
       location: {
         country: "India",
-        city: "Gurgaon"
+        city: "Gurgaon",
       },
       sessionId: "sess-2024-003-fleet",
-      requestId: "req-api-12348"
+      requestId: "req-api-12348",
     },
     severity: "Info",
     status: "Success",
@@ -776,7 +802,7 @@ export const mockAuditLogs: AuditLog[] = [
     tags: ["vehicle", "maintenance", "update"],
     archived: false,
     retentionDate: "2025-12-28T16:20:00Z",
-    createdAt: "2024-12-28T16:20:00Z"
+    createdAt: "2024-12-28T16:20:00Z",
   },
   {
     id: "audit-005",
@@ -787,19 +813,21 @@ export const mockAuditLogs: AuditLog[] = [
     action: "Exported driver performance report",
     actionType: "Export",
     module: "Reports",
-    description: "Generated and exported monthly driver performance report for December 2024",
+    description:
+      "Generated and exported monthly driver performance report for December 2024",
     metadata: {
       ipAddress: "192.168.1.115",
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
       browser: "Edge 120.0.0.0",
       operatingSystem: "Windows 10",
       device: "Desktop",
       location: {
         country: "India",
-        city: "Bangalore"
+        city: "Bangalore",
       },
       sessionId: "sess-2024-004-hr",
-      requestId: "req-api-12349"
+      requestId: "req-api-12349",
     },
     severity: "Info",
     status: "Success",
@@ -807,8 +835,8 @@ export const mockAuditLogs: AuditLog[] = [
     tags: ["report", "export", "driver", "performance"],
     archived: false,
     retentionDate: "2025-12-28T11:30:00Z",
-    createdAt: "2024-12-28T11:30:00Z"
-  }
+    createdAt: "2024-12-28T11:30:00Z",
+  },
 ];
 
 // Mock System Settings Data
@@ -825,7 +853,7 @@ export const mockSystemSettings: SystemSetting[] = [
     validationRules: {
       required: true,
       minLength: 2,
-      maxLength: 100
+      maxLength: 100,
     },
     scope: "Global",
     visibility: "Public",
@@ -837,7 +865,7 @@ export const mockSystemSettings: SystemSetting[] = [
     environment: "Production",
     tags: ["company", "branding"],
     createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-12-01T10:00:00Z"
+    updatedAt: "2024-12-01T10:00:00Z",
   },
   {
     id: "setting-002",
@@ -851,7 +879,7 @@ export const mockSystemSettings: SystemSetting[] = [
     validationRules: {
       required: true,
       minValue: 10,
-      maxValue: 300
+      maxValue: 300,
     },
     scope: "Global",
     visibility: "Admin",
@@ -863,21 +891,22 @@ export const mockSystemSettings: SystemSetting[] = [
     environment: "Production",
     tags: ["gps", "tracking", "performance"],
     createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-12-15T14:30:00Z"
+    updatedAt: "2024-12-15T14:30:00Z",
   },
   {
     id: "setting-003",
     category: "Security",
     key: "max_login_attempts",
     name: "Maximum Login Attempts",
-    description: "Maximum number of failed login attempts before account lockout",
+    description:
+      "Maximum number of failed login attempts before account lockout",
     value: 5,
     dataType: "Number",
     defaultValue: 3,
     validationRules: {
       required: true,
       minValue: 3,
-      maxValue: 10
+      maxValue: 10,
     },
     scope: "Global",
     visibility: "Admin",
@@ -889,7 +918,7 @@ export const mockSystemSettings: SystemSetting[] = [
     environment: "Production",
     tags: ["security", "authentication", "lockout"],
     createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-11-20T09:15:00Z"
+    updatedAt: "2024-11-20T09:15:00Z",
   },
   {
     id: "setting-004",
@@ -910,7 +939,7 @@ export const mockSystemSettings: SystemSetting[] = [
     environment: "Production",
     tags: ["notifications", "email"],
     createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-10-01T12:00:00Z"
+    updatedAt: "2024-10-01T12:00:00Z",
   },
   {
     id: "setting-005",
@@ -924,7 +953,7 @@ export const mockSystemSettings: SystemSetting[] = [
     validationRules: {
       required: true,
       minValue: 20,
-      maxValue: 120
+      maxValue: 120,
     },
     scope: "Global",
     visibility: "Admin",
@@ -936,7 +965,7 @@ export const mockSystemSettings: SystemSetting[] = [
     environment: "Production",
     tags: ["fleet", "speed", "safety"],
     createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-12-10T16:45:00Z"
+    updatedAt: "2024-12-10T16:45:00Z",
   },
   {
     id: "setting-006",
@@ -949,7 +978,7 @@ export const mockSystemSettings: SystemSetting[] = [
     defaultValue: "USD",
     validationRules: {
       required: true,
-      enum: ["USD", "EUR", "LKR", "GBP", "AUD", "CAD"]
+      enum: ["USD", "EUR", "LKR", "GBP", "AUD", "CAD"],
     },
     scope: "Global",
     visibility: "Public",
@@ -961,7 +990,7 @@ export const mockSystemSettings: SystemSetting[] = [
     environment: "Production",
     tags: ["billing", "currency", "finance"],
     createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-08-15T11:20:00Z"
+    updatedAt: "2024-08-15T11:20:00Z",
   },
   {
     id: "setting-007",
@@ -975,7 +1004,7 @@ export const mockSystemSettings: SystemSetting[] = [
     validationRules: {
       required: true,
       minValue: 100,
-      maxValue: 5000
+      maxValue: 5000,
     },
     scope: "Global",
     visibility: "System",
@@ -987,7 +1016,7 @@ export const mockSystemSettings: SystemSetting[] = [
     environment: "Production",
     tags: ["api", "performance", "rate-limit"],
     createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-12-20T10:30:00Z"
+    updatedAt: "2024-12-20T10:30:00Z",
   },
   {
     id: "setting-008",
@@ -1008,8 +1037,8 @@ export const mockSystemSettings: SystemSetting[] = [
     environment: "Production",
     tags: ["backup", "data", "protection"],
     createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-09-01T08:00:00Z"
-  }
+    updatedAt: "2024-09-01T08:00:00Z",
+  },
 ];
 
 // Mock Vehicle Documents Data
@@ -1037,7 +1066,8 @@ export const mockVehicleDocuments: VehicleDocument[] = [
     uploadedAt: "2024-01-15T09:00:00Z",
     verifiedBy: "legal.team@company.com",
     verifiedAt: "2024-01-16T14:30:00Z",
-    verificationComments: "Document verified and valid. All details match vehicle records.",
+    verificationComments:
+      "Document verified and valid. All details match vehicle records.",
     renewalCost: 2500,
     currency: "LKR",
     vendor: "Delhi Transport Department",
@@ -1052,17 +1082,17 @@ export const mockVehicleDocuments: VehicleDocument[] = [
       {
         action: "Document uploaded",
         performedBy: "fleet.admin@company.com",
-        timestamp: "2024-01-15T09:00:00Z"
+        timestamp: "2024-01-15T09:00:00Z",
       },
       {
         action: "Document verified",
         performedBy: "legal.team@company.com",
         timestamp: "2024-01-16T14:30:00Z",
-        comments: "Verification completed successfully"
-      }
+        comments: "Verification completed successfully",
+      },
     ],
     createdAt: "2024-01-15T09:00:00Z",
-    updatedAt: "2024-01-16T14:30:00Z"
+    updatedAt: "2024-01-16T14:30:00Z",
   },
   {
     id: "vdoc-002",
@@ -1087,39 +1117,45 @@ export const mockVehicleDocuments: VehicleDocument[] = [
     uploadedAt: "2024-06-16T10:00:00Z",
     verifiedBy: "finance.team@company.com",
     verifiedAt: "2024-06-16T15:45:00Z",
-    verificationComments: "Comprehensive insurance with zero depreciation. All endorsements verified.",
+    verificationComments:
+      "Comprehensive insurance with zero depreciation. All endorsements verified.",
     renewalCost: 15000,
     currency: "LKR",
     vendor: "HDFC ERGO General Insurance",
     contactNumber: "+91-1800-266-0101",
-    notes: "Comprehensive coverage with zero depreciation and engine protection",
+    notes:
+      "Comprehensive coverage with zero depreciation and engine protection",
     remindersSent: 2,
     lastReminderDate: "2024-12-20T10:00:00Z",
     daysToExpiry: 168,
     complianceScore: 88,
     riskLevel: "Medium",
-    attachments: ["insurance_policy.pdf", "premium_receipt.pdf", "no_claim_bonus.pdf"],
+    attachments: [
+      "insurance_policy.pdf",
+      "premium_receipt.pdf",
+      "no_claim_bonus.pdf",
+    ],
     auditTrail: [
       {
         action: "Document uploaded",
         performedBy: "insurance.admin@company.com",
-        timestamp: "2024-06-16T10:00:00Z"
+        timestamp: "2024-06-16T10:00:00Z",
       },
       {
         action: "Document verified",
         performedBy: "finance.team@company.com",
         timestamp: "2024-06-16T15:45:00Z",
-        comments: "Insurance policy verified and premium paid"
+        comments: "Insurance policy verified and premium paid",
       },
       {
         action: "Renewal reminder sent",
         performedBy: "system",
         timestamp: "2024-12-20T10:00:00Z",
-        comments: "First renewal reminder sent to insurance team"
-      }
+        comments: "First renewal reminder sent to insurance team",
+      },
     ],
     createdAt: "2024-06-16T10:00:00Z",
-    updatedAt: "2024-12-20T10:00:00Z"
+    updatedAt: "2024-12-20T10:00:00Z",
   },
   {
     id: "vdoc-003",
@@ -1144,7 +1180,8 @@ export const mockVehicleDocuments: VehicleDocument[] = [
     uploadedAt: "2024-06-21T11:00:00Z",
     verifiedBy: "compliance.officer@company.com",
     verifiedAt: "2024-06-21T16:20:00Z",
-    verificationComments: "PUC test passed. Emission levels within permissible limits.",
+    verificationComments:
+      "PUC test passed. Emission levels within permissible limits.",
     renewalCost: 500,
     currency: "LKR",
     vendor: "Green Check PUC Center",
@@ -1160,23 +1197,23 @@ export const mockVehicleDocuments: VehicleDocument[] = [
       {
         action: "Document uploaded",
         performedBy: "fleet.admin@company.com",
-        timestamp: "2024-06-21T11:00:00Z"
+        timestamp: "2024-06-21T11:00:00Z",
       },
       {
         action: "Document verified",
         performedBy: "compliance.officer@company.com",
         timestamp: "2024-06-21T16:20:00Z",
-        comments: "PUC test passed within limits"
+        comments: "PUC test passed within limits",
       },
       {
         action: "Document expired",
         performedBy: "system",
         timestamp: "2024-12-20T00:00:00Z",
-        comments: "PUC certificate has expired. Vehicle compliance at risk."
-      }
+        comments: "PUC certificate has expired. Vehicle compliance at risk.",
+      },
     ],
     createdAt: "2024-06-21T11:00:00Z",
-    updatedAt: "2024-12-20T00:00:00Z"
+    updatedAt: "2024-12-20T00:00:00Z",
   },
   {
     id: "vdoc-004",
@@ -1201,7 +1238,8 @@ export const mockVehicleDocuments: VehicleDocument[] = [
     uploadedAt: "2024-01-12T14:00:00Z",
     verifiedBy: "fleet.manager@company.com",
     verifiedAt: "2024-01-12T17:30:00Z",
-    verificationComments: "Vehicle fitness test passed. All safety parameters within limits.",
+    verificationComments:
+      "Vehicle fitness test passed. All safety parameters within limits.",
     renewalCost: 1200,
     currency: "LKR",
     vendor: "Maharashtra RTO",
@@ -1216,17 +1254,17 @@ export const mockVehicleDocuments: VehicleDocument[] = [
       {
         action: "Document uploaded",
         performedBy: "rto.liaison@company.com",
-        timestamp: "2024-01-12T14:00:00Z"
+        timestamp: "2024-01-12T14:00:00Z",
       },
       {
         action: "Document verified",
         performedBy: "fleet.manager@company.com",
         timestamp: "2024-01-12T17:30:00Z",
-        comments: "Fitness certificate verified and valid"
-      }
+        comments: "Fitness certificate verified and valid",
+      },
     ],
     createdAt: "2024-01-12T14:00:00Z",
-    updatedAt: "2024-01-12T17:30:00Z"
+    updatedAt: "2024-01-12T17:30:00Z",
   },
   {
     id: "vdoc-005",
@@ -1250,33 +1288,38 @@ export const mockVehicleDocuments: VehicleDocument[] = [
     uploadedAt: "2024-12-16T09:30:00Z",
     verifiedBy: "fleet.manager@company.com",
     verifiedAt: "2024-12-16T11:15:00Z",
-    verificationComments: "Regular service completed. All systems checked and working properly.",
+    verificationComments:
+      "Regular service completed. All systems checked and working properly.",
     renewalCost: 8500,
     currency: "LKR",
     vendor: "Tata Motors Service Center",
     contactNumber: "+91-80-98765432",
-    notes: "Major service completed including oil change, filter replacement, and brake inspection",
+    notes:
+      "Major service completed including oil change, filter replacement, and brake inspection",
     remindersSent: 0,
     complianceScore: 98,
     riskLevel: "Low",
-    attachments: ["service_invoice.pdf", "parts_replaced.pdf", "next_service_schedule.pdf"],
+    attachments: [
+      "service_invoice.pdf",
+      "parts_replaced.pdf",
+      "next_service_schedule.pdf",
+    ],
     auditTrail: [
       {
         action: "Document uploaded",
         performedBy: "maintenance.team@company.com",
-        timestamp: "2024-12-16T09:30:00Z"
+        timestamp: "2024-12-16T09:30:00Z",
       },
       {
         action: "Service record verified",
         performedBy: "fleet.manager@company.com",
         timestamp: "2024-12-16T11:15:00Z",
-        comments: "Service completed as per schedule"
-      }
+        comments: "Service completed as per schedule",
+      },
     ],
     createdAt: "2024-12-16T09:30:00Z",
-    updatedAt: "2024-12-16T11:15:00Z"
+    updatedAt: "2024-12-16T11:15:00Z",
   },
-  
 ];
 
 // Mock Driver Documents Data
@@ -1304,7 +1347,8 @@ export const mockDriverDocuments: DriverDocument[] = [
     uploadedAt: "2024-01-10T10:00:00Z",
     verifiedBy: "hr.manager@company.com",
     verifiedAt: "2024-01-10T15:20:00Z",
-    verificationComments: "Commercial driving license verified. All endorsements valid.",
+    verificationComments:
+      "Commercial driving license verified. All endorsements valid.",
     renewalCost: 1200,
     currency: "LKR",
     vendor: "Delhi Transport Department",
@@ -1322,17 +1366,17 @@ export const mockDriverDocuments: DriverDocument[] = [
       {
         action: "Document uploaded",
         performedBy: "hr.admin@company.com",
-        timestamp: "2024-01-10T10:00:00Z"
+        timestamp: "2024-01-10T10:00:00Z",
       },
       {
         action: "License verified",
         performedBy: "hr.manager@company.com",
         timestamp: "2024-01-10T15:20:00Z",
-        comments: "License valid and verified"
-      }
+        comments: "License valid and verified",
+      },
     ],
     createdAt: "2024-01-10T10:00:00Z",
-    updatedAt: "2024-01-10T15:20:00Z"
+    updatedAt: "2024-01-10T15:20:00Z",
   },
   {
     id: "ddoc-002",
@@ -1357,7 +1401,8 @@ export const mockDriverDocuments: DriverDocument[] = [
     uploadedAt: "2024-01-16T11:00:00Z",
     verifiedBy: "company.doctor@company.com",
     verifiedAt: "2024-01-16T14:30:00Z",
-    verificationComments: "Medical examination passed. Driver fit for commercial driving.",
+    verificationComments:
+      "Medical examination passed. Driver fit for commercial driving.",
     renewalCost: 800,
     currency: "LKR",
     vendor: "Delhi Medical Center",
@@ -1365,7 +1410,8 @@ export const mockDriverDocuments: DriverDocument[] = [
     medicalCenter: "Delhi Medical Center, Connaught Place",
     score: 92,
     validityPeriod: 1,
-    notes: "Annual medical checkup required for commercial drivers above 40 years",
+    notes:
+      "Annual medical checkup required for commercial drivers above 40 years",
     remindersSent: 1,
     lastReminderDate: "2024-12-28T09:00:00Z",
     daysToExpiry: 17,
@@ -1376,22 +1422,22 @@ export const mockDriverDocuments: DriverDocument[] = [
       {
         action: "Medical examination scheduled",
         performedBy: "hr.medical@company.com",
-        timestamp: "2024-01-10T09:00:00Z"
+        timestamp: "2024-01-10T09:00:00Z",
       },
       {
         action: "Medical certificate uploaded",
         performedBy: "hr.medical@company.com",
-        timestamp: "2024-01-16T11:00:00Z"
+        timestamp: "2024-01-16T11:00:00Z",
       },
       {
         action: "Medical certificate verified",
         performedBy: "company.doctor@company.com",
         timestamp: "2024-01-16T14:30:00Z",
-        comments: "Driver medically fit for duty"
-      }
+        comments: "Driver medically fit for duty",
+      },
     ],
     createdAt: "2024-01-16T11:00:00Z",
-    updatedAt: "2024-12-28T09:00:00Z"
+    updatedAt: "2024-12-28T09:00:00Z",
   },
   {
     id: "ddoc-003",
@@ -1416,7 +1462,8 @@ export const mockDriverDocuments: DriverDocument[] = [
     uploadedAt: "2024-02-25T10:30:00Z",
     verifiedBy: "security.head@company.com",
     verifiedAt: "2024-02-25T16:45:00Z",
-    verificationComments: "Background verification completed. No criminal record found.",
+    verificationComments:
+      "Background verification completed. No criminal record found.",
     renewalCost: 500,
     currency: "LKR",
     vendor: "Haryana Police Department",
@@ -1433,22 +1480,22 @@ export const mockDriverDocuments: DriverDocument[] = [
       {
         action: "Verification request submitted",
         performedBy: "security.team@company.com",
-        timestamp: "2024-02-01T09:00:00Z"
+        timestamp: "2024-02-01T09:00:00Z",
       },
       {
         action: "Verification certificate received",
         performedBy: "security.team@company.com",
-        timestamp: "2024-02-25T10:30:00Z"
+        timestamp: "2024-02-25T10:30:00Z",
       },
       {
         action: "Verification completed",
         performedBy: "security.head@company.com",
         timestamp: "2024-02-25T16:45:00Z",
-        comments: "Background check cleared"
-      }
+        comments: "Background check cleared",
+      },
     ],
     createdAt: "2024-02-25T10:30:00Z",
-    updatedAt: "2024-02-25T16:45:00Z"
+    updatedAt: "2024-02-25T16:45:00Z",
   },
   {
     id: "ddoc-004",
@@ -1473,7 +1520,8 @@ export const mockDriverDocuments: DriverDocument[] = [
     uploadedAt: "2024-03-15T12:00:00Z",
     verifiedBy: "fleet.manager@company.com",
     verifiedAt: "2024-03-15T17:30:00Z",
-    verificationComments: "Defensive driving training completed successfully. Excellent performance.",
+    verificationComments:
+      "Defensive driving training completed successfully. Excellent performance.",
     renewalCost: 2500,
     currency: "LKR",
     vendor: "Maharashtra Institute of Driving Training",
@@ -1482,37 +1530,42 @@ export const mockDriverDocuments: DriverDocument[] = [
     certificationLevel: "Advanced Defensive Driving",
     score: 96,
     validityPeriod: 3,
-    notes: "Specialized training in defensive driving techniques and emergency response",
+    notes:
+      "Specialized training in defensive driving techniques and emergency response",
     remindersSent: 0,
     daysToExpiry: 805,
     complianceScore: 96,
     riskLevel: "Low",
-    attachments: ["training_certificate.pdf", "practical_test_report.pdf", "theory_exam_results.pdf"],
+    attachments: [
+      "training_certificate.pdf",
+      "practical_test_report.pdf",
+      "theory_exam_results.pdf",
+    ],
     auditTrail: [
       {
         action: "Training enrollment",
         performedBy: "training.coordinator@company.com",
-        timestamp: "2024-02-15T10:00:00Z"
+        timestamp: "2024-02-15T10:00:00Z",
       },
       {
         action: "Training completed",
         performedBy: "training.coordinator@company.com",
-        timestamp: "2024-03-10T16:00:00Z"
+        timestamp: "2024-03-10T16:00:00Z",
       },
       {
         action: "Certificate uploaded",
         performedBy: "training.coordinator@company.com",
-        timestamp: "2024-03-15T12:00:00Z"
+        timestamp: "2024-03-15T12:00:00Z",
       },
       {
         action: "Certificate verified",
         performedBy: "fleet.manager@company.com",
         timestamp: "2024-03-15T17:30:00Z",
-        comments: "Training completed with excellent scores"
-      }
+        comments: "Training completed with excellent scores",
+      },
     ],
     createdAt: "2024-03-15T12:00:00Z",
-    updatedAt: "2024-03-15T17:30:00Z"
+    updatedAt: "2024-03-15T17:30:00Z",
   },
   {
     id: "ddoc-005",
@@ -1537,7 +1590,8 @@ export const mockDriverDocuments: DriverDocument[] = [
     uploadedAt: "2024-04-02T11:30:00Z",
     verifiedBy: "hr.manager@company.com",
     verifiedAt: "2024-04-02T15:45:00Z",
-    verificationComments: "Personal accident insurance policy verified. Coverage adequate.",
+    verificationComments:
+      "Personal accident insurance policy verified. Coverage adequate.",
     renewalCost: 3500,
     currency: "LKR",
     vendor: "National Insurance Company Ltd",
@@ -1549,33 +1603,37 @@ export const mockDriverDocuments: DriverDocument[] = [
     daysToExpiry: 122,
     complianceScore: 90,
     riskLevel: "Low",
-    attachments: ["insurance_policy.pdf", "premium_receipt.pdf", "nomination_form.pdf"],
+    attachments: [
+      "insurance_policy.pdf",
+      "premium_receipt.pdf",
+      "nomination_form.pdf",
+    ],
     auditTrail: [
       {
         action: "Insurance application submitted",
         performedBy: "insurance.admin@company.com",
-        timestamp: "2024-03-15T10:00:00Z"
+        timestamp: "2024-03-15T10:00:00Z",
       },
       {
         action: "Policy issued",
         performedBy: "insurance.admin@company.com",
-        timestamp: "2024-04-01T09:00:00Z"
+        timestamp: "2024-04-01T09:00:00Z",
       },
       {
         action: "Policy document uploaded",
         performedBy: "insurance.admin@company.com",
-        timestamp: "2024-04-02T11:30:00Z"
+        timestamp: "2024-04-02T11:30:00Z",
       },
       {
         action: "Policy verified",
         performedBy: "hr.manager@company.com",
         timestamp: "2024-04-02T15:45:00Z",
-        comments: "Insurance policy verified and active"
-      }
+        comments: "Insurance policy verified and active",
+      },
     ],
     createdAt: "2024-04-02T11:30:00Z",
-    updatedAt: "2024-04-02T15:45:00Z"
-  }
+    updatedAt: "2024-04-02T15:45:00Z",
+  },
 ];
 
 // Export all mock data
@@ -1586,5 +1644,5 @@ export const mockSystemData = {
   auditLogs: mockAuditLogs,
   systemSettings: mockSystemSettings,
   vehicleDocuments: mockVehicleDocuments,
-  driverDocuments: mockDriverDocuments
+  driverDocuments: mockDriverDocuments,
 };

@@ -199,7 +199,8 @@ export const mockTripRequests: TripRequest[] = [
       description: "Client presentation at airport hotel",
       projectCode: "PRJ-2025-15",
       costCenter: "CC-SALES-001",
-      businessJustification: "Critical client meeting to close Q4 deal worth ₹50L",
+      businessJustification:
+        "Critical client meeting to close Q4 deal worth ₹50L",
     },
     requirements: {
       vehicleType: "Sedan",
@@ -293,7 +294,7 @@ export const mockTripRequests: TripRequest[] = [
     tripDetails: {
       fromLocation: {
         address: "789 Marine Drive, Mumbai",
-        coordinates: { lat: 19.0760, lng: 72.8777 },
+        coordinates: { lat: 19.076, lng: 72.8777 },
         landmark: "Gateway of India",
       },
       toLocation: {

@@ -19,14 +19,14 @@ export interface GPSLog {
   tripId?: string;
   requestNumber?: string;
   location: GPSLocation;
-  status: 'Active' | 'Idle' | 'Offline' | 'Emergency' | 'Maintenance';
-  ignitionStatus: 'On' | 'Off';
+  status: "Active" | "Idle" | "Offline" | "Emergency" | "Maintenance";
+  ignitionStatus: "On" | "Off";
   fuelLevel: number;
   mileage: number;
   batteryLevel: number;
   signalStrength: number;
   lastPing: string;
-  geofenceStatus: 'Inside' | 'Outside' | 'Violation';
+  geofenceStatus: "Inside" | "Outside" | "Violation";
   speedAlerts: {
     currentSpeed: number;
     speedLimit: number;
@@ -55,10 +55,18 @@ export interface GPSLog {
 // Expiry Alerts and Document Management
 export interface ExpiryAlert {
   id: string;
-  alertType: 'Vehicle_Registration' | 'Vehicle_Insurance' | 'Driver_License' | 'Pollution_Certificate' | 
-            'Fitness_Certificate' | 'Route_Permit' | 'Commercial_License' | 'Medical_Certificate' | 
-            'Background_Verification' | 'Training_Certificate';
-  entityType: 'Vehicle' | 'Driver' | 'Document';
+  alertType:
+    | "Vehicle_Registration"
+    | "Vehicle_Insurance"
+    | "Driver_License"
+    | "Pollution_Certificate"
+    | "Fitness_Certificate"
+    | "Route_Permit"
+    | "Commercial_License"
+    | "Medical_Certificate"
+    | "Background_Verification"
+    | "Training_Certificate";
+  entityType: "Vehicle" | "Driver" | "Document";
   entityId: string;
   entityName: string;
   documentName: string;
@@ -66,8 +74,8 @@ export interface ExpiryAlert {
   issueDate: string;
   expiryDate: string;
   daysToExpiry: number;
-  status: 'Active' | 'Expiring_Soon' | 'Expired' | 'Renewed' | 'Under_Process';
-  priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  status: "Active" | "Expiring_Soon" | "Expired" | "Renewed" | "Under_Process";
+  priority: "Low" | "Medium" | "High" | "Critical";
   department?: string;
   assignedTo?: string;
   remindersSent: number;
@@ -95,12 +103,20 @@ export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'Info' | 'Success' | 'Warning' | 'Error' | 'Alert';
-  category: 'Trip' | 'Vehicle' | 'Driver' | 'Document' | 'System' | 'Finance' | 'Emergency' | 'Maintenance';
-  severity: 'Low' | 'Medium' | 'High' | 'Critical';
-  priority: 'Normal' | 'High' | 'Urgent';
-  status: 'Unread' | 'Read' | 'Acknowledged' | 'Resolved' | 'Dismissed';
-  recipientType: 'User' | 'Role' | 'Department' | 'Broadcast';
+  type: "Info" | "Success" | "Warning" | "Error" | "Alert";
+  category:
+    | "Trip"
+    | "Vehicle"
+    | "Driver"
+    | "Document"
+    | "System"
+    | "Finance"
+    | "Emergency"
+    | "Maintenance";
+  severity: "Low" | "Medium" | "High" | "Critical";
+  priority: "Normal" | "High" | "Urgent";
+  status: "Unread" | "Read" | "Acknowledged" | "Resolved" | "Dismissed";
+  recipientType: "User" | "Role" | "Department" | "Broadcast";
   recipients: {
     userId?: string;
     userName?: string;
@@ -115,7 +131,7 @@ export interface Notification {
     system: boolean;
   };
   relatedEntity?: {
-    type: 'Trip' | 'Vehicle' | 'Driver' | 'Document' | 'User';
+    type: "Trip" | "Vehicle" | "Driver" | "Document" | "User";
     id: string;
     name: string;
   };
@@ -152,9 +168,28 @@ export interface AuditLog {
   userName?: string;
   userRole?: string;
   action: string;
-  actionType: 'Create' | 'Read' | 'Update' | 'Delete' | 'Login' | 'Logout' | 'Export' | 'Import' | 'Approve' | 'Reject';
-  module: 'Dashboard' | 'Users' | 'Roles' | 'Vehicles' | 'Trips' | 'Documents' | 'Settings' | 'Reports' | 'Authentication';
-  entityType?: 'User' | 'Vehicle' | 'Trip' | 'Document' | 'Setting' | 'Report';
+  actionType:
+    | "Create"
+    | "Read"
+    | "Update"
+    | "Delete"
+    | "Login"
+    | "Logout"
+    | "Export"
+    | "Import"
+    | "Approve"
+    | "Reject";
+  module:
+    | "Dashboard"
+    | "Users"
+    | "Roles"
+    | "Vehicles"
+    | "Trips"
+    | "Documents"
+    | "Settings"
+    | "Reports"
+    | "Authentication";
+  entityType?: "User" | "Vehicle" | "Trip" | "Document" | "Setting" | "Report";
   entityId?: string;
   entityName?: string;
   description: string;
@@ -177,8 +212,8 @@ export interface AuditLog {
     sessionId: string;
     requestId?: string;
   };
-  severity: 'Info' | 'Warning' | 'Error' | 'Critical';
-  status: 'Success' | 'Failed' | 'Pending';
+  severity: "Info" | "Warning" | "Error" | "Critical";
+  status: "Success" | "Failed" | "Pending";
   duration?: number; // milliseconds
   errorMessage?: string;
   tags: string[];
@@ -190,12 +225,20 @@ export interface AuditLog {
 // System Settings and Configuration
 export interface SystemSetting {
   id: string;
-  category: 'General' | 'Security' | 'Notifications' | 'GPS' | 'Fleet' | 'Billing' | 'Integration' | 'Backup';
+  category:
+    | "General"
+    | "Security"
+    | "Notifications"
+    | "GPS"
+    | "Fleet"
+    | "Billing"
+    | "Integration"
+    | "Backup";
   key: string;
   name: string;
   description: string;
   value: unknown;
-  dataType: 'String' | 'Number' | 'Boolean' | 'JSON' | 'Array' | 'Date';
+  dataType: "String" | "Number" | "Boolean" | "JSON" | "Array" | "Date";
   defaultValue: unknown;
   validationRules?: {
     required?: boolean;
@@ -206,14 +249,14 @@ export interface SystemSetting {
     pattern?: string;
     enum?: string[];
   };
-  scope: 'Global' | 'Department' | 'User';
-  visibility: 'Public' | 'Admin' | 'System';
+  scope: "Global" | "Department" | "User";
+  visibility: "Public" | "Admin" | "System";
   editable: boolean;
   encrypted: boolean;
   lastModifiedBy: string;
   lastModifiedAt: string;
   version: number;
-  environment: 'Development' | 'Staging' | 'Production';
+  environment: "Development" | "Staging" | "Production";
   tags: string[];
   createdAt: string;
   updatedAt: string;
@@ -235,11 +278,11 @@ export interface Geofence {
   id: string;
   name: string;
   description?: string;
-  type: 'Circular' | 'Polygon' | 'Route_Corridor';
+  type: "Circular" | "Polygon" | "Route_Corridor";
   coordinates: GPSLocation[];
   radius?: number; // for circular geofences
   isActive: boolean;
-  alertTypes: ('Entry' | 'Exit' | 'Dwell' | 'Speed_Violation')[];
+  alertTypes: ("Entry" | "Exit" | "Dwell" | "Speed_Violation")[];
   vehicleIds: string[];
   driverIds: string[];
   schedules: {
@@ -263,7 +306,15 @@ export interface DeviceSensor {
   id: string;
   deviceId: string;
   vehicleId: string;
-  sensorType: 'Temperature' | 'Humidity' | 'Fuel' | 'Door' | 'Panic' | 'Speed' | 'Acceleration' | 'RFID';
+  sensorType:
+    | "Temperature"
+    | "Humidity"
+    | "Fuel"
+    | "Door"
+    | "Panic"
+    | "Speed"
+    | "Acceleration"
+    | "RFID";
   value: number | boolean | string;
   unit?: string;
   threshold?: {
@@ -271,7 +322,7 @@ export interface DeviceSensor {
     max?: number;
     critical?: number;
   };
-  status: 'Normal' | 'Warning' | 'Critical' | 'Offline';
+  status: "Normal" | "Warning" | "Critical" | "Offline";
   lastCalibrated?: string;
   calibratedBy?: string;
   batteryLevel?: number;
@@ -284,14 +335,20 @@ export interface DeviceSensor {
 export interface FleetKPI {
   id: string;
   kpiName: string;
-  category: 'Efficiency' | 'Safety' | 'Cost' | 'Utilization' | 'Maintenance' | 'Driver_Performance';
+  category:
+    | "Efficiency"
+    | "Safety"
+    | "Cost"
+    | "Utilization"
+    | "Maintenance"
+    | "Driver_Performance";
   value: number;
   unit: string;
   target?: number;
   previousValue?: number;
   changePercentage?: number;
-  trend: 'Improving' | 'Declining' | 'Stable';
-  period: 'Daily' | 'Weekly' | 'Monthly' | 'Quarterly' | 'Yearly';
+  trend: "Improving" | "Declining" | "Stable";
+  period: "Daily" | "Weekly" | "Monthly" | "Quarterly" | "Yearly";
   periodStart: string;
   periodEnd: string;
   calculatedAt: string;
@@ -301,8 +358,14 @@ export interface FleetKPI {
 // System Health and Monitoring
 export interface SystemHealth {
   id: string;
-  component: 'Database' | 'GPS_Service' | 'Notification_Service' | 'File_Storage' | 'Authentication' | 'Payment_Gateway';
-  status: 'Healthy' | 'Warning' | 'Critical' | 'Down';
+  component:
+    | "Database"
+    | "GPS_Service"
+    | "Notification_Service"
+    | "File_Storage"
+    | "Authentication"
+    | "Payment_Gateway";
+  status: "Healthy" | "Warning" | "Critical" | "Down";
   uptime: number; // percentage
   responseTime: number; // milliseconds
   errorRate: number; // percentage
@@ -329,17 +392,32 @@ export interface VehicleDocument {
   vehicleNumber: string;
   vehicleMake: string;
   vehicleModel: string;
-  documentType: 'Registration_Certificate' | 'Insurance_Policy' | 'Pollution_Certificate' | 
-                'Fitness_Certificate' | 'Route_Permit' | 'Tax_Receipt' | 'Service_Record' | 
-                'Inspection_Report' | 'Ownership_Transfer' | 'Hypothecation' | 'No_Objection_Certificate';
+  documentType:
+    | "Registration_Certificate"
+    | "Insurance_Policy"
+    | "Pollution_Certificate"
+    | "Fitness_Certificate"
+    | "Route_Permit"
+    | "Tax_Receipt"
+    | "Service_Record"
+    | "Inspection_Report"
+    | "Ownership_Transfer"
+    | "Hypothecation"
+    | "No_Objection_Certificate";
   documentName: string;
   documentNumber: string;
   issuingAuthority: string;
   issueDate: string;
   expiryDate?: string;
-  status: 'Valid' | 'Expired' | 'Expiring_Soon' | 'Under_Renewal' | 'Rejected' | 'Pending_Verification';
-  priority: 'Low' | 'Medium' | 'High' | 'Critical';
-  category: 'Legal' | 'Insurance' | 'Maintenance' | 'Compliance' | 'Financial';
+  status:
+    | "Valid"
+    | "Expired"
+    | "Expiring_Soon"
+    | "Under_Renewal"
+    | "Rejected"
+    | "Pending_Verification";
+  priority: "Low" | "Medium" | "High" | "Critical";
+  category: "Legal" | "Insurance" | "Maintenance" | "Compliance" | "Financial";
   fileUrl: string;
   fileName: string;
   fileSize: string;
@@ -358,7 +436,7 @@ export interface VehicleDocument {
   lastReminderDate?: string;
   daysToExpiry?: number;
   complianceScore: number;
-  riskLevel: 'Low' | 'Medium' | 'High' | 'Critical';
+  riskLevel: "Low" | "Medium" | "High" | "Critical";
   attachments: string[];
   auditTrail: {
     action: string;
@@ -378,18 +456,40 @@ export interface DriverDocument {
   driverName: string;
   driverEmployeeId: string;
   licenseNumber: string;
-  documentType: 'Driving_License' | 'Medical_Certificate' | 'Police_Verification' | 
-                'Training_Certificate' | 'Insurance_Policy' | 'Address_Proof' | 'Identity_Proof' | 
-                'Employment_Letter' | 'Experience_Certificate' | 'Photo' | 'Signature_Specimen' | 
-                'Background_Check' | 'Drug_Test_Report';
+  documentType:
+    | "Driving_License"
+    | "Medical_Certificate"
+    | "Police_Verification"
+    | "Training_Certificate"
+    | "Insurance_Policy"
+    | "Address_Proof"
+    | "Identity_Proof"
+    | "Employment_Letter"
+    | "Experience_Certificate"
+    | "Photo"
+    | "Signature_Specimen"
+    | "Background_Check"
+    | "Drug_Test_Report";
   documentName: string;
   documentNumber?: string;
   issuingAuthority: string;
   issueDate: string;
   expiryDate?: string;
-  status: 'Valid' | 'Expired' | 'Expiring_Soon' | 'Under_Renewal' | 'Rejected' | 'Pending_Verification';
-  priority: 'Low' | 'Medium' | 'High' | 'Critical';
-  category: 'Legal' | 'Medical' | 'Training' | 'Verification' | 'Insurance' | 'Identity';
+  status:
+    | "Valid"
+    | "Expired"
+    | "Expiring_Soon"
+    | "Under_Renewal"
+    | "Rejected"
+    | "Pending_Verification";
+  priority: "Low" | "Medium" | "High" | "Critical";
+  category:
+    | "Legal"
+    | "Medical"
+    | "Training"
+    | "Verification"
+    | "Insurance"
+    | "Identity";
   fileUrl: string;
   fileName: string;
   fileSize: string;
@@ -413,7 +513,7 @@ export interface DriverDocument {
   lastReminderDate?: string;
   daysToExpiry?: number;
   complianceScore: number;
-  riskLevel: 'Low' | 'Medium' | 'High' | 'Critical';
+  riskLevel: "Low" | "Medium" | "High" | "Critical";
   attachments: string[];
   auditTrail: {
     action: string;
@@ -428,9 +528,24 @@ export interface DriverDocument {
 }
 
 // Utility types for filtering and searching
-export type AlertPriority = 'Low' | 'Medium' | 'High' | 'Critical';
-export type NotificationType = 'Info' | 'Success' | 'Warning' | 'Error' | 'Alert';
-export type AuditActionType = 'Create' | 'Read' | 'Update' | 'Delete' | 'Login' | 'Logout' | 'Export' | 'Import' | 'Approve' | 'Reject';
+export type AlertPriority = "Low" | "Medium" | "High" | "Critical";
+export type NotificationType =
+  | "Info"
+  | "Success"
+  | "Warning"
+  | "Error"
+  | "Alert";
+export type AuditActionType =
+  | "Create"
+  | "Read"
+  | "Update"
+  | "Delete"
+  | "Login"
+  | "Logout"
+  | "Export"
+  | "Import"
+  | "Approve"
+  | "Reject";
 
 export interface DateRange {
   startDate: string;

@@ -116,12 +116,12 @@ export interface TripApproval {
       email: string;
       role: string;
     };
-    action: 'Approved' | 'Rejected' | 'Pending';
+    action: "Approved" | "Rejected" | "Pending";
     comments?: string;
     timestamp: string;
     ipAddress?: string;
   }[];
-  finalStatus: 'Pending' | 'Approved' | 'Rejected';
+  finalStatus: "Pending" | "Approved" | "Rejected";
   autoApproval: boolean;
   approvalRules: {
     costThreshold: number;
@@ -147,7 +147,13 @@ export interface TripAssignment {
     role: string;
     timestamp: string;
   };
-  assignmentStatus: "Assigned" | "Accepted" | "Rejected" | "Started" | "Completed" | "Cancelled";
+  assignmentStatus:
+    | "Assigned"
+    | "Accepted"
+    | "Rejected"
+    | "Started"
+    | "Completed"
+    | "Cancelled";
   scheduledDeparture: string;
   scheduledReturn?: string;
   actualDeparture?: string;
@@ -161,7 +167,7 @@ export interface TripAssignment {
   preTrip?: {
     checklist: {
       fuelLevel: number;
-      vehicleCondition: 'Good' | 'Fair' | 'Poor';
+      vehicleCondition: "Good" | "Fair" | "Poor";
       documentsVerified: boolean;
       emergencyKitPresent: boolean;
       gpsWorking: boolean;
@@ -181,10 +187,28 @@ export interface TripLog {
   requestNumber: string;
   vehicleId: string;
   driverId: string;
-  tripStatus: 'Not Started' | 'Started' | 'In Transit' | 'Arrived' | 'Waiting' | 'Return Journey' | 'Completed' | 'Cancelled';
+  tripStatus:
+    | "Not Started"
+    | "Started"
+    | "In Transit"
+    | "Arrived"
+    | "Waiting"
+    | "Return Journey"
+    | "Completed"
+    | "Cancelled";
   actualRoute: {
-    startLocation: { lat: number; lng: number; address: string; timestamp: string };
-    endLocation: { lat: number; lng: number; address: string; timestamp: string };
+    startLocation: {
+      lat: number;
+      lng: number;
+      address: string;
+      timestamp: string;
+    };
+    endLocation: {
+      lat: number;
+      lng: number;
+      address: string;
+      timestamp: string;
+    };
     waypoints: { lat: number; lng: number; timestamp: string }[];
     totalDistance: number; // in km
     totalDuration: number; // in minutes
@@ -223,11 +247,11 @@ export interface TripLog {
   };
   incidents: {
     id: string;
-    type: 'Accident' | 'Breakdown' | 'Traffic' | 'Weather' | 'Other';
+    type: "Accident" | "Breakdown" | "Traffic" | "Weather" | "Other";
     description: string;
     location: { lat: number; lng: number; address: string };
     timestamp: string;
-    severity: 'Low' | 'Medium' | 'High';
+    severity: "Low" | "Medium" | "High";
     resolved: boolean;
     reportedBy: string;
   }[];
@@ -243,7 +267,7 @@ export interface TripLog {
     };
   };
   postTrip: {
-    vehicleCondition: 'Good' | 'Fair' | 'Poor';
+    vehicleCondition: "Good" | "Fair" | "Poor";
     damageReport?: string;
     maintenanceRequired: boolean;
     cleaningRequired: boolean;
@@ -316,15 +340,15 @@ export interface TripCost {
     grossAmount: number;
   };
   payment: {
-    status: 'Pending' | 'Paid' | 'Invoiced' | 'Cancelled';
-    method?: 'Company Account' | 'Cash' | 'Card' | 'Online';
+    status: "Pending" | "Paid" | "Invoiced" | "Cancelled";
+    method?: "Company Account" | "Cash" | "Card" | "Online";
     transactionId?: string;
     paidDate?: string;
     paidBy?: string;
   };
   receipts: {
     id: string;
-    type: 'Fuel' | 'Toll' | 'Parking' | 'Other';
+    type: "Fuel" | "Toll" | "Parking" | "Other";
     amount: number;
     vendor: string;
     receiptNumber: string;
@@ -359,10 +383,23 @@ export interface TripCost {
 }
 
 // Utility types for filtering and searching
-export type TripStatus = 'Pending' | 'Approved' | 'Rejected' | 'Cancelled' | 'Assigned' | 'In Progress' | 'Completed';
-export type VehicleType = 'Sedan' | 'SUV' | 'Hatchback' | 'Van' | 'Any';
-export type Priority = 'Low' | 'Medium' | 'High' | 'Urgent';
-export type TripCategory = 'Business Meeting' | 'Client Visit' | 'Conference' | 'Training' | 'Airport Transfer' | 'Other';
+export type TripStatus =
+  | "Pending"
+  | "Approved"
+  | "Rejected"
+  | "Cancelled"
+  | "Assigned"
+  | "In Progress"
+  | "Completed";
+export type VehicleType = "Sedan" | "SUV" | "Hatchback" | "Van" | "Any";
+export type Priority = "Low" | "Medium" | "High" | "Urgent";
+export type TripCategory =
+  | "Business Meeting"
+  | "Client Visit"
+  | "Conference"
+  | "Training"
+  | "Airport Transfer"
+  | "Other";
 
 // Summary interfaces for dashboard/reporting
 export interface TripSummary {
@@ -425,4 +462,3 @@ export interface Driver {
   currentLocation: { lat: number; lng: number };
   isAvailable: boolean;
 }
-
