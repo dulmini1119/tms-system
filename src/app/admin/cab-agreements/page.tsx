@@ -163,6 +163,8 @@ export default function CabAgreements() {
     signedDate: "",
     renewalDue: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const filteredAgreements = agreements.filter(
     (agreement) =>
@@ -369,6 +371,13 @@ export default function CabAgreements() {
     return diffDays <= 30 && diffDays > 0;
   };
 
+  const totalPages =
+    pageSize > 0 ? Math.ceil(filteredAgreements.length / pageSize) : 1;
+  const paginatedDocuments = filteredAgreements.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -431,7 +440,7 @@ export default function CabAgreements() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredAgreements.map((agreement) => (
+              {paginatedDocuments.map((agreement) => (
                 <TableRow key={agreement.id}>
                   <TableCell>
                     <div className="flex items-center space-x-2">
@@ -515,6 +524,94 @@ export default function CabAgreements() {
               ))}
             </TableBody>
           </Table>
+
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Show</span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-16">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50, 100].map((s) => (
+                    <SelectItem key={s} value={s.toString()}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-muted-foreground">
+                of {filteredAgreements.length} documents
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </Button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let num;
+                  if (totalPages <= 5) num = i + 1;
+                  else if (currentPage <= 3) num = i + 1;
+                  else if (currentPage >= totalPages - 2)
+                    num = totalPages - 4 + i;
+                  else num = currentPage - 2 + i;
+                  return num;
+                }).map((num) => (
+                  <Button
+                    key={num}
+                    variant={currentPage === num ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => setCurrentPage(num)}
+                    className="w-9 h-9"
+                  >
+                    {num}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
