@@ -120,75 +120,80 @@ export default function GPSLogs() {
   });
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [selectedTrips, setSelectedTrips] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   // Get GPS logs data
   const gpsLogs = mockSystemData.gpsLogs;
 
   // Mock trip replay data - in a real app, this would come from an API
-  const mockTripReplays: TripReplayData[] = [
-    {
-      tripId: "TRIP-001",
-      requestNumber: "REQ-2024-001",
-      vehicleNumber: "MH-01-AB-1234",
-      driverName: "Rahul Sharma",
-      startTime: "2025-10-13T09:00:00",
-      endTime: "2025-10-13T11:30:00",
-      startLocation: "Bandra West, Mumbai",
-      endLocation: "Andheri East, Mumbai",
-      distance: 18.5,
-      duration: 150,
-      avgSpeed: 42,
-      maxSpeed: 65,
-      routePoints: Array.from({ length: 50 }, (_, i) => ({
-        timestamp: new Date(Date.now() - (50 - i) * 180000).toISOString(),
-        latitude: 19.0596 + i * 0.001,
-        longitude: 72.8295 + i * 0.001,
-        speed: Math.floor(Math.random() * 60) + 20,
-        heading: Math.floor(Math.random() * 360),
-      })),
-    },
-    {
-      tripId: "TRIP-002",
-      requestNumber: "REQ-2024-002",
-      vehicleNumber: "MH-02-CD-5678",
-      driverName: "Priya Patel",
-      startTime: "2025-10-13T10:15:00",
-      endTime: "2025-10-13T12:00:00",
-      startLocation: "Powai, Mumbai",
-      endLocation: "BKC, Mumbai",
-      distance: 12.3,
-      duration: 105,
-      avgSpeed: 38,
-      maxSpeed: 58,
-      routePoints: Array.from({ length: 40 }, (_, i) => ({
-        timestamp: new Date(Date.now() - (40 - i) * 157500).toISOString(),
-        latitude: 19.1136 + i * 0.0008,
-        longitude: 72.8697 + i * 0.0008,
-        speed: Math.floor(Math.random() * 55) + 15,
-        heading: Math.floor(Math.random() * 360),
-      })),
-    },
-    {
-      tripId: "TRIP-003",
-      requestNumber: "REQ-2024-003",
-      vehicleNumber: "MH-03-EF-9012",
-      driverName: "Amit Kumar",
-      startTime: "2025-10-13T14:00:00",
-      endTime: "2025-10-13T15:45:00",
-      startLocation: "Lower Parel, Mumbai",
-      endLocation: "Worli, Mumbai",
-      distance: 8.7,
-      duration: 105,
-      avgSpeed: 35,
-      maxSpeed: 52,
-      routePoints: Array.from({ length: 35 }, (_, i) => ({
-        timestamp: new Date(Date.now() - (35 - i) * 180000).toISOString(),
-        latitude: 18.9987 + i * 0.0006,
-        longitude: 72.8247 + i * 0.0006,
-        speed: Math.floor(Math.random() * 50) + 10,
-        heading: Math.floor(Math.random() * 360),
-      })),
-    },
-  ];
+  const mockTripReplays = useMemo<TripReplayData[]>(
+    () => [
+      {
+        tripId: "TRIP-001",
+        requestNumber: "REQ-2024-001",
+        vehicleNumber: "MH-01-AB-1234",
+        driverName: "Rahul Sharma",
+        startTime: "2025-10-13T09:00:00",
+        endTime: "2025-10-13T11:30:00",
+        startLocation: "Bandra West, Mumbai",
+        endLocation: "Andheri East, Mumbai",
+        distance: 18.5,
+        duration: 150,
+        avgSpeed: 42,
+        maxSpeed: 65,
+        routePoints: Array.from({ length: 50 }, (_, i) => ({
+          timestamp: new Date(Date.now() - (50 - i) * 180000).toISOString(),
+          latitude: 19.0596 + i * 0.001,
+          longitude: 72.8295 + i * 0.001,
+          speed: Math.floor(Math.random() * 60) + 20,
+          heading: Math.floor(Math.random() * 360),
+        })),
+      },
+      {
+        tripId: "TRIP-002",
+        requestNumber: "REQ-2024-002",
+        vehicleNumber: "MH-02-CD-5678",
+        driverName: "Priya Patel",
+        startTime: "2025-10-13T10:15:00",
+        endTime: "2025-10-13T12:00:00",
+        startLocation: "Powai, Mumbai",
+        endLocation: "BKC, Mumbai",
+        distance: 12.3,
+        duration: 105,
+        avgSpeed: 38,
+        maxSpeed: 58,
+        routePoints: Array.from({ length: 40 }, (_, i) => ({
+          timestamp: new Date(Date.now() - (40 - i) * 157500).toISOString(),
+          latitude: 19.1136 + i * 0.0008,
+          longitude: 72.8697 + i * 0.0008,
+          speed: Math.floor(Math.random() * 55) + 15,
+          heading: Math.floor(Math.random() * 360),
+        })),
+      },
+      {
+        tripId: "TRIP-003",
+        requestNumber: "REQ-2024-003",
+        vehicleNumber: "MH-03-EF-9012",
+        driverName: "Amit Kumar",
+        startTime: "2025-10-13T14:00:00",
+        endTime: "2025-10-13T15:45:00",
+        startLocation: "Lower Parel, Mumbai",
+        endLocation: "Worli, Mumbai",
+        distance: 8.7,
+        duration: 105,
+        avgSpeed: 35,
+        maxSpeed: 52,
+        routePoints: Array.from({ length: 35 }, (_, i) => ({
+          timestamp: new Date(Date.now() - (35 - i) * 180000).toISOString(),
+          latitude: 18.9987 + i * 0.0006,
+          longitude: 72.8247 + i * 0.0006,
+          speed: Math.floor(Math.random() * 50) + 10,
+          heading: Math.floor(Math.random() * 360),
+        })),
+      },
+    ],
+    []
+  );
 
   // Playback effect
   useEffect(() => {
@@ -490,6 +495,13 @@ export default function GPSLogs() {
     return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
   };
 
+  const totalPages =
+    pageSize > 0 ? Math.ceil(filteredLogs.length / pageSize) : 1;
+  const paginatedDocuments = filteredLogs.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -599,150 +611,322 @@ export default function GPSLogs() {
           </div>
 
           {/* GPS Logs Table */}
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Vehicle & Driver</TableHead>
-                <TableHead>Location & Address</TableHead>
-                <TableHead>Speed & Movement</TableHead>
-                <TableHead>Vehicle Status</TableHead>
-                <TableHead>Alerts & Violations</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredLogs.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="font-medium flex items-center">
-                        <Car className="h-3 w-3 mr-1" />
-                        {log.vehicleNumber}
-                      </div>
-                      <div className="text-sm flex items-center">
-                        <User className="h-3 w-3 mr-1" />
-                        {log.driverName}
-                      </div>
-                      {log.requestNumber && (
-                        <div className="text-xs text-muted-foreground">
-                          Trip: {log.requestNumber}
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Vehicle & Driver</TableHead>
+                  <TableHead>Location & Address</TableHead>
+                  <TableHead>Speed & Movement</TableHead>
+                  <TableHead>Vehicle Status</TableHead>
+                  <TableHead>Alerts & Violations</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.map((log) => (
+                  <TableRow key={log.id}>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="font-medium flex items-center">
+                          <Car className="h-3 w-3 mr-1" />
+                          {log.vehicleNumber}
                         </div>
-                      )}
-                      <div className="text-xs text-muted-foreground">
-                        ID: {log.vehicleId}
+                        <div className="text-sm flex items-center">
+                          <User className="h-3 w-3 mr-1" />
+                          {log.driverName}
+                        </div>
+                        {log.requestNumber && (
+                          <div className="text-xs text-muted-foreground">
+                            Trip: {log.requestNumber}
+                          </div>
+                        )}
+                        <div className="text-xs text-muted-foreground">
+                          ID: {log.vehicleId}
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="text-sm flex items-start">
-                        <MapPin className="h-3 w-3 mr-1 mt-0.5 text-blue-500" />
-                        <span className="text-xs">
-                          {log.location.address || "Address not available"}
-                        </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm flex items-start">
+                          <MapPin className="h-3 w-3 mr-1 mt-0.5 text-blue-500" />
+                          <span className="text-xs">
+                            {log.location.address || "Address not available"}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {formatCoordinates(
+                            log.location.latitude,
+                            log.location.longitude
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Accuracy: {log.location.accuracy}m
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Updated: {formatDate(log.location.timestamp)}
+                        </div>
+                        <div className="text-xs">
+                          Geofence: {getGeofenceStatus(log.geofenceStatus)}
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatCoordinates(
-                          log.location.latitude,
-                          log.location.longitude
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm flex items-center">
+                          <Gauge className="h-3 w-3 mr-1" />
+                          {log.location.speed || 0} km/h
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Heading: {log.location.heading || 0}°
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Mileage: {log.mileage.toLocaleString()} km
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Ignition: {log.ignitionStatus}
+                        </div>
+                        {log.speedAlerts.isViolation && (
+                          <Badge variant="destructive" className="text-xs">
+                            Speed Violation
+                          </Badge>
                         )}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        Accuracy: {log.location.accuracy}m
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Updated: {formatDate(log.location.timestamp)}
-                      </div>
-                      <div className="text-xs">
-                        Geofence: {getGeofenceStatus(log.geofenceStatus)}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="text-sm flex items-center">
-                        <Gauge className="h-3 w-3 mr-1" />
-                        {log.location.speed || 0} km/h
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Heading: {log.location.heading || 0}°
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Mileage: {log.mileage.toLocaleString()} km
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Ignition: {log.ignitionStatus}
-                      </div>
-                      {log.speedAlerts.isViolation && (
-                        <Badge variant="destructive" className="text-xs">
-                          Speed Violation
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      {getStatusBadge(log.status)}
-                      <div className="flex items-center space-x-1">
-                        <Fuel className="h-3 w-3" />
-                        <Progress value={log.fuelLevel} className="w-16 h-2" />
-                        <span className="text-xs">{log.fuelLevel}%</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      {log.panicButton && (
-                        <Badge variant="destructive" className="text-xs">
-                          <Shield className="h-3 w-3 mr-1" />
-                          Panic Alert
-                        </Badge>
-                      )}
-                      {log.speedAlerts.violationCount > 0 && (
-                        <div className="text-xs text-red-600">
-                          Speed Violations: {log.speedAlerts.violationCount}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        {getStatusBadge(log.status)}
+                        <div className="flex items-center space-x-1">
+                          <Fuel className="h-3 w-3" />
+                          <Progress
+                            value={log.fuelLevel}
+                            className="w-16 h-2"
+                          />
+                          <span className="text-xs">{log.fuelLevel}%</span>
                         </div>
-                      )}
-                      <div className="text-xs text-muted-foreground">
-                        Speed Limit: {log.speedAlerts.speedLimit} km/h
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleViewDetails(log)}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleTrackOnMap(log)}>
-                          <Map className="h-4 w-4 mr-2" />
-                          Track on Map
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleTripHistory(log)}
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Trip History
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleExportData(log)}>
-                          <Download className="h-4 w-4 mr-2" />
-                          Export Data
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        {log.panicButton && (
+                          <Badge variant="destructive" className="text-xs">
+                            <Shield className="h-3 w-3 mr-1" />
+                            Panic Alert
+                          </Badge>
+                        )}
+                        {log.speedAlerts.violationCount > 0 && (
+                          <div className="text-xs text-red-600">
+                            Speed Violations: {log.speedAlerts.violationCount}
+                          </div>
+                        )}
+                        <div className="text-xs text-muted-foreground">
+                          Speed Limit: {log.speedAlerts.speedLimit} km/h
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleViewDetails(log)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleTrackOnMap(log)}
+                          >
+                            <Map className="h-4 w-4 mr-2" />
+                            Track on Map
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleTripHistory(log)}
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            Trip History
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleExportData(log)}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Export Data
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-4">
+            {paginatedDocuments.map((log) => (
+              <div
+                key={log.id}
+                className="border border-border rounded-xl p-4 shadow-sm bg-background space-y-2"
+              >
+                <div className="flex justify-between items-center">
+                  <div className="text-sm flex items-center font-medium">
+                    <Car className="h-3 w-3 mr-1" />
+                    {log.vehicleNumber}
+                  </div>
+                  {getStatusBadge(log.status)}
+                </div>
+
+                <div className="text-sm text-muted-foreground flex items-center">
+                  <User className="h-3 w-3 mr-1" />
+                  {log.driverName}
+                </div>
+
+                <div className="text-xs text-muted-foreground">
+                  Location: {log.location.address || "N/A"}
+                </div>
+
+                <div className="text-xs text-muted-foreground">
+                  Speed: {log.location.speed || 0} km/h | Fuel: {log.fuelLevel}%
+                </div>
+
+                <div className="text-xs text-muted-foreground">
+                  Updated: {formatDate(log.location.timestamp)}
+                </div>
+
+                <div className="flex justify-between items-center pt-2">
+                  <div className="text-xs text-muted-foreground">
+                    {log.speedAlerts.isViolation && (
+                      <Badge variant="destructive" className="text-xs">
+                        Speed Violation
+                      </Badge>
+                    )}
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleViewDetails(log)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleTrackOnMap(log)}>
+                        <Map className="h-4 w-4 mr-2" />
+                        Track on Map
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleTripHistory(log)}>
+                        <Play className="h-4 w-4 mr-2" />
+                        Trip History
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExportData(log)}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Export Data
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Show</span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-16">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50, 100].map((s) => (
+                    <SelectItem key={s} value={s.toString()}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-muted-foreground">
+                of {filteredLogs.length} documents
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </Button>
+
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let num;
+                  if (totalPages <= 5) num = i + 1;
+                  else if (currentPage <= 3) num = i + 1;
+                  else if (currentPage >= totalPages - 2)
+                    num = totalPages - 4 + i;
+                  else num = currentPage - 2 + i;
+                  return num;
+                }).map((num) => (
+                  <Button
+                    key={num}
+                    variant={currentPage === num ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => setCurrentPage(num)}
+                    className="w-9 h-9"
+                  >
+                    {num}
+                  </Button>
+                ))}
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
