@@ -291,89 +291,172 @@ export default function Departments() {
           </div>
 
           {/* Departments Table */}
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Department</TableHead>
-                <TableHead>Head of Department</TableHead>
-                <TableHead>Business Unit</TableHead>
-                <TableHead>Employees</TableHead>
-                <TableHead>Budget</TableHead>
+          {/* Desktop Table View */}
+          <div className="hidden sm:block w-full overflow-x-auto">
+            <Table className="min-w-full table-auto text-sm">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Head of Department</TableHead>
+                  <TableHead>Business Unit</TableHead>
+                  <TableHead>Employees</TableHead>
+                  <TableHead>Budget</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
 
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.map((department) => (
-                <TableRow key={department.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Briefcase className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <div className="font-medium">{department.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {department.code}
+              <TableBody>
+                {paginatedDocuments.map((department) => (
+                  <TableRow key={department.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Briefcase className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">{department.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {department.code}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{department.hod}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {department.hodEmail}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className="flex items-center space-x-1 w-fit"
-                    >
-                      <Building className="h-3 w-3" />
-                      <span>{department.businessUnit}</span>
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-1">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>{department.employeeCount}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-medium">
-                      {formatCurrency(department.budget)}
-                    </span>
-                  </TableCell>
+                    </TableCell>
 
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleEditDepartment(department)}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Department
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => handleDelete(department.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Department
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{department.hod}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {department.hodEmail}
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className="flex items-center space-x-1 w-fit"
+                      >
+                        <Building className="h-3 w-3" />
+                        <span>{department.businessUnit}</span>
+                      </Badge>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center space-x-1">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span>{department.employeeCount}</span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <span className="font-medium">
+                        {formatCurrency(department.budget)}
+                      </span>
+                    </TableCell>
+
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleEditDepartment(department)}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Department
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleDelete(department.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Department
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="sm:hidden space-y-4">
+            {paginatedDocuments.map((department) => (
+              <div
+                key={department.id}
+                className="border rounded-xl p-4 bg-card shadow-sm flex flex-col gap-3"
+              >
+                {/* Header */}
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center space-x-2">
+                    <Briefcase className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <h3 className="font-semibold text-base">
+                        {department.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {department.code}
+                      </p>
+                    </div>
+                  </div>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        Actions
+                        <MoreHorizontal className="ml-2 h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleEditDepartment(department)}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Department
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => handleDelete(department.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Department
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                {/* Details */}
+                <div className="text-sm space-y-2">
+                  <div>
+                    <span className="font-medium">Head of Department:</span>{" "}
+                    {department.hod}
+                    <div className="text-xs text-muted-foreground">
+                      {department.hodEmail}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <Building className="h-4 w-4 text-muted-foreground" />
+                    <span>{department.businessUnit}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span>{department.employeeCount} Employees</span>
+                  </div>
+
+                  <div>
+                    <span className="font-medium">Budget:</span>{" "}
+                    {formatCurrency(department.budget)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
             <div className="flex items-center gap-2 text-sm">

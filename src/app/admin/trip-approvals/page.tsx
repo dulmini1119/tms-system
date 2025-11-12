@@ -317,140 +317,250 @@ export default function TripApprovals() {
           </div>
 
           {/* Approvals Table */}
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Request Details</TableHead>
-                <TableHead>Requester</TableHead>
-                <TableHead>Trip Info</TableHead>
-                <TableHead>Current Status</TableHead>
-                <TableHead>Cost</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.map((approval) => {
-                const request = requestMap.get(approval.tripRequestId);
-                if (!request) return null;
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Request Details</TableHead>
+                  <TableHead>Requester</TableHead>
+                  <TableHead>Trip Info</TableHead>
+                  <TableHead>Current Status</TableHead>
+                  <TableHead>Cost</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.map((approval) => {
+                  const request = requestMap.get(approval.tripRequestId);
+                  if (!request) return null;
 
-                return (
-                  <TableRow key={approval.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">
-                          {approval.requestNumber}
-                        </div>
-                        <div className="text-sm text-muted-foreground mt-1">
-                          {request.purpose.description}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Created: {formatDate(approval.createdAt)}
-                        </div>
-                        <Badge variant="outline" className="text-xs mt-1">
-                          {request.purpose.category}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
+                  return (
+                    <TableRow key={approval.id}>
+                      <TableCell>
                         <div>
                           <div className="font-medium">
-                            {request.requestedBy.name}
+                            {approval.requestNumber}
                           </div>
-                          <div className="text-sm text-muted-foreground flex items-center">
-                            <Building2 className="h-3 w-3 mr-1" />
-                            {request.requestedBy.department}
+                          <div className="text-sm text-muted-foreground mt-1">
+                            {request.purpose.description}
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            ID: {request.requestedBy.employeeId}
+                          <div className="text-xs text-muted-foreground mt-1">
+                            Created: {formatDate(approval.createdAt)}
                           </div>
+                          <Badge variant="outline" className="text-xs mt-1">
+                            {request.purpose.category}
+                          </Badge>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          {request.tripDetails.departureDate}
-                        </div>
-                        <div className="text-sm flex items-start">
-                          <MapPin className="h-3 w-3 mr-1 mt-0.5 text-green-500" />
-                          <span className="text-xs">
-                            {request.tripDetails.fromLocation.address}
-                          </span>
-                        </div>
-                        <div className="text-sm flex items-start">
-                          <MapPin className="h-3 w-3 mr-1 mt-0.5 text-red-500" />
-                          <span className="text-xs">
-                            {request.tripDetails.toLocation.address}
-                          </span>
-                        </div>
-                        <div className="text-xs text-muted-foreground flex items-center">
-                          <UsersIcon className="h-3 w-3 mr-1" />
-                          {request.requirements.passengerCount} passenger(s)
-                        </div>
-                      </div>
-                    </TableCell>
+                      </TableCell>
 
-                    <TableCell>
-                      {getStatusBadge(approval.finalStatus)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <span className="text-sm">
-                          {formatCost(request.estimatedCost, request.currency)}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleViewHistory(approval)}
-                          >
-                            <History className="h-4 w-4 mr-2" />
-                            View History
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleViewRequest(approval)}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Request
-                          </DropdownMenuItem>
-                          {approval.finalStatus === "Pending" && (
-                            <>
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleApprovalAction(approval, "approve")
-                                }
-                              >
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Approve
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleApprovalAction(approval, "reject")
-                                }
-                              >
-                                <XCircle className="h-4 w-4 mr-2" />
-                                Reject
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <div className="font-medium">
+                              {request.requestedBy.name}
+                            </div>
+                            <div className="text-sm text-muted-foreground flex items-center">
+                              <Building2 className="h-3 w-3 mr-1" />
+                              {request.requestedBy.department}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              ID: {request.requestedBy.employeeId}
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="text-sm flex items-center">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            {request.tripDetails.departureDate}
+                          </div>
+                          <div className="text-sm flex items-start">
+                            <MapPin className="h-3 w-3 mr-1 mt-0.5 text-green-500" />
+                            <span className="text-xs">
+                              {request.tripDetails.fromLocation.address}
+                            </span>
+                          </div>
+                          <div className="text-sm flex items-start">
+                            <MapPin className="h-3 w-3 mr-1 mt-0.5 text-red-500" />
+                            <span className="text-xs">
+                              {request.tripDetails.toLocation.address}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground flex items-center">
+                            <UsersIcon className="h-3 w-3 mr-1" />
+                            {request.requirements.passengerCount} passenger(s)
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        {getStatusBadge(approval.finalStatus)}
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="flex items-center">
+                          <span className="text-sm">
+                            {formatCost(
+                              request.estimatedCost,
+                              request.currency
+                            )}
+                          </span>
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleViewHistory(approval)}
+                            >
+                              <History className="h-4 w-4 mr-2" />
+                              View History
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleViewRequest(approval)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Request
+                            </DropdownMenuItem>
+                            {approval.finalStatus === "Pending" && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleApprovalAction(approval, "approve")
+                                  }
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-2" />{" "}
+                                  Approve
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleApprovalAction(approval, "reject")
+                                  }
+                                >
+                                  <XCircle className="h-4 w-4 mr-2" /> Reject
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card Layout */}
+          <div className="md:hidden space-y-4">
+            {paginatedDocuments.map((approval) => {
+              const request = requestMap.get(approval.tripRequestId);
+              if (!request) return null;
+
+              return (
+                <div
+                  key={approval.id}
+                  className="border rounded-lg p-4 shadow-sm bg-card text-card-foreground"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="font-semibold">
+                      {approval.requestNumber}
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {request.purpose.category}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <div>{request.purpose.description}</div>
+                    <div>
+                      <span className="font-medium">Requester:</span>{" "}
+                      {request.requestedBy.name} (
+                      {request.requestedBy.department})
+                    </div>
+                    <div>
+                      <span className="font-medium">ID:</span>{" "}
+                      {request.requestedBy.employeeId}
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-1 text-green-500" />
+                      {request.tripDetails.fromLocation.address}
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-1 text-red-500" />
+                      {request.tripDetails.toLocation.address}
+                    </div>
+                    <div className="flex items-center">
+                      <UsersIcon className="h-4 w-4 mr-1" />
+                      {request.requirements.passengerCount} passenger(s)
+                    </div>
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {request.tripDetails.departureDate}
+                    </div>
+                    <div>
+                      <span className="font-medium">Status:</span>{" "}
+                      {approval.finalStatus}
+                    </div>
+                    <div>
+                      <span className="font-medium">Cost:</span>{" "}
+                      {formatCost(request.estimatedCost, request.currency)}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end mt-3">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleViewHistory(approval)}
+                        >
+                          <History className="h-4 w-4 mr-2" /> View History
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleViewRequest(approval)}
+                        >
+                          <Eye className="h-4 w-4 mr-2" /> View Request
+                        </DropdownMenuItem>
+                        {approval.finalStatus === "Pending" && (
+                          <>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleApprovalAction(approval, "approve")
+                              }
+                            >
+                              <CheckCircle className="h-4 w-4 mr-2" /> Approve
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleApprovalAction(approval, "reject")
+                              }
+                            >
+                              <XCircle className="h-4 w-4 mr-2" /> Reject
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
