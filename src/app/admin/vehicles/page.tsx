@@ -579,114 +579,215 @@ export default function Vehicles() {
             </Select>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Vehicle Details</TableHead>
-                <TableHead>Driver</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Mileage</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.map((vehicle) => (
-                <TableRow key={vehicle.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Car className="h-4 w-4 text-muted-foreground" />
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Vehicle Details</TableHead>
+                  <TableHead>Driver</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Service</TableHead>
+                  <TableHead>Mileage</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.map((vehicle) => (
+                  <TableRow key={vehicle.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Car className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">
+                            {vehicle.registrationNo}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {vehicle.make} {vehicle.model} ({vehicle.year})
+                          </div>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge variant="outline" className="text-xs">
+                              {vehicle.type}
+                            </Badge>
+                            {getSourceBadge(vehicle.source)}
+                            <Badge
+                              variant="secondary"
+                              className="text-xs flex items-center"
+                            >
+                              <Fuel className="h-3 w-3 mr-1" />
+                              {vehicle.fuelType}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
                       <div>
                         <div className="font-medium">
-                          {vehicle.registrationNo}
+                          {vehicle.currentDriver}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {vehicle.make} {vehicle.model} ({vehicle.year})
+                          {vehicle.seatingCapacity} seater
                         </div>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {vehicle.type}
-                          </Badge>
-                          {getSourceBadge(vehicle.source)}
-                          <Badge
-                            variant="secondary"
-                            className="text-xs flex items-center"
+                      </div>
+                    </TableCell>
+
+                    <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
+
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm flex items-center">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          Next: {vehicle.nextService}
+                        </div>
+                        {isServiceDue(vehicle.nextService) && (
+                          <div className="flex items-center text-yellow-600">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            <span className="text-xs">Service Due</span>
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <span className="font-mono text-sm">
+                        {vehicle.mileage.toLocaleString()} km
+                      </span>
+                    </TableCell>
+
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleEditVehicle(vehicle)}
                           >
-                            <Fuel className="h-3 w-3 mr-1" />
-                            {vehicle.fuelType}
-                          </Badge>
-                        </div>
-                      </div>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Vehicle
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleViewMaintenanceLog(vehicle)}
+                          >
+                            <Settings className="h-4 w-4 mr-2" />
+                            Maintenance Log
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleScheduleService(vehicle)}
+                          >
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Schedule Service
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleDeleteVehicle(vehicle.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Remove Vehicle
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card Layout */}
+          <div className="md:hidden space-y-4">
+            {paginatedDocuments.map((vehicle) => (
+              <div
+                key={vehicle.id}
+                className="border rounded-lg p-4 shadow-sm bg-card text-card-foreground"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <Car className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-semibold">{vehicle.registrationNo}</h3>
+                  </div>
+                  {getStatusBadge(vehicle.status)}
+                </div>
+
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <div>
+                    <span className="font-medium text-foreground">Driver:</span>{" "}
+                    <br />
+                    {vehicle.currentDriver} ({vehicle.seatingCapacity} seater)
+                  </div>
+
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    Next Service: {vehicle.nextService}
+                  </div>
+                  {isServiceDue(vehicle.nextService) && (
+                    <div className="flex items-center text-yellow-600 text-xs">
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      Service Due
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{vehicle.currentDriver}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {vehicle.seatingCapacity} seater
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="text-sm flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        Next: {vehicle.nextService}
-                      </div>
-                      {isServiceDue(vehicle.nextService) && (
-                        <div className="flex items-center text-yellow-600">
-                          <AlertTriangle className="h-3 w-3 mr-1" />
-                          <span className="text-xs">Service Due</span>
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-mono text-sm">
-                      {vehicle.mileage.toLocaleString()} km
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleEditVehicle(vehicle)}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Vehicle
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleViewMaintenanceLog(vehicle)}
-                        >
-                          <Settings className="h-4 w-4 mr-2" />
-                          Maintenance Log
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleScheduleService(vehicle)}
-                        >
-                          <Calendar className="h-4 w-4 mr-2" />
-                          Schedule Service
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => handleDeleteVehicle(vehicle.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Remove Vehicle
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  )}
+
+                  <div className="flex items-center space-x-1 mt-1">
+                    <Badge variant="outline" className="text-xs">
+                      {vehicle.type}
+                    </Badge>
+                    {getSourceBadge(vehicle.source)}
+                    <Badge
+                      variant="secondary"
+                      className="text-xs flex items-center"
+                    >
+                      <Fuel className="h-3 w-3 mr-1" /> {vehicle.fuelType}
+                    </Badge>
+                  </div>
+
+                  <div className="text-sm font-mono mt-1">
+                    Mileage: {vehicle.mileage.toLocaleString()} km
+                  </div>
+
+                  <div className="text-sm">
+                    Make/Model: {vehicle.make} {vehicle.model} ({vehicle.year})
+                  </div>
+                </div>
+
+                <div className="flex justify-end mt-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleEditVehicle(vehicle)}
+                      >
+                        <Edit className="h-4 w-4 mr-2" /> Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleViewMaintenanceLog(vehicle)}
+                      >
+                        <Settings className="h-4 w-4 mr-2" /> Maintenance Log
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleScheduleService(vehicle)}
+                      >
+                        <Calendar className="h-4 w-4 mr-2" /> Schedule Service
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => handleDeleteVehicle(vehicle.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" /> Remove
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">

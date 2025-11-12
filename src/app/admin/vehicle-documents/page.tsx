@@ -74,7 +74,6 @@ export default function VehicleDocuments() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [vehicleFilter, setVehicleFilter] = useState("all");
- 
 
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -95,7 +94,7 @@ export default function VehicleDocuments() {
     notes: "",
     verifiedBy: "",
     verifiedAt: "",
-    renewalCost: 0, 
+    renewalCost: 0,
     currency: "LKR",
     vendor: "",
     contactNumber: "",
@@ -213,46 +212,45 @@ export default function VehicleDocuments() {
   }, [requiredDocumentTypes, vehicleDocuments]);
 
   /* ────────────────────── FILTER / SORT / PAGE ────────────────────── */
-const filteredDocuments = useMemo(() => {
-  const list = vehicleDocuments
-    .map((doc) => ({
-      ...doc,
-      daysToExpiry: calculateDaysToExpiry(doc.expiryDate),
-    }))
-    .filter(
-      (doc) =>
-        (doc.documentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          doc.vehicleNumber
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          doc.documentNumber
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          doc.issuingAuthority
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) &&
-        (statusFilter === "all" ||
-          doc.status.toLowerCase().replace("_", "-") === statusFilter) &&
-        (typeFilter === "all" ||
-          doc.documentType.toLowerCase().replace("_", "-") === typeFilter) &&
-        (categoryFilter === "all" ||
-          doc.category.toLowerCase() === categoryFilter) &&
-        (vehicleFilter === "all" || doc.vehicleNumber === vehicleFilter)
-    );
+  const filteredDocuments = useMemo(() => {
+    const list = vehicleDocuments
+      .map((doc) => ({
+        ...doc,
+        daysToExpiry: calculateDaysToExpiry(doc.expiryDate),
+      }))
+      .filter(
+        (doc) =>
+          (doc.documentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            doc.vehicleNumber
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            doc.documentNumber
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            doc.issuingAuthority
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) &&
+          (statusFilter === "all" ||
+            doc.status.toLowerCase().replace("_", "-") === statusFilter) &&
+          (typeFilter === "all" ||
+            doc.documentType.toLowerCase().replace("_", "-") === typeFilter) &&
+          (categoryFilter === "all" ||
+            doc.category.toLowerCase() === categoryFilter) &&
+          (vehicleFilter === "all" || doc.vehicleNumber === vehicleFilter)
+      );
 
-  // 🔥 remove sorting by complianceScore and riskLevel
-  // you can keep other sort logic if needed, e.g., by expiry date
-  return list;
-}, [
-  searchTerm,
-  statusFilter,
-  typeFilter,
-  categoryFilter,
-  vehicleFilter,
-  vehicleDocuments,
-  calculateDaysToExpiry,
-]);
-
+    // 🔥 remove sorting by complianceScore and riskLevel
+    // you can keep other sort logic if needed, e.g., by expiry date
+    return list;
+  }, [
+    searchTerm,
+    statusFilter,
+    typeFilter,
+    categoryFilter,
+    vehicleFilter,
+    vehicleDocuments,
+    calculateDaysToExpiry,
+  ]);
 
   const totalPages =
     pageSize > 0 ? Math.ceil(filteredDocuments.length / pageSize) : 1;
@@ -264,13 +262,7 @@ const filteredDocuments = useMemo(() => {
   // Reset page when any filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [
-    searchTerm,
-    statusFilter,
-    typeFilter,
-    categoryFilter,
-    vehicleFilter,
-  ]);
+  }, [searchTerm, statusFilter, typeFilter, categoryFilter, vehicleFilter]);
 
   const uniqueVehicles = [
     ...new Set(vehicleDocuments.map((d) => d.vehicleNumber)),
@@ -866,10 +858,30 @@ const filteredDocuments = useMemo(() => {
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
         {[
-          { icon: FileText, label: "Total", value: stats.totalDocuments, color:"text-blue-500" },
-          { icon: CheckCircle, label: "Valid", value: stats.validDocuments, color:"text-green-500" },
-          { icon: XCircle, label: "Expired", value: stats.expiredDocuments, color:"text-red-500" },
-          {icon: AlertTriangle,label: "Critical Risk",value: stats.criticalRisk,color:"text-red-600"},
+          {
+            icon: FileText,
+            label: "Total",
+            value: stats.totalDocuments,
+            color: "text-blue-500",
+          },
+          {
+            icon: CheckCircle,
+            label: "Valid",
+            value: stats.validDocuments,
+            color: "text-green-500",
+          },
+          {
+            icon: XCircle,
+            label: "Expired",
+            value: stats.expiredDocuments,
+            color: "text-red-500",
+          },
+          {
+            icon: AlertTriangle,
+            label: "Critical Risk",
+            value: stats.criticalRisk,
+            color: "text-red-600",
+          },
         ].map((s, i) => (
           <Card key={i}>
             <CardContent className="p-6 flex items-center gap-2">
@@ -882,7 +894,6 @@ const filteredDocuments = useMemo(() => {
           </Card>
         ))}
       </div>
-
 
       {/* Table Card */}
       <Card>
@@ -979,179 +990,258 @@ const filteredDocuments = useMemo(() => {
                 ))}
               </SelectContent>
             </Select>
-
-            {/* <Select value={riskFilter} onValueChange={setRiskFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Risk" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Risk</SelectItem>
-                {["low", "medium", "high", "critical"].map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-
-            {/* <Select
-              value={sortBy}
-              onValueChange={(v: typeof sortBy) => setSortBy(v)}
-            >
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Sort" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Filter Risk</SelectItem>
-                <SelectItem value="riskLevel">Risk Level</SelectItem>
-                <SelectItem value="complianceScore">
-                  Compliance Score
-                </SelectItem>
-              </SelectContent>
-            </Select> */}
           </div>
 
           {/* Table */}
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Vehicle & Document</TableHead>
-                <TableHead>Document Details</TableHead>
-                <TableHead>Validity & Status</TableHead>
-                <TableHead>Compliance & Risk</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.map((doc) => (
-                <TableRow key={doc.id}>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="font-medium flex items-center">
-                        <Car className="h-3 w-3 mr-1" />
-                        {doc.vehicleNumber}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {doc.vehicleMake} {doc.vehicleModel}
-                      </div>
-                      <div className="text-sm font-medium">
-                        {doc.documentName}
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="text-sm flex items-center">
-                        <FileText className="h-3 w-3 mr-1" />
-                        {doc.documentNumber}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {doc.issuingAuthority}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        File: {doc.fileName}
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="space-y-1">
-                      {getStatusBadge(doc.status)}
-                      <div className="text-sm">
-                        Issued: {formatDate(doc.issueDate)}
-                      </div>
-                      {doc.expiryDate && (
-                        <div className="text-sm">
-                          Expires: {formatDate(doc.expiryDate)}
-                        </div>
-                      )}
-                      {doc.daysToExpiry !== undefined && (
-                        <div
-                          className={`text-sm ${getDaysToExpiryColor(
-                            doc.daysToExpiry
-                          )}`}
-                        >
-                          {doc.daysToExpiry < 0
-                            ? `Overdue by ${Math.abs(doc.daysToExpiry)} days`
-                            : `${doc.daysToExpiry} days left`}
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Progress
-                          value={doc.complianceScore}
-                          className="w-16 h-2"
-                        />
-                        <span className="text-sm">{doc.complianceScore}%</span>
-                      </div>
-                      {getRiskBadge(doc.riskLevel)}
-                      <div className="text-xs text-muted-foreground">
-                        Reminders: {doc.remindersSent}
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleViewDetails(doc)}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDownloadAgreement(doc)}
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleEditDocument(doc)}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Document
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => sendReminders(doc)}>
-                          <Bell className="h-4 w-4 mr-2" />
-                          Send Reminder
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleRenewDocument(doc)}
-                        >
-                          <RefreshCw className="h-4 w-4 mr-2" />
-                          Renew
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleVerifyDocument(doc)}
-                        >
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Verify
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => handleDelete(doc)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Vehicle & Document</TableHead>
+                  <TableHead>Document Details</TableHead>
+                  <TableHead>Validity & Status</TableHead>
+                  <TableHead>Compliance & Risk</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.map((doc) => (
+                  <TableRow key={doc.id}>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="font-medium flex items-center">
+                          <Car className="h-3 w-3 mr-1" />
+                          {doc.vehicleNumber}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {doc.vehicleMake} {doc.vehicleModel}
+                        </div>
+                        <div className="text-sm font-medium">
+                          {doc.documentName}
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm flex items-center">
+                          <FileText className="h-3 w-3 mr-1" />
+                          {doc.documentNumber}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {doc.issuingAuthority}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          File: {doc.fileName}
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="space-y-1">
+                        {getStatusBadge(doc.status)}
+                        <div className="text-sm">
+                          Issued: {formatDate(doc.issueDate)}
+                        </div>
+                        {doc.expiryDate && (
+                          <div className="text-sm">
+                            Expires: {formatDate(doc.expiryDate)}
+                          </div>
+                        )}
+                        {doc.daysToExpiry !== undefined && (
+                          <div
+                            className={`text-sm ${getDaysToExpiryColor(
+                              doc.daysToExpiry
+                            )}`}
+                          >
+                            {doc.daysToExpiry < 0
+                              ? `Overdue by ${Math.abs(doc.daysToExpiry)} days`
+                              : `${doc.daysToExpiry} days left`}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Progress
+                            value={doc.complianceScore}
+                            className="w-16 h-2"
+                          />
+                          <span className="text-sm">
+                            {doc.complianceScore}%
+                          </span>
+                        </div>
+                        {getRiskBadge(doc.riskLevel)}
+                        <div className="text-xs text-muted-foreground">
+                          Reminders: {doc.remindersSent}
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleViewDetails(doc)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" /> View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDownloadAgreement(doc)}
+                          >
+                            <Download className="h-4 w-4 mr-2" /> Download
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleEditDocument(doc)}
+                          >
+                            <Edit className="h-4 w-4 mr-2" /> Edit Document
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => sendReminders(doc)}>
+                            <Bell className="h-4 w-4 mr-2" /> Send Reminder
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleRenewDocument(doc)}
+                          >
+                            <RefreshCw className="h-4 w-4 mr-2" /> Renew
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleVerifyDocument(doc)}
+                          >
+                            <CheckCircle className="h-4 w-4 mr-2" /> Verify
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleDelete(doc)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card Layout */}
+          <div className="md:hidden space-y-4">
+            {paginatedDocuments.map((doc) => (
+              <div
+                key={doc.id}
+                className="border rounded-lg p-4 shadow-sm bg-card text-card-foreground"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <Car className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-semibold">{doc.vehicleNumber}</h3>
+                  </div>
+                  {getStatusBadge(doc.status)}
+                </div>
+
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <div>
+                    <span className="font-medium text-foreground">
+                      Vehicle:
+                    </span>{" "}
+                    {doc.vehicleMake} {doc.vehicleModel}
+                  </div>
+
+                  <div>
+                    <span className="font-medium text-foreground">
+                      Document:
+                    </span>{" "}
+                    {doc.documentName} <br />
+                    Number: {doc.documentNumber} <br />
+                    Authority: {doc.issuingAuthority} <br />
+                    File: {doc.fileName}
+                  </div>
+
+                  <div>
+                    <span className="font-medium text-foreground">Dates:</span>{" "}
+                    <br />
+                    Issued: {formatDate(doc.issueDate)} <br />
+                    {doc.expiryDate && (
+                      <>
+                        Expires: {formatDate(doc.expiryDate)} <br />
+                      </>
+                    )}
+                    {doc.daysToExpiry !== undefined && (
+                      <span
+                        className={`${getDaysToExpiryColor(doc.daysToExpiry)}`}
+                      >
+                        {doc.daysToExpiry < 0
+                          ? `Overdue by ${Math.abs(doc.daysToExpiry)} days`
+                          : `${doc.daysToExpiry} days left`}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 mt-1">
+                    <Progress
+                      value={doc.complianceScore}
+                      className="w-16 h-2"
+                    />
+                    <span className="text-sm">{doc.complianceScore}%</span>
+                  </div>
+                  {getRiskBadge(doc.riskLevel)}
+                  <div className="text-xs text-muted-foreground">
+                    Reminders: {doc.remindersSent}
+                  </div>
+                </div>
+
+                <div className="flex justify-end mt-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleViewDetails(doc)}>
+                        <Eye className="h-4 w-4 mr-2" /> View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDownloadAgreement(doc)}
+                      >
+                        <Download className="h-4 w-4 mr-2" /> Download
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditDocument(doc)}>
+                        <Edit className="h-4 w-4 mr-2" /> Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => sendReminders(doc)}>
+                        <Bell className="h-4 w-4 mr-2" /> Send Reminder
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleRenewDocument(doc)}
+                      >
+                        <RefreshCw className="h-4 w-4 mr-2" /> Renew
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleVerifyDocument(doc)}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" /> Verify
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => handleDelete(doc)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
