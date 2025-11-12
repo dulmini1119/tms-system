@@ -101,7 +101,7 @@ export default function TripRequests() {
       managerName: "",
       costCenter: "",
     },
-    requestedFor: undefined,
+
     tripDetails: {
       fromLocation: { address: "" },
       toLocation: { address: "" },
@@ -112,7 +112,7 @@ export default function TripRequests() {
       isRoundTrip: false,
       estimatedDistance: 0,
       estimatedDuration: 0,
-      tripType: "",
+      //tripType: "",
     },
     purpose: {
       category: "Business Meeting",
@@ -126,11 +126,10 @@ export default function TripRequests() {
       passengerCount: 1,
       luggage: "Light",
       acRequired: true,
-      wheelchairAccessible: false,
-      driverRequired: true,
+      //driverRequired: true,
       specialRequirements: "",
-      specialInstructions: "",
-      luggageRequirements: "",
+      //specialInstructions: "",
+      //luggageRequirements: "",
     },
     priority: "Medium",
     estimatedCost: 0,
@@ -150,17 +149,17 @@ export default function TripRequests() {
   });
 
   // Date formatter (consistent across server/client)
-const dateFormatter = useMemo(() => {
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}, []);
+  const dateFormatter = useMemo(() => {
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  }, []);
 
-const formatDate = useMemo(() => {
-  return (s?: string) => (s ? dateFormatter.format(new Date(s)) : "N/A");
-}, [dateFormatter]);
+  const formatDate = useMemo(() => {
+    return (s?: string) => (s ? dateFormatter.format(new Date(s)) : "N/A");
+  }, [dateFormatter]);
 
   // Filter logic
   const filteredRequests = tripRequests.filter((request) => {
@@ -307,7 +306,7 @@ const formatDate = useMemo(() => {
         managerName: "",
         costCenter: "",
       },
-      requestedFor: undefined,
+
       tripDetails: {
         fromLocation: { address: "" },
         toLocation: { address: "" },
@@ -318,7 +317,6 @@ const formatDate = useMemo(() => {
         isRoundTrip: false,
         estimatedDistance: 0,
         estimatedDuration: 0,
-        tripType: "",
       },
       purpose: {
         category: "Business Meeting",
@@ -332,11 +330,8 @@ const formatDate = useMemo(() => {
         passengerCount: 1,
         luggage: "Light",
         acRequired: true,
-        wheelchairAccessible: false,
-        driverRequired: true,
+
         specialRequirements: "",
-        specialInstructions: "",
-        luggageRequirements: "",
       },
       priority: "Medium",
       estimatedCost: 0,
@@ -561,129 +556,221 @@ const formatDate = useMemo(() => {
             </Select>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Request Details</TableHead>
-                <TableHead>Requester</TableHead>
-                <TableHead>Trip Information</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Cost</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.length > 0 ? (
-                paginatedDocuments.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="font-medium">
-                          {request.requestNumber}
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Request Details</TableHead>
+                  <TableHead>Requester</TableHead>
+                  <TableHead>Trip Information</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Priority</TableHead>
+                  <TableHead>Cost</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.length > 0 ? (
+                  paginatedDocuments.map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-medium">
+                            {request.requestNumber}
+                          </div>
+                          <div className="text-sm text-muted-foreground flex items-center">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            {formatDate(request.tripDetails.departureDate)}
+                          </div>
                         </div>
-                        <div className="text-sm text-muted-foreground flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          {formatDate(request.tripDetails.departureDate)}
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-medium flex items-center">
+                            <User className="h-3 w-3 mr-1" />
+                            {request.requestedBy.name}
+                          </div>
+                          <div className="text-sm text-muted-foreground flex items-center">
+                            <Building2 className="h-3 w-3 mr-1" />
+                            {request.requestedBy.department}
+                          </div>
                         </div>
-                      </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="text-sm flex items-center">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {request.tripDetails.fromLocation.address.substring(
+                              0,
+                              25
+                            )}
+                            ...
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            to{" "}
+                            {request.tripDetails.toLocation.address.substring(
+                              0,
+                              25
+                            )}
+                            ...
+                          </div>
+                          <div className="text-xs text-muted-foreground flex items-center">
+                            <Clock className="h-3 w-3 mr-1" />
+                            {request.tripDetails.departureDate}{" "}
+                            {request.tripDetails.departureTime}
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <Badge variant={getStatusBadgeVariant(request.status)}>
+                          {request.status}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell>
+                        <Badge
+                          variant={getPriorityBadgeVariant(request.priority)}
+                        >
+                          {request.priority}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="flex items-center">
+                          Rs. {request.estimatedCost.toLocaleString()}
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleViewDetails(request)}
+                            >
+                              <Eye className="mr-2 h-4 w-4" /> View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleEdit(request)}
+                            >
+                              <Edit className="mr-2 h-4 w-4" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(request)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="text-center text-muted-foreground"
+                    >
+                      No requests found
                     </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="font-medium flex items-center">
-                          <User className="h-3 w-3 mr-1" />
-                          {request.requestedBy.name}
-                        </div>
-                        <div className="text-sm text-muted-foreground flex items-center">
-                          <Building2 className="h-3 w-3 mr-1" />
-                          {request.requestedBy.department}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm flex items-center">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {request.tripDetails.fromLocation.address.substring(
-                            0,
-                            25
-                          )}
-                          ...
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          to{" "}
-                          {request.tripDetails.toLocation.address.substring(
-                            0,
-                            25
-                          )}
-                          ...
-                        </div>
-                        <div className="text-xs text-muted-foreground flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {request.tripDetails.departureDate}{" "}
-                          {request.tripDetails.departureTime}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusBadgeVariant(request.status)}>
-                        {request.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card Layout */}
+          <div className="md:hidden space-y-4">
+            {paginatedDocuments.length > 0 ? (
+              paginatedDocuments.map((request) => (
+                <div
+                  key={request.id}
+                  className="border rounded-lg p-4 shadow-sm bg-card text-card-foreground"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-semibold">{request.requestNumber}</div>
+                    <Badge variant={getStatusBadgeVariant(request.status)}>
+                      {request.status}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <div className="flex items-center">
+                      <User className="h-4 w-4 mr-1" />{" "}
+                      {request.requestedBy.name} (
+                      {request.requestedBy.department})
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {request.tripDetails.fromLocation.address.substring(
+                        0,
+                        25
+                      )}
+                      ... to{" "}
+                      {request.tripDetails.toLocation.address.substring(0, 25)}
+                      ...
+                    </div>
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-1" />
+                      {request.tripDetails.departureDate}{" "}
+                      {request.tripDetails.departureTime}
+                    </div>
+                    <div>
+                      <span className="font-medium">Priority:</span>{" "}
                       <Badge
                         variant={getPriorityBadgeVariant(request.priority)}
                       >
                         {request.priority}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        Rs. {request.estimatedCost.toLocaleString()}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleViewDetails(request)}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEdit(request)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDelete(request)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center text-muted-foreground"
-                  >
-                    No requests found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    </div>
+                    <div>
+                      <span className="font-medium">Estimated Cost:</span> Rs.{" "}
+                      {request.estimatedCost.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end mt-3">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleViewDetails(request)}
+                        >
+                          <Eye className="h-4 w-4 mr-2" /> View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(request)}>
+                          <Edit className="h-4 w-4 mr-2" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => handleDelete(request)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground">
+                No requests found
+              </div>
+            )}
+          </div>
 
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
@@ -1104,13 +1191,6 @@ const formatDate = useMemo(() => {
                     <div>
                       Return Time:{" "}
                       {selectedRequest.tripDetails.returnTime || "N/A"}
-                    </div>
-                    <div>
-                      Trip Type:{" "}
-                      {selectedRequest.tripDetails.tripType ||
-                        (selectedRequest.tripDetails.isRoundTrip
-                          ? "Round Trip"
-                          : "One Way")}
                     </div>
                     <div>
                       Duration:{" "}

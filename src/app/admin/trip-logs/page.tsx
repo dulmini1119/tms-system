@@ -443,151 +443,256 @@ export default function TripLogs() {
           </div>
 
           {/* Trip Logs Table */}
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Trip Details</TableHead>
-                <TableHead>Vehicle & Driver</TableHead>
-                <TableHead>Route & Timing</TableHead>
-                <TableHead>GPS & Tracking</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.map((log) => {
-                const request = requestMap.get(log.tripRequestId);
-                const assignment = assignmentMap.get(log.tripAssignmentId);
-                if (!request || !assignment) return null;
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Trip Details</TableHead>
+                  <TableHead>Vehicle & Driver</TableHead>
+                  <TableHead>Route & Timing</TableHead>
+                  <TableHead>GPS & Tracking</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.map((log) => {
+                  const request = requestMap.get(log.tripRequestId);
+                  const assignment = assignmentMap.get(log.tripAssignmentId);
+                  if (!request || !assignment) return null;
 
-                return (
-                  <TableRow key={log.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{log.requestNumber}</div>
-                        <div className="text-sm text-muted-foreground mt-1">
-                          {request.purpose.description}
+                  return (
+                    <TableRow key={log.id}>
+                      {/* Trip Details */}
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{log.requestNumber}</div>
+                          <div className="text-sm text-muted-foreground mt-1">
+                            {request.purpose.description}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                            <User className="h-3 w-3 mr-1" />{" "}
+                            {request.requestedBy.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Created: {formatDate(log.createdAt)}
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground mt-1 flex items-center">
-                          <User className="h-3 w-3 mr-1" />
-                          {request.requestedBy.name}
+                      </TableCell>
+
+                      {/* Vehicle & Driver */}
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-medium flex items-center">
+                            <Car className="h-3 w-3 mr-1" />
+                            {assignment.assignedVehicle.registrationNo}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {assignment.assignedVehicle.make}{" "}
+                            {assignment.assignedVehicle.model}
+                          </div>
+                          <div className="text-sm flex items-center">
+                            <User className="h-3 w-3 mr-1" />{" "}
+                            {assignment.assignedDriver.name}
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          Created: {formatDate(log.createdAt)}
+                      </TableCell>
+
+                      {/* Route & Timing */}
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="text-sm flex items-start">
+                            <MapPin className="h-3 w-3 mr-1 mt-0.5 text-green-500" />
+                            <span className="text-xs">
+                              {log.actualRoute.startLocation.address}
+                            </span>
+                          </div>
+                          <div className="text-sm flex items-start">
+                            <MapPin className="h-3 w-3 mr-1 mt-0.5 text-red-500" />
+                            <span className="text-xs">
+                              {log.actualRoute.endLocation.address}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Distance: {log.actualRoute.totalDistance || 0} km
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Duration:{" "}
+                            {formatDuration(log.actualRoute.totalDuration || 0)}
+                          </div>
+                          {log.timing.delays.length > 0 && (
+                            <div className="text-xs text-orange-600">
+                              {log.timing.delays.length} delay(s)
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="font-medium flex items-center">
-                          <Car className="h-3 w-3 mr-1" />
-                          {assignment.assignedVehicle.registrationNo}
+                      </TableCell>
+
+                      {/* GPS & Tracking */}
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="text-sm flex items-center">
+                            <Navigation className="h-3 w-3 mr-1" />
+                            GPS:{" "}
+                            {log.gpsTracking.enabled ? "Active" : "Inactive"}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Speed Alerts: {log.gpsTracking.speedAlerts}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Geo Violations: {log.gpsTracking.geoFenceViolations}
+                          </div>
+                          {log.gpsTracking.currentLocation && (
+                            <Badge variant="secondary" className="text-xs">
+                              Live Tracking
+                            </Badge>
+                          )}
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          {assignment.assignedVehicle.make}{" "}
-                          {assignment.assignedVehicle.model}
-                        </div>
-                        <div className="text-sm flex items-center">
-                          <User className="h-3 w-3 mr-1" />
-                          {assignment.assignedDriver.name}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm flex items-start">
-                          <MapPin className="h-3 w-3 mr-1 mt-0.5 text-green-500" />
-                          <span className="text-xs">
-                            {log.actualRoute.startLocation.address}
-                          </span>
-                        </div>
-                        <div className="text-sm flex items-start">
-                          <MapPin className="h-3 w-3 mr-1 mt-0.5 text-red-500" />
-                          <span className="text-xs">
-                            {log.actualRoute.endLocation.address}
-                          </span>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Distance: {log.actualRoute.totalDistance || 0} km
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Duration:{" "}
-                          {formatDuration(log.actualRoute.totalDuration || 0)}
-                        </div>
-                        {log.timing.delays.length > 0 && (
-                          <div className="text-xs text-orange-600">
-                            {log.timing.delays.length} delay(s)
+                      </TableCell>
+
+                      {/* Status */}
+                      <TableCell>
+                        {getStatusBadge(log.tripStatus)}
+                        {log.timing.waitingTime > 0 && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            Wait: {log.timing.waitingTime} min
                           </div>
                         )}
+                      </TableCell>
+
+                      {/* Actions */}
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleViewDetails(log)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" /> View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleTrackLive(log)}
+                            >
+                              <Navigation className="h-4 w-4 mr-2" /> Track Live
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleExportLog(log)}
+                            >
+                              <Download className="h-4 w-4 mr-2" /> Export Log
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleGenerateReport(log)}
+                            >
+                              <FileText className="h-4 w-4 mr-2" /> Generate
+                              Report
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="md:hidden space-y-4">
+            {paginatedDocuments.map((log) => {
+              const request = requestMap.get(log.tripRequestId);
+              const assignment = assignmentMap.get(log.tripAssignmentId);
+              if (!request || !assignment) return null;
+
+              return (
+                <div
+                  key={log.id}
+                  className="border rounded-lg p-4 shadow-sm bg-card text-card-foreground"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="font-semibold">{log.requestNumber}</div>
+                    {getStatusBadge(log.tripStatus)}
+                  </div>
+
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <div>{request.purpose.description}</div>
+                    <div className="flex items-center">
+                      <User className="h-4 w-4 mr-1" />{" "}
+                      {request.requestedBy.name}
+                    </div>
+
+                    <div className="font-medium flex items-center">
+                      <Car className="h-4 w-4 mr-1" />{" "}
+                      {assignment.assignedVehicle.registrationNo}
+                    </div>
+                    <div>
+                      {assignment.assignedVehicle.make}{" "}
+                      {assignment.assignedVehicle.model}
+                    </div>
+                    <div className="flex items-center">
+                      <User className="h-4 w-4 mr-1" />{" "}
+                      {assignment.assignedDriver.name}
+                    </div>
+
+                    <div className="text-xs text-muted-foreground">
+                      Route: {log.actualRoute.startLocation.address} →{" "}
+                      {log.actualRoute.endLocation.address}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Distance: {log.actualRoute.totalDistance || 0} km,
+                      Duration:{" "}
+                      {formatDuration(log.actualRoute.totalDuration || 0)}
+                    </div>
+                    {log.timing.delays.length > 0 && (
+                      <div className="text-xs text-orange-600">
+                        {log.timing.delays.length} delay(s)
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm flex items-center">
-                          <Navigation className="h-3 w-3 mr-1" />
-                          GPS: {log.gpsTracking.enabled ? "Active" : "Inactive"}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Speed Alerts: {log.gpsTracking.speedAlerts}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Geo Violations: {log.gpsTracking.geoFenceViolations}
-                        </div>
-                        {log.gpsTracking.currentLocation && (
-                          <Badge variant="secondary" className="text-xs">
-                            Live Tracking
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(log.tripStatus)}
-                      {log.timing.waitingTime > 0 && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Wait: {log.timing.waitingTime} min
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleViewDetails(log)}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleTrackLive(log)}
-                          >
-                            <Navigation className="h-4 w-4 mr-2" />
-                            Track Live
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleExportLog(log)}
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Export Log
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleGenerateReport(log)}
-                          >
-                            <FileText className="h-4 w-4 mr-2" />
-                            Generate Report
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                    )}
+
+                    <div className="flex items-center">
+                      <Navigation className="h-4 w-4 mr-1" /> GPS:{" "}
+                      {log.gpsTracking.enabled ? "Active" : "Inactive"}
+                    </div>
+                    {log.gpsTracking.currentLocation && (
+                      <Badge variant="secondary" className="text-xs">
+                        Live Tracking
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end mt-3">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleViewDetails(log)}
+                        >
+                          <Eye className="h-4 w-4 mr-2" /> View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleTrackLive(log)}>
+                          <Navigation className="h-4 w-4 mr-2" /> Track Live
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleExportLog(log)}>
+                          <Download className="h-4 w-4 mr-2" /> Export Log
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleGenerateReport(log)}
+                        >
+                          <FileText className="h-4 w-4 mr-2" /> Generate Report
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">

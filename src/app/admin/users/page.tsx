@@ -342,84 +342,170 @@ export default function Users() {
             </Select>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Business Unit</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Login</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{user.name}</div>
-                      <div className="text-sm text-muted-foreground flex items-center mt-1">
-                        <Mail className="h-3 w-3 mr-1" />
-                        {user.email}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm flex items-center">
-                      <Phone className="h-3 w-3 mr-1" />
-                      {user.phone}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{user.role}</Badge>
-                  </TableCell>
-                  <TableCell>{user.department}</TableCell>
-                  <TableCell>{user.businessUnit}</TableCell>
-                  <TableCell>{getStatusBadge(user.status)}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {user.lastLogin}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditUser(user)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit User
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleResetPassword(user.id)}
-                        >
-                          <RefreshCw className="h-4 w-4 mr-2" />
-                          Reset Password
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDeactivateUser(user.id)}
-                        >
-                          <UserX className="h-4 w-4 mr-2" />
-                          Deactivate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => handleDeleteUser(user.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete User
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          {/* Desktop Table View */}
+          <div className="hidden sm:block w-full overflow-x-auto">
+            <Table className="min-w-full table-auto text-sm">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Business Unit</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Last Login</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{user.name}</div>
+                        <div className="text-sm text-muted-foreground flex items-center mt-1">
+                          <Mail className="h-3 w-3 mr-1" />
+                          {user.email}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm flex items-center">
+                        <Phone className="h-3 w-3 mr-1" />
+                        {user.phone}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{user.role}</Badge>
+                    </TableCell>
+                    <TableCell>{user.department}</TableCell>
+                    <TableCell>{user.businessUnit}</TableCell>
+                    <TableCell>{getStatusBadge(user.status)}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {user.lastLogin}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleEditUser(user)}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit User
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleResetPassword(user.id)}
+                          >
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Reset Password
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeactivateUser(user.id)}
+                          >
+                            <UserX className="h-4 w-4 mr-2" />
+                            Deactivate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete User
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="sm:hidden space-y-4">
+            {paginatedDocuments.map((user) => (
+              <div
+                key={user.id}
+                className="border rounded-xl p-4 bg-card shadow-sm flex flex-col gap-3"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="font-semibold text-base">{user.name}</div>
+                    <div className="text-xs text-muted-foreground flex items-center mt-1">
+                      <Mail className="h-3 w-3 mr-1" />
+                      {user.email}
+                    </div>
+                  </div>
+                  <Badge variant="outline">{user.role}</Badge>
+                </div>
+
+                <div className="text-sm flex items-center">
+                  <Phone className="h-3 w-3 mr-1" />
+                  {user.phone}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Dept:</span>{" "}
+                    {user.department}
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Unit:</span>{" "}
+                    {user.businessUnit}
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>{" "}
+                    {getStatusBadge(user.status)}
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Last Login:</span>{" "}
+                    {user.lastLogin}
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        Actions
+                        <MoreHorizontal className="ml-2 h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEditUser(user)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit User
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleResetPassword(user.id)}
+                      >
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Reset Password
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDeactivateUser(user.id)}
+                      >
+                        <UserX className="h-4 w-4 mr-2" />
+                        Deactivate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete User
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
