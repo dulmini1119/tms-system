@@ -344,82 +344,161 @@ export default function BusinessUnits() {
             </div>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Business Unit</TableHead>
-                <TableHead>Manager</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Employees</TableHead>
-                <TableHead>Budget</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.map((bu) => (
-                <TableRow key={bu.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Building className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <div className="font-medium">{bu.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {bu.code}
+          {/* Desktop Table View */}
+          <div className="hidden md:block">
+            <div className="w-full overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Business Unit</TableHead>
+                    <TableHead>Manager</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Employees</TableHead>
+                    <TableHead>Budget</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedDocuments.map((bu) => (
+                    <TableRow key={bu.id}>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Building className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <div className="font-medium">{bu.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {bu.code}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
+                      </TableCell>
+
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{bu.manager}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {bu.managerEmail}
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <Badge variant="secondary" className="text-xs">
+                          <Briefcase className="h-3 w-3 mr-1" />
+                          {bu.department}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="flex items-center space-x-1">
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                          <span>{bu.employeeCount}</span>
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <span className="font-medium">
+                          {formatCurrency(bu.budget)}
+                        </span>
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEditBU(bu)}>
+                              <Edit className="h-4 w-4 mr-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(bu.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="block md:hidden space-y-3">
+            {paginatedDocuments.map((bu) => (
+              <div
+                key={bu.id}
+                className="bg-card border border-border rounded-xl p-4 shadow-sm space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Building className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <div className="font-medium">{bu.manager}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {bu.managerEmail}
+                      <div className="font-semibold">{bu.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {bu.code}
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className="text-xs">
-                      <Briefcase className="h-3 w-3 mr-1" />
-                      {bu.department}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-1">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>{bu.employeeCount}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-medium">
-                      {formatCurrency(bu.budget)}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditBU(bu)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Business Unit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(bu.id)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Business Unit
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </div>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEditBU(bu)}>
+                        <Edit className="h-4 w-4 mr-2" /> Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDelete(bu.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <p className="font-medium text-muted-foreground">
+                      Manager:
+                    </p>
+                    <p>{bu.manager}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-muted-foreground">Email:</p>
+                    <p className="truncate">{bu.managerEmail}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-muted-foreground">
+                      Department:
+                    </p>
+                    <p>{bu.department}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-muted-foreground">
+                      Employees:
+                    </p>
+                    <p>{bu.employeeCount}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-muted-foreground">Budget:</p>
+                    <p>{formatCurrency(bu.budget)}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
             <div className="flex items-center gap-2 text-sm">

@@ -339,95 +339,175 @@ export default function CabServices() {
             </Select>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Service Provider</TableHead>
-                <TableHead>Contact Details</TableHead>
-                <TableHead>Business Registration</TableHead>
-                <TableHead>Vehicles</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.map((service) => (
-                <TableRow key={service.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Car className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <div className="font-medium">{service.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Joined: {service.joinedDate}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Service Provider</TableHead>
+                  <TableHead>Contact Details</TableHead>
+                  <TableHead>Business Registration</TableHead>
+                  <TableHead>Vehicles</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.map((service) => (
+                  <TableRow key={service.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Car className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">{service.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            Joined: {service.joinedDate}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="font-medium">{service.contactPerson}</div>
-                      <div className="text-sm text-muted-foreground flex items-center">
-                        <Phone className="h-3 w-3 mr-1" />
-                        {service.phone}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="font-medium">
+                          {service.contactPerson}
+                        </div>
+                        <div className="text-sm text-muted-foreground flex items-center">
+                          <Phone className="h-3 w-3 mr-1" />
+                          {service.phone}
+                        </div>
+                        <div className="text-sm text-muted-foreground flex items-center">
+                          <Mail className="h-3 w-3 mr-1" />
+                          {service.email}
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground flex items-center">
-                        <Mail className="h-3 w-3 mr-1" />
-                        {service.email}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-1">
+                        <FileText className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-sm font-mono">
+                          {service.businessRegNo}
+                        </span>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-1">
-                      <FileText className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-sm font-mono">
-                        {service.businessRegNo}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-1">
-                      <Car className="h-4 w-4 text-muted-foreground" />
-                      <span>{service.vehicleCount}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(service.status)}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleEditService(service)}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Service
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            alert(`Viewing agreements for ${service.name}`)
-                          }
-                        >
-                          <FileText className="h-4 w-4 mr-2" />
-                          View Agreements
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(service.id)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Remove Service
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-1">
+                        <Car className="h-4 w-4 text-muted-foreground" />
+                        <span>{service.vehicleCount}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(service.status)}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleEditService(service)}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Service
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              alert(`Viewing agreements for ${service.name}`)
+                            }
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            View Agreements
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(service.id)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Remove Service
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card Layout */}
+          <div className="md:hidden space-y-4">
+            {paginatedDocuments.map((service) => (
+              <div
+                key={service.id}
+                className="border rounded-lg p-4 shadow-sm bg-card text-card-foreground"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <Car className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-semibold">{service.name}</h3>
+                  </div>
+                  {getStatusBadge(service.status)}
+                </div>
+
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div>
+                    <span className="font-medium text-foreground">
+                      Contact:
+                    </span>{" "}
+                    <br />
+                    {service.contactPerson} — {service.phone}
+                    <br />
+                    {service.email}
+                  </div>
+
+                  <div className="flex items-center">
+                    <FileText className="h-3 w-3 mr-1" />
+                    <span className="text-foreground text-sm">
+                      Reg No: {service.businessRegNo}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center">
+                    <Car className="h-3 w-3 mr-1" />
+                    <span>{service.vehicleCount} Vehicles</span>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground">
+                    Joined: {service.joinedDate}
+                  </p>
+                </div>
+
+                <div className="flex justify-end mt-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleEditService(service)}
+                      >
+                        <Edit className="h-4 w-4 mr-2" /> Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          alert(`Viewing agreements for ${service.name}`)
+                        }
+                      >
+                        <FileText className="h-4 w-4 mr-2" /> Agreements
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDelete(service.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" /> Remove
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">

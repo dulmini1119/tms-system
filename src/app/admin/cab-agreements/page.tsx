@@ -427,103 +427,189 @@ export default function CabAgreements() {
             </Select>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Agreement</TableHead>
-                <TableHead>Cab Service</TableHead>
-                <TableHead>Validity Period</TableHead>
-                <TableHead>Rates</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Renewal Due</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.map((agreement) => (
-                <TableRow key={agreement.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <div className="font-medium">
-                          {agreement.agreementNo}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Signed: {agreement.signedDate}
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Agreement</TableHead>
+                  <TableHead>Cab Service</TableHead>
+                  <TableHead>Validity Period</TableHead>
+                  <TableHead>Rates</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Renewal Due</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.map((agreement) => (
+                  <TableRow key={agreement.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">
+                            {agreement.agreementNo}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Signed: {agreement.signedDate}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-medium">{agreement.cabService}</span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="text-sm">
-                        <Calendar className="h-3 w-3 inline mr-1" />
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-medium">
+                        {agreement.cabService}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm flex items-center">
+                        <Calendar className="h-3 w-3 mr-1" />
                         {agreement.startDate} to {agreement.endDate}
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1 text-sm">
+                    </TableCell>
+                    <TableCell className="text-sm">
                       <div>Rs.{agreement.ratePerKm}/km</div>
                       <div>Min: Rs.{agreement.minimumFare}</div>
                       <div>Wait: Rs.{agreement.waitingCharges}/min</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(agreement.status)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      {isRenewalDue(agreement.renewalDue) && (
-                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                      )}
-                      <span className="text-sm">{agreement.renewalDue}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleDownloadAgreement(agreement.documentFile)
-                          }
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download Agreement
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleEditAgreement(agreement)}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Agreement
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleUploadNewVersion(agreement.id)}
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Upload New Version
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteAgreement(agreement.id)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Agreement
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(agreement.status)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        {isRenewalDue(agreement.renewalDue) && (
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                        )}
+                        <span className="text-sm">{agreement.renewalDue}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleDownloadAgreement(agreement.documentFile)
+                            }
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download Agreement
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleEditAgreement(agreement)}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Agreement
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleUploadNewVersion(agreement.id)}
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Upload New Version
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteAgreement(agreement.id)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Agreement
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card Layout */}
+          <div className="md:hidden space-y-4">
+            {paginatedDocuments.map((agreement) => (
+              <div
+                key={agreement.id}
+                className="border rounded-lg p-4 shadow-sm bg-card text-card-foreground"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-semibold">{agreement.agreementNo}</h3>
+                  </div>
+                  {getStatusBadge(agreement.status)}
+                </div>
+
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div>
+                    <span className="font-medium text-foreground">
+                      Cab Service:
+                    </span>{" "}
+                    <br />
+                    {agreement.cabService}
+                  </div>
+
+                  <div className="flex items-center">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    {agreement.startDate} to {agreement.endDate}
+                  </div>
+
+                  <div className="space-y-1">
+                    <div>Rs.{agreement.ratePerKm}/km</div>
+                    <div>Min: Rs.{agreement.minimumFare}</div>
+                    <div>Wait: Rs.{agreement.waitingCharges}/min</div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    {isRenewalDue(agreement.renewalDue) && (
+                      <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                    )}
+                    <span>Renewal Due: {agreement.renewalDue}</span>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground">
+                    Signed: {agreement.signedDate}
+                  </p>
+                </div>
+
+                <div className="flex justify-end mt-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() =>
+                          handleDownloadAgreement(agreement.documentFile)
+                        }
+                      >
+                        <Download className="h-4 w-4 mr-2" /> Download
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleEditAgreement(agreement)}
+                      >
+                        <Edit className="h-4 w-4 mr-2" /> Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleUploadNewVersion(agreement.id)}
+                      >
+                        <Upload className="h-4 w-4 mr-2" /> Upload Version
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteAgreement(agreement.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
