@@ -609,136 +609,257 @@ export default function TripAssignments() {
             </Select>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Trip Details</TableHead>
-                <TableHead>Assignment</TableHead>
-                <TableHead>Schedule</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Pre-Trip</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.map((assignment) => {
-                const request = requestMap.get(assignment.tripRequestId);
-                if (!request) return null;
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Trip Details</TableHead>
+                  <TableHead>Assignment</TableHead>
+                  <TableHead>Schedule</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Pre-Trip</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.map((assignment) => {
+                  const request = requestMap.get(assignment.tripRequestId);
+                  if (!request) return null;
 
-                return (
-                  <TableRow key={assignment.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">
-                          {assignment.requestNumber}
+                  return (
+                    <TableRow key={assignment.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">
+                            {assignment.requestNumber}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                            <User className="h-3 w-3 mr-1" />
+                            {request.requestedBy.name}
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground mt-1 flex items-center">
-                          <User className="h-3 w-3 mr-1" />
-                          {request.requestedBy.name}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="font-medium flex items-center">
-                          <Car className="h-3 w-3 mr-1" />
-                          {assignment.assignedVehicle.registrationNo}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {assignment.assignedVehicle.make}{" "}
-                          {assignment.assignedVehicle.model}
-                        </div>
-                        <div className="font-medium flex items-center">
-                          <User className="h-3 w-3 mr-1" />
-                          {assignment.assignedVehicle.currentDriver}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          License: {assignment.assignedDriver.licenseNumber}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          Scheduled: {formatDate(assignment.scheduledDeparture)}
-                        </div>
-                        {assignment.scheduledReturn && (
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-medium flex items-center">
+                            <Car className="h-3 w-3 mr-1" />
+                            {assignment.assignedVehicle.registrationNo}
+                          </div>
                           <div className="text-sm text-muted-foreground">
-                            Return: {formatDate(assignment.scheduledReturn)}
+                            {assignment.assignedVehicle.make}{" "}
+                            {assignment.assignedVehicle.model}
+                          </div>
+                          <div className="font-medium flex items-center">
+                            <User className="h-3 w-3 mr-1" />
+                            {assignment.assignedVehicle.currentDriver}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            License: {assignment.assignedDriver.licenseNumber}
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="text-sm flex items-center">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            Scheduled:{" "}
+                            {formatDate(assignment.scheduledDeparture)}
+                          </div>
+                          {assignment.scheduledReturn && (
+                            <div className="text-sm text-muted-foreground">
+                              Return: {formatDate(assignment.scheduledReturn)}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        {getStatusBadge(assignment.assignmentStatus)}
+                        {assignment.driverAcceptance && (
+                          <div className="text-xs text-green-600 mt-1">
+                            Driver {assignment.driverAcceptance.accepted}
                           </div>
                         )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(assignment.assignmentStatus)}
-                      {assignment.driverAcceptance && (
-                        <div className="text-xs text-green-600 mt-1">
-                          Driver {assignment.driverAcceptance.accepted}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {assignment.preTrip && assignment.preTrip.completedAt ? (
-                        <div className="space-y-1">
+                      </TableCell>
+
+                      <TableCell>
+                        {assignment.preTrip &&
+                        assignment.preTrip.completedAt ? (
                           <Badge variant="default" className="text-xs">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Completed
+                            <CheckCircle className="h-3 w-3 mr-1" /> Completed
                           </Badge>
-                        </div>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs">
+                            <Clock className="h-3 w-3 mr-1" /> Pending
+                          </Badge>
+                        )}
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleViewDetails(assignment)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" /> View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleEditAssignment(assignment)}
+                            >
+                              <Edit className="h-4 w-4 mr-2" /> Edit Assignment
+                            </DropdownMenuItem>
+                            {assignment.assignmentStatus === "Assigned" && (
+                              <>
+                                <DropdownMenuItem>
+                                  <CheckCircle className="h-4 w-4 mr-2" />{" "}
+                                  Accept Assignment
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <XCircle className="h-4 w-4 mr-2" /> Reject
+                                  Assignment
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            <DropdownMenuItem
+                              onClick={() => handlePreTripChecklist(assignment)}
+                            >
+                              <FileText className="h-4 w-4 mr-2" /> Pre-Trip
+                              Checklist
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card Layout */}
+          <div className="md:hidden space-y-4">
+            {paginatedDocuments.map((assignment) => {
+              const request = requestMap.get(assignment.tripRequestId);
+              if (!request) return null;
+
+              return (
+                <div
+                  key={assignment.id}
+                  className="border rounded-lg p-4 shadow-sm bg-card text-card-foreground"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="font-semibold">
+                      {assignment.requestNumber}
+                    </div>
+                    <div>
+                      {assignment.assignmentStatus &&
+                        getStatusBadge(assignment.assignmentStatus)}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <div className="flex items-center">
+                      <User className="h-4 w-4 mr-1" />{" "}
+                      {request.requestedBy.name}
+                    </div>
+                    <div className="font-medium flex items-center">
+                      <Car className="h-4 w-4 mr-1" />{" "}
+                      {assignment.assignedVehicle.registrationNo}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {assignment.assignedVehicle.make}{" "}
+                      {assignment.assignedVehicle.model}
+                    </div>
+                    <div className="flex items-center">
+                      <User className="h-4 w-4 mr-1" />{" "}
+                      {assignment.assignedVehicle.currentDriver}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      License: {assignment.assignedDriver.licenseNumber}
+                    </div>
+
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" /> Scheduled:{" "}
+                      {formatDate(assignment.scheduledDeparture)}
+                    </div>
+                    {assignment.scheduledReturn && (
+                      <div className="text-sm text-muted-foreground">
+                        Return: {formatDate(assignment.scheduledReturn)}
+                      </div>
+                    )}
+
+                    <div>
+                      <span className="font-medium">Pre-Trip:</span>{" "}
+                      {assignment.preTrip && assignment.preTrip.completedAt ? (
+                        <Badge variant="default" className="text-xs">
+                          <CheckCircle className="h-3 w-3 mr-1" /> Completed
+                        </Badge>
                       ) : (
                         <Badge variant="secondary" className="text-xs">
-                          <Clock className="h-3 w-3 mr-1" />
-                          Pending
+                          <Clock className="h-3 w-3 mr-1" /> Pending
                         </Badge>
                       )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleViewDetails(assignment)}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleEditAssignment(assignment)}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Assignment
-                          </DropdownMenuItem>
-                          {assignment.assignmentStatus === "Assigned" && (
-                            <>
-                              <DropdownMenuItem>
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Accept Assignment
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <XCircle className="h-4 w-4 mr-2" />
-                                Reject Assignment
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                          <DropdownMenuItem
-                            onClick={() => handlePreTripChecklist(assignment)}
-                          >
-                            <FileText className="h-4 w-4 mr-2" />
-                            Pre-Trip Checklist
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                    </div>
+
+                    {assignment.driverAcceptance && (
+                      <div className="text-xs text-green-600 mt-1">
+                        Driver {assignment.driverAcceptance.accepted}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end mt-3">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleViewDetails(assignment)}
+                        >
+                          <Eye className="h-4 w-4 mr-2" /> View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleEditAssignment(assignment)}
+                        >
+                          <Edit className="h-4 w-4 mr-2" /> Edit Assignment
+                        </DropdownMenuItem>
+                        {assignment.assignmentStatus === "Assigned" && (
+                          <>
+                            <DropdownMenuItem>
+                              <CheckCircle className="h-4 w-4 mr-2" /> Accept
+                              Assignment
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <XCircle className="h-4 w-4 mr-2" /> Reject
+                              Assignment
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuItem
+                          onClick={() => handlePreTripChecklist(assignment)}
+                        >
+                          <FileText className="h-4 w-4 mr-2" /> Pre-Trip
+                          Checklist
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
             <div className="flex items-center gap-2 text-sm">

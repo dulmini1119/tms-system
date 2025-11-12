@@ -834,7 +834,7 @@ export default function TripCosts() {
       {/* Invoices Table */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <CardTitle>Vendor Invoices</CardTitle>
               <CardDescription>
@@ -858,10 +858,11 @@ export default function TripCosts() {
             </Tabs>
           </div>
         </CardHeader>
+
         <CardContent>
           {/* Filters */}
-          <div className="flex items-center space-x-4 mb-6 flex-wrap gap-2">
-            <div className="relative flex-1 max-w-sm">
+          <div className="flex flex-wrap gap-2 mb-6">
+            <div className="relative flex-1 min-w-[150px] max-w-sm">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search invoices..."
@@ -923,412 +924,327 @@ export default function TripCosts() {
                 return (
                   <Card key={key} className="overflow-hidden">
                     <div className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4 flex-1">
-                          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-100">
-                            <Truck className="h-6 w-6 text-blue-600" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <h3 className="font-semibold">
-                                {invoice.cabServiceName}
-                              </h3>
-                              <Badge variant="outline">
-                                {invoice.displayMonth}
-                              </Badge>
-                              {invoice.invoiceNumber && (
+                      {/* Table for larger screens */}
+                      <div className="hidden sm:block">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4 flex-1">
+                            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-100">
+                              <Truck className="h-6 w-6 text-blue-600" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2">
+                                <h3 className="font-semibold">
+                                  {invoice.cabServiceName}
+                                </h3>
                                 <Badge variant="outline">
-                                  {invoice.invoiceNumber}
+                                  {invoice.displayMonth}
                                 </Badge>
-                              )}
-                              {getStatusBadge(invoice.status)}
-                            </div>
-                            <div className="flex items-center space-x-4 mt-1 text-sm text-muted-foreground">
-                              <div className="flex items-center">
-                                <Truck className="h-3 w-3 mr-1" />
-                                {invoice.tripCount} trips
+                                {invoice.invoiceNumber && (
+                                  <Badge variant="outline">
+                                    {invoice.invoiceNumber}
+                                  </Badge>
+                                )}
+                                {getStatusBadge(invoice.status)}
                               </div>
-                              <div className="flex items-center">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                Due: {formatDate(invoice.dueDate)}
-                              </div>
-                              {invoice.paidDate && (
-                                <div className="flex items-center text-green-600">
-                                  <CheckCircle className="h-3 w-3 mr-1" />
-                                  Paid: {formatDate(invoice.paidDate)}
+                              <div className="flex items-center space-x-4 mt-1 text-sm text-muted-foreground">
+                                <div className="flex items-center">
+                                  <Truck className="h-3 w-3 mr-1" />
+                                  {invoice.tripCount} trips
                                 </div>
-                              )}
+                                <div className="flex items-center">
+                                  <Calendar className="h-3 w-3 mr-1" />
+                                  Due: {formatDate(invoice.dueDate)}
+                                </div>
+                                {invoice.paidDate && (
+                                  <div className="flex items-center text-green-600">
+                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                    Paid: {formatDate(invoice.paidDate)}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="text-right">
-                            <div className="text-2xl font-bold">
-                              {formatCurrency(invoice.totalAmount)}
+                          <div className="flex items-center space-x-4">
+                            <div className="text-right">
+                              <div className="text-2xl font-bold">
+                                {formatCurrency(invoice.totalAmount)}
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                Total Amount
+                              </p>
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              Total Amount
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleInvoiceExpansion(key)}
-                            >
-                              {isExpanded ? (
-                                <ChevronUp className="h-4 w-4" />
-                              ) : (
-                                <ChevronDown className="h-4 w-4" />
-                              )}
-                            </Button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() => handleViewDetails(invoice)}
-                                >
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  View Details
-                                </DropdownMenuItem>
-                                {invoice.status === "Draft" && (
+                            <div className="flex items-center space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleInvoiceExpansion(key)}
+                              >
+                                {isExpanded ? (
+                                  <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => handleViewDetails(invoice)}
+                                  >
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    View Details
+                                  </DropdownMenuItem>
+                                  {invoice.status === "Draft" && (
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleGenerateInvoice(invoice)
+                                      }
+                                    >
+                                      <FileText className="h-4 w-4 mr-2" />
+                                      Generate Invoice
+                                    </DropdownMenuItem>
+                                  )}
+                                  {(invoice.status === "Pending" ||
+                                    invoice.status === "Overdue") && (
+                                    <DropdownMenuItem
+                                      onClick={() => handleMarkAsPaid(invoice)}
+                                    >
+                                      <CheckCircle className="h-4 w-4 mr-2" />
+                                      Mark as Paid
+                                    </DropdownMenuItem>
+                                  )}
                                   <DropdownMenuItem
                                     onClick={() =>
-                                      handleGenerateInvoice(invoice)
+                                      handleDownloadInvoice(invoice)
                                     }
                                   >
-                                    <FileText className="h-4 w-4 mr-2" />
-                                    Generate Invoice
+                                    <Download className="h-4 w-4 mr-2" />
+                                    Download Invoice
                                   </DropdownMenuItem>
-                                )}
-                                {(invoice.status === "Pending" ||
-                                  invoice.status === "Overdue") && (
                                   <DropdownMenuItem
-                                    onClick={() => handleMarkAsPaid(invoice)}
+                                    onClick={() => handleExportDetails(invoice)}
                                   >
-                                    <CheckCircle className="h-4 w-4 mr-2" />
-                                    Mark as Paid
+                                    <FileSpreadsheet className="h-4 w-4 mr-2" />
+                                    Export Details
                                   </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem
-                                  onClick={() => handleDownloadInvoice(invoice)}
-                                >
-                                  <Download className="h-4 w-4 mr-2" />
-                                  Download Invoice
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => handleExportDetails(invoice)}
-                                >
-                                  <FileSpreadsheet className="h-4 w-4 mr-2" />
-                                  Export Details
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
                           </div>
                         </div>
+
+                        {isExpanded && (
+                          <div className="mt-4 pt-4 border-t">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Trip Number</TableHead>
+                                  <TableHead>Date</TableHead>
+                                  <TableHead>Requester</TableHead>
+                                  <TableHead>Department</TableHead>
+                                  <TableHead className="text-right">
+                                    Amount
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {invoice.trips.map((trip) => {
+                                  const request = requestMap.get(
+                                    trip.tripRequestId
+                                  );
+                                  return (
+                                    <TableRow key={trip.id}>
+                                      <TableCell className="font-medium">
+                                        {trip.requestNumber}
+                                      </TableCell>
+                                      <TableCell>
+                                        {formatDate(trip.createdAt)}
+                                      </TableCell>
+                                      <TableCell>
+                                        {request?.requestedBy.name || "N/A"}
+                                      </TableCell>
+                                      <TableCell>
+                                        {trip.billing.billToDepartment}
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                        {formatCurrency(trip.totalCost)}
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                })}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        )}
                       </div>
 
-                      {isExpanded && (
-                        <div className="mt-4 pt-4 border-t">
-                          <h4 className="font-medium mb-3">Trips Breakdown</h4>
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Trip Number</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Requester</TableHead>
-                                <TableHead>Department</TableHead>
-                                <TableHead className="text-right">
-                                  Amount
-                                </TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                      {/* Card for small screens */}
+                      {/* Card for small screens */}
+                      <div className="sm:hidden space-y-2">
+                        <div className="flex flex-col gap-2 border rounded-md p-3">
+                          <div className="flex justify-between items-start">
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2">
+                                <Truck className="h-5 w-5 text-blue-600" />
+                                <span className="font-medium">
+                                  {invoice.cabServiceName}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span>{invoice.displayMonth}</span>
+                                {invoice.invoiceNumber && (
+                                  <span>#{invoice.invoiceNumber}</span>
+                                )}
+                                {getStatusBadge(invoice.status)}
+                              </div>
+                              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                                <span>{invoice.tripCount} trips</span>
+                                <span>Due: {formatDate(invoice.dueDate)}</span>
+                                {invoice.paidDate && (
+                                  <span className="text-green-600">
+                                    Paid: {formatDate(invoice.paidDate)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Actions for mobile */}
+                            <div className="flex flex-col items-end gap-1">
+                              <div className="font-bold">
+                                {formatCurrency(invoice.totalAmount)}
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                {/* Expand / collapse */}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => toggleInvoiceExpansion(key)}
+                                >
+                                  {isExpanded ? (
+                                    <ChevronUp className="h-4 w-4" />
+                                  ) : (
+                                    <ChevronDown className="h-4 w-4" />
+                                  )}
+                                </Button>
+
+                                {/* Dropdown menu for mobile */}
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0"
+                                    >
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      onClick={() => handleViewDetails(invoice)}
+                                    >
+                                      <Eye className="h-4 w-4 mr-2" /> View
+                                      Details
+                                    </DropdownMenuItem>
+                                    {invoice.status === "Draft" && (
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          handleGenerateInvoice(invoice)
+                                        }
+                                      >
+                                        <FileText className="h-4 w-4 mr-2" />{" "}
+                                        Generate Invoice
+                                      </DropdownMenuItem>
+                                    )}
+                                    {(invoice.status === "Pending" ||
+                                      invoice.status === "Overdue") && (
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          handleMarkAsPaid(invoice)
+                                        }
+                                      >
+                                        <CheckCircle className="h-4 w-4 mr-2" />{" "}
+                                        Mark as Paid
+                                      </DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleDownloadInvoice(invoice)
+                                      }
+                                    >
+                                      <Download className="h-4 w-4 mr-2" />{" "}
+                                      Download Invoice
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleExportDetails(invoice)
+                                      }
+                                    >
+                                      <FileSpreadsheet className="h-4 w-4 mr-2" />{" "}
+                                      Export Details
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </div>
+                          </div>
+
+                          {isExpanded && (
+                            <div className="mt-2 space-y-1">
                               {invoice.trips.map((trip) => {
                                 const request = requestMap.get(
                                   trip.tripRequestId
                                 );
                                 return (
-                                  <TableRow key={trip.id}>
-                                    <TableCell className="font-medium">
+                                  <div
+                                    key={trip.id}
+                                    className="p-2 border rounded-md text-xs space-y-1"
+                                  >
+                                    <div>
+                                      <span className="font-medium">
+                                        Trip #:
+                                      </span>{" "}
                                       {trip.requestNumber}
-                                    </TableCell>
-                                    <TableCell>
+                                    </div>
+                                    <div>
+                                      <span className="font-medium">Date:</span>{" "}
                                       {formatDate(trip.createdAt)}
-                                    </TableCell>
-                                    <TableCell>
-                                      <div className="flex items-center">
-                                        <User className="h-3 w-3 mr-1" />
-                                        {request?.requestedBy.name || "N/A"}
-                                      </div>
-                                    </TableCell>
-                                    <TableCell>
-                                      <div className="flex items-center">
-                                        <Building2 className="h-3 w-3 mr-1" />
-                                        {trip.billing.billToDepartment}
-                                      </div>
-                                    </TableCell>
-                                    <TableCell className="text-right font-medium">
+                                    </div>
+                                    <div>
+                                      <span className="font-medium">
+                                        Requester:
+                                      </span>{" "}
+                                      {request?.requestedBy.name || "N/A"}
+                                    </div>
+                                    <div>
+                                      <span className="font-medium">
+                                        Department:
+                                      </span>{" "}
+                                      {trip.billing.billToDepartment}
+                                    </div>
+                                    <div>
+                                      <span className="font-medium">
+                                        Amount:
+                                      </span>{" "}
                                       {formatCurrency(trip.totalCost)}
-                                    </TableCell>
-                                  </TableRow>
+                                    </div>
+                                  </div>
                                 );
                               })}
-                            </TableBody>
-                          </Table>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   </Card>
                 );
               })}
-              {filteredCabServiceInvoices.length === 0 && (
-                <div className="text-center py-12">
-                  <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="font-medium mb-2">No invoices found</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Try adjusting your filters or search terms
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* View by Month */}
-          {viewMode === "by-month" && (
-            <div className="space-y-6">
-              {filteredMonthlyInvoices.map((monthInvoice) => {
-                let cabServices = monthInvoice.cabServices;
-                if (cabServiceFilter !== "all") {
-                  cabServices = cabServices.filter(
-                    (cs) => cs.cabServiceId === cabServiceFilter
-                  );
-                }
-                if (statusFilter !== "all") {
-                  cabServices = cabServices.filter(
-                    (cs) => cs.status.toLowerCase() === statusFilter
-                  );
-                }
-
-                if (cabServices.length === 0) return null;
-
-                return (
-                  <div key={monthInvoice.id}>
-                    <div className="mb-4 p-4 bg-muted rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <Calendar className="h-6 w-6 text-blue-600" />
-                          <div>
-                            <h3 className="font-semibold">
-                              {monthInvoice.displayMonth}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                              {cabServices.length} vendor(s) ·{" "}
-                              {cabServices.reduce(
-                                (sum, cs) => sum + cs.tripCount,
-                                0
-                              )}{" "}
-                              trips
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold">
-                            {formatCurrency(
-                              cabServices.reduce(
-                                (sum, cs) => sum + cs.totalAmount,
-                                0
-                              )
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Total for Month
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 ml-4">
-                      {cabServices.map((invoice) => {
-                        const key = `${invoice.cabServiceId}-${invoice.month}`;
-                        const isExpanded = expandedInvoices.has(key);
-
-                        return (
-                          <Card key={key}>
-                            <div className="p-4">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3 flex-1">
-                                  <Truck className="h-5 w-5 text-blue-600" />
-                                  <div className="flex-1">
-                                    <div className="flex items-center space-x-2">
-                                      <span className="font-medium">
-                                        {invoice.cabServiceName}
-                                      </span>
-                                      {invoice.invoiceNumber && (
-                                        <Badge
-                                          variant="outline"
-                                          className="text-xs"
-                                        >
-                                          {invoice.invoiceNumber}
-                                        </Badge>
-                                      )}
-                                      {getStatusBadge(invoice.status)}
-                                    </div>
-                                    <div className="flex items-center space-x-3 mt-1 text-xs text-muted-foreground">
-                                      <span>{invoice.tripCount} trips</span>
-                                      <span>
-                                        Due: {formatDate(invoice.dueDate)}
-                                      </span>
-                                      {invoice.paidDate && (
-                                        <span className="text-green-600">
-                                          Paid: {formatDate(invoice.paidDate)}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                  <div className="text-right">
-                                    <div className="font-bold">
-                                      {formatCurrency(invoice.totalAmount)}
-                                    </div>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => toggleInvoiceExpansion(key)}
-                                  >
-                                    {isExpanded ? (
-                                      <ChevronUp className="h-4 w-4" />
-                                    ) : (
-                                      <ChevronDown className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        className="h-8 w-8 p-0"
-                                      >
-                                        <MoreHorizontal className="h-4 w-4" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem
-                                        onClick={() =>
-                                          handleViewDetails(invoice)
-                                        }
-                                      >
-                                        <Eye className="h-4 w-4 mr-2" />
-                                        View Details
-                                      </DropdownMenuItem>
-                                      {invoice.status === "Draft" && (
-                                        <DropdownMenuItem
-                                          onClick={() =>
-                                            handleGenerateInvoice(invoice)
-                                          }
-                                        >
-                                          <FileText className="h-4 w-4 mr-2" />
-                                          Generate Invoice
-                                        </DropdownMenuItem>
-                                      )}
-                                      {(invoice.status === "Pending" ||
-                                        invoice.status === "Overdue") && (
-                                        <DropdownMenuItem
-                                          onClick={() =>
-                                            handleMarkAsPaid(invoice)
-                                          }
-                                        >
-                                          <CheckCircle className="h-4 w-4 mr-2" />
-                                          Mark as Paid
-                                        </DropdownMenuItem>
-                                      )}
-                                      <DropdownMenuItem
-                                        onClick={() =>
-                                          handleDownloadInvoice(invoice)
-                                        }
-                                      >
-                                        <Download className="h-4 w-4 mr-2" />
-                                        Download Invoice
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem
-                                        onClick={() =>
-                                          handleExportDetails(invoice)
-                                        }
-                                      >
-                                        <FileSpreadsheet className="h-4 w-4 mr-2" />
-                                        Export Details
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                </div>
-                              </div>
-
-                              {isExpanded && (
-                                <div className="mt-4 pt-4 border-t">
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow>
-                                        <TableHead>Trip #</TableHead>
-                                        <TableHead>Date</TableHead>
-                                        <TableHead>Requester</TableHead>
-                                        <TableHead>Department</TableHead>
-                                        <TableHead className="text-right">
-                                          Amount
-                                        </TableHead>
-                                      </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      {invoice.trips.map((trip) => {
-                                        const request = requestMap.get(
-                                          trip.tripRequestId
-                                        );
-                                        return (
-                                          <TableRow key={trip.id}>
-                                            <TableCell className="font-medium">
-                                              {trip.requestNumber}
-                                            </TableCell>
-                                            <TableCell>
-                                              {formatDate(trip.createdAt)}
-                                            </TableCell>
-                                            <TableCell>
-                                              {request?.requestedBy.name ||
-                                                "N/A"}
-                                            </TableCell>
-                                            <TableCell>
-                                              {trip.billing.billToDepartment}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                              {formatCurrency(trip.totalCost)}
-                                            </TableCell>
-                                          </TableRow>
-                                        );
-                                      })}
-                                    </TableBody>
-                                  </Table>
-                                </div>
-                              )}
-                            </div>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-              {filteredMonthlyInvoices.length === 0 && (
-                <div className="text-center py-12">
-                  <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="font-medium mb-2">No monthly data found</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Try adjusting your filters
-                  </p>
-                </div>
-              )}
             </div>
           )}
         </CardContent>
@@ -1339,7 +1255,7 @@ export default function TripCosts() {
         open={isInvoiceDetailsOpen}
         onOpenChange={setIsInvoiceDetailsOpen}
       >
-        <DialogContent className="sm:max-w-[900px] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[900px] max-w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>Invoice Details</DialogTitle>
             <DialogDescription>
@@ -1347,45 +1263,42 @@ export default function TripCosts() {
                 `${selectedInvoice.cabServiceName} - ${selectedInvoice.displayMonth}`}
             </DialogDescription>
           </DialogHeader>
+
           {selectedInvoice && (
             <div className="space-y-6 py-4">
-              <div className="grid grid-cols-3 gap-4">
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Card>
-                  <CardContent className="p-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">
-                        {selectedInvoice.tripCount}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Total Trips
-                      </div>
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {selectedInvoice.tripCount}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Trips
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardContent className="p-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">
-                        {formatCurrency(selectedInvoice.totalAmount)}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Total Amount
-                      </div>
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {formatCurrency(selectedInvoice.totalAmount)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Amount
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardContent className="p-4">
-                    <div className="text-center flex justify-center">
-                      {getStatusBadge(selectedInvoice.status)}
-                    </div>
+                  <CardContent className="p-4 flex justify-center">
+                    {getStatusBadge(selectedInvoice.status)}
                   </CardContent>
                 </Card>
               </div>
 
+              {/* Invoice Information */}
               <div className="space-y-2">
                 <h4 className="font-medium">Invoice Information</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm border rounded-lg p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm border rounded-lg p-4">
                   <div>Vendor: {selectedInvoice.cabServiceName}</div>
                   <div>
                     Invoice Number:{" "}
@@ -1403,74 +1316,73 @@ export default function TripCosts() {
                 </div>
               </div>
 
+              {/* Cost Breakdown */}
               <div className="space-y-2">
                 <h4 className="font-medium">Cost Breakdown</h4>
-                <div className="border rounded-lg p-4">
-                  <div className="space-y-3">
-                    {(() => {
-                      const driverTotal = selectedInvoice.trips.reduce(
-                        (sum, t) => sum + t.costBreakdown.driverCharges.total,
-                        0
-                      );
-                      const vehicleTotal = selectedInvoice.trips.reduce(
-                        (sum, t) => sum + t.costBreakdown.vehicleCosts.total,
-                        0
-                      );
-                      const additionalTotal = selectedInvoice.trips.reduce(
-                        (sum, t) => sum + t.costBreakdown.totalAdditionalCosts,
-                        0
-                      );
-                      const taxTotal = selectedInvoice.trips.reduce(
-                        (sum, t) => sum + t.billing.taxAmount,
-                        0
-                      );
-
-                      return (
-                        <>
-                          <div className="flex justify-between text-sm">
-                            <span>Driver Charges:</span>
-                            <span className="font-medium">
-                              {formatCurrency(driverTotal)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span>Vehicle Costs:</span>
-                            <span className="font-medium">
-                              {formatCurrency(vehicleTotal)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span>
-                              Additional Costs (Tolls, Parking, etc.):
-                            </span>
-                            <span className="font-medium">
-                              {formatCurrency(additionalTotal)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span>Tax:</span>
-                            <span className="font-medium">
-                              {formatCurrency(taxTotal)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between font-bold pt-3 border-t">
-                            <span>Total Amount Payable:</span>
-                            <span>
-                              {formatCurrency(selectedInvoice.totalAmount)}
-                            </span>
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
+                <div className="border rounded-lg p-4 space-y-3 text-sm">
+                  {(() => {
+                    const driverTotal = selectedInvoice.trips.reduce(
+                      (sum, t) => sum + t.costBreakdown.driverCharges.total,
+                      0
+                    );
+                    const vehicleTotal = selectedInvoice.trips.reduce(
+                      (sum, t) => sum + t.costBreakdown.vehicleCosts.total,
+                      0
+                    );
+                    const additionalTotal = selectedInvoice.trips.reduce(
+                      (sum, t) => sum + t.costBreakdown.totalAdditionalCosts,
+                      0
+                    );
+                    const taxTotal = selectedInvoice.trips.reduce(
+                      (sum, t) => sum + t.billing.taxAmount,
+                      0
+                    );
+                    return (
+                      <>
+                        <div className="flex justify-between">
+                          <span>Driver Charges:</span>
+                          <span className="font-medium">
+                            {formatCurrency(driverTotal)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Vehicle Costs:</span>
+                          <span className="font-medium">
+                            {formatCurrency(vehicleTotal)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Additional Costs (Tolls, Parking, etc.):</span>
+                          <span className="font-medium">
+                            {formatCurrency(additionalTotal)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Tax:</span>
+                          <span className="font-medium">
+                            {formatCurrency(taxTotal)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between font-bold pt-3 border-t">
+                          <span>Total Amount Payable:</span>
+                          <span>
+                            {formatCurrency(selectedInvoice.totalAmount)}
+                          </span>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
 
+              {/* All Trips */}
               <div className="space-y-2">
                 <h4 className="font-medium">
                   All Trips ({selectedInvoice.tripCount})
                 </h4>
-                <div className="border rounded-lg overflow-hidden">
+
+                {/* Desktop Table */}
+                <div className="hidden sm:block border rounded-lg overflow-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -1505,10 +1417,46 @@ export default function TripCosts() {
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Mobile Card View */}
+                <div className="sm:hidden space-y-2">
+                  {selectedInvoice.trips.map((trip) => {
+                    const request = requestMap.get(trip.tripRequestId);
+                    return (
+                      <div
+                        key={trip.id}
+                        className="border p-3 rounded-lg space-y-1"
+                      >
+                        <div>
+                          <span className="font-medium">Trip #:</span>{" "}
+                          {trip.requestNumber}
+                        </div>
+                        <div>
+                          <span className="font-medium">Date:</span>{" "}
+                          {formatDate(trip.createdAt)}
+                        </div>
+                        <div>
+                          <span className="font-medium">Requester:</span>{" "}
+                          {request?.requestedBy.name || "N/A"}
+                        </div>
+                        <div>
+                          <span className="font-medium">Department:</span>{" "}
+                          {trip.billing.billToDepartment}
+                        </div>
+                        <div>
+                          <span className="font-medium">Amount:</span>{" "}
+                          {formatCurrency(trip.totalCost)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
-          <DialogFooter>
+
+          {/* Footer Buttons */}
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-end mt-4">
             <Button
               variant="outline"
               onClick={() => setIsInvoiceDetailsOpen(false)}
