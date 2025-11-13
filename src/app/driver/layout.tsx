@@ -5,10 +5,10 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { DriverApp } from "./dashboard/components/driver-sidebar";
+import { DriverApp } from "./components/driver-sidebar";
 import { Bell } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
-import { DriverUser } from "./dashboard/components/driver-user";
+import { DriverUser } from "./components/driver-user";
 
 export default function DashboardLayout({
   children,

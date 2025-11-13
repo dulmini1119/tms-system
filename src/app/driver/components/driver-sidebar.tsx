@@ -20,16 +20,19 @@ const menuItems = [
     title: "Dashboard",
     icon: MapPin,
     id: "dashboard",
+    url: "/driver/dashboard"
   },
   {
     title: "Trip Assignments",
     icon: Route,
     id: "assignments",
+     url: "/driver/trip-assignment"
   },
   {
     title: "My Profile",
     icon: Car,
     id: "profile",
+     url: "/driver/profile"
   },
 ];
 
