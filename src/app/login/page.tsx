@@ -18,7 +18,7 @@ function LoginForm() {
     {
       email: "vehicleadmin@fleet.com",
       password: "va123",
-      role: "vehicle-admin",
+      role: "vehicleadmin",
     },
   ];
 
@@ -51,8 +51,8 @@ function LoginForm() {
       case "hod":
         router.push("/hod/dashboard");
         break;
-      case "vehicle-admin":
-        router.push("/vehicle-admin/dashboard");
+      case "vehicleadmin":
+        router.push("/vehicleadmin/dashboard");
         break;
       default:
         router.push("/");
