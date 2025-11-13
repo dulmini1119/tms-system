@@ -1,5 +1,5 @@
+"use client";
 import React from "react";
-
 import {
   User,
   Car,
@@ -28,8 +28,55 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
+// Interfaces
+interface PersonalInfo {
+  name: string;
+  employeeId: string;
+  phone: string;
+  email: string;
+  address: string;
+  dateOfJoining: string;
+  licenseNumber: string;
+  licenseExpiry: string;
+}
+
+interface CurrentVehicle {
+  make: string;
+  model: string;
+  year: string;
+  licensePlate: string;
+  fuelType: string;
+  seatingCapacity: number;
+  assignedDate: string;
+}
+
+interface Document {
+  id: string;
+  type: string;
+  number: string;
+  issueDate: string;
+  expiryDate: string;
+  status: "valid" | "expiring" | "expired";
+}
+
+interface Performance {
+  totalTrips: number;
+  averageRating: number;
+  onTimePercentage: number;
+  fuelEfficiency: number; // km/l
+  incidents: number;
+  compliments: number;
+}
+
+interface DriverProfileData {
+  personalInfo: PersonalInfo;
+  currentVehicle: CurrentVehicle;
+  documents: Document[];
+  performance: Performance;
+}
+
 // Mock driver profile data
-const mockDriverProfile = {
+const mockDriverProfile: DriverProfileData = {
   personalInfo: {
     name: "Mike Johnson",
     employeeId: "DRV001",
@@ -93,183 +140,218 @@ const mockDriverProfile = {
   },
 };
 
+// Utility functions
+const getDocumentStatusColor = (
+  status: Document["status"]
+): "secondary" | "default" | "outline" | "destructive" => {
+  switch (status) {
+    case "valid":
+      return "default";
+    case "expiring":
+      return "destructive";
+    case "expired":
+      return "outline";
+    default:
+      return "secondary";
+  }
+};
+
+const getDocumentStatusIcon = (status: Document["status"]) => {
+  switch (status) {
+    case "valid":
+      return <CheckCircle className="h-4 w-4" aria-hidden="true" />;
+    case "expiring":
+      return <AlertTriangle className="h-4 w-4" aria-hidden="true" />;
+    case "expired":
+      return <AlertTriangle className="h-4 w-4" aria-hidden="true" />;
+    default:
+      return <Clock className="h-4 w-4" aria-hidden="true" />;
+  }
+};
+
+const isDocumentExpiringSoon = (expiryDate: string) => {
+  const expiry = new Date(expiryDate);
+  const today = new Date();
+  const daysUntilExpiry = Math.ceil(
+    (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  return daysUntilExpiry <= 30 && daysUntilExpiry > 0;
+};
+
+const getDocumentStatus = (expiryDate: string): Document["status"] => {
+  const expiry = new Date(expiryDate);
+  const today = new Date();
+  const daysUntilExpiry = Math.ceil(
+    (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (daysUntilExpiry < 0) return "expired";
+  if (daysUntilExpiry <= 30) return "expiring";
+  return "valid";
+};
+
 export default function DriverProfile() {
-  const getDocumentStatusColor = (status: string) => {
-    switch (status) {
-      case "valid":
-        return "default";
-      case "expiring":
-        return "destructive";
-      case "expired":
-        return "outline";
-      default:
-        return "secondary";
-    }
-  };
-
-  const getDocumentStatusIcon = (status: string) => {
-    switch (status) {
-      case "valid":
-        return <CheckCircle className="h-4 w-4" />;
-      case "expiring":
-        return <AlertTriangle className="h-4 w-4" />;
-      case "expired":
-        return <AlertTriangle className="h-4 w-4" />;
-      default:
-        return <Clock className="h-4 w-4" />;
-    }
-  };
-
-  const isDocumentExpiringSoon = (expiryDate: string) => {
-    const expiry = new Date(expiryDate);
-    const today = new Date();
-    const daysUntilExpiry = Math.ceil(
-      (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return daysUntilExpiry <= 30 && daysUntilExpiry > 0;
-  };
-
-  const getDocumentStatus = (expiryDate: string) => {
-    const expiry = new Date(expiryDate);
-    const today = new Date();
-    const daysUntilExpiry = Math.ceil(
-      (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (daysUntilExpiry < 0) return "expired";
-    if (daysUntilExpiry <= 30) return "expiring";
-    return "valid";
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1>Driver Profile</h1>
-          <p className="text-muted-foreground">
-            Manage your personal information and documents
+        <div className="p-3">
+          <h1 className="text-2xl">MY PROFILE</h1>
+          <p className="text-muted-foreground text-xs">
+            View your personal information and documents (read-only)
           </p>
         </div>
-        {/* Profile is read-only for drivers */}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Personal Information */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
+        <Card className="lg:col-span-2 shadow-md border border-border/50 rounded-2xl bg-card">
+          <CardHeader className="border-b pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
+              <User className="h-5 w-5 text-primary" aria-hidden="true" />
               Personal Information
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
+
+          <CardContent className="space-y-6 pt-4">
+            {/* Name & Employee ID */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
                 <label className="text-sm font-medium text-muted-foreground">
                   Name
                 </label>
-                <p>{mockDriverProfile.personalInfo.name}</p>
+                <p className="font-semibold text-foreground mt-1">
+                  {mockDriverProfile.personalInfo.name}
+                </p>
               </div>
-              <div>
+
+              <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
                 <label className="text-sm font-medium text-muted-foreground">
                   Employee ID
                 </label>
-                <p>{mockDriverProfile.personalInfo.employeeId}</p>
+                <p className="font-semibold text-foreground mt-1">
+                  {mockDriverProfile.personalInfo.employeeId}
+                </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
+            {/* Phone & Email */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
                 <label className="text-sm font-medium text-muted-foreground">
                   Phone
                 </label>
-                <p className="flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
+                <p className="flex items-center gap-2 font-medium text-foreground mt-1">
+                  <Phone className="h-4 w-4 text-primary" aria-hidden="true" />
                   {mockDriverProfile.personalInfo.phone}
                 </p>
               </div>
-              <div>
+
+              <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
                 <label className="text-sm font-medium text-muted-foreground">
                   Email
                 </label>
-                <p className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
+                <p className="flex items-center gap-2 font-medium text-foreground mt-1">
+                  <Mail className="h-4 w-4 text-primary" aria-hidden="true" />
                   {mockDriverProfile.personalInfo.email}
                 </p>
               </div>
             </div>
 
-            <div>
+            {/* Address */}
+            <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
               <label className="text-sm font-medium text-muted-foreground">
                 Address
               </label>
-              <p className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 mt-1" />
+              <p className="flex items-start gap-2 font-medium text-foreground mt-1">
+                <MapPin
+                  className="h-4 w-4 mt-1 text-primary"
+                  aria-hidden="true"
+                />
                 {mockDriverProfile.personalInfo.address}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
+            {/* Date of Joining & License */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
                 <label className="text-sm font-medium text-muted-foreground">
                   Date of Joining
                 </label>
-                <p>{mockDriverProfile.personalInfo.dateOfJoining}</p>
+                <p className="font-medium text-foreground mt-1">
+                  {mockDriverProfile.personalInfo.dateOfJoining}
+                </p>
               </div>
-              <div>
+
+              <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
                 <label className="text-sm font-medium text-muted-foreground">
                   License Number
                 </label>
-                <p>{mockDriverProfile.personalInfo.licenseNumber}</p>
+                <p className="font-medium text-foreground mt-1">
+                  {mockDriverProfile.personalInfo.licenseNumber}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Performance Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Performance Stats</CardTitle>
+        <Card className="shadow-md border border-border/50 rounded-2xl bg-card">
+          <CardHeader className="border-b pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
+              Performance Stats
+            </CardTitle>
+            <CardDescription className="text-sm text-muted-foreground">
+              Your driving performance metrics
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
+
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+            {/* Total Trips */}
+            <div className="p-4 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
               <label className="text-sm font-medium text-muted-foreground">
                 Total Trips
               </label>
-              <p className="text-2xl font-bold">
+              <p className="text-3xl font-bold text-foreground mt-1">
                 {mockDriverProfile.performance.totalTrips}
               </p>
             </div>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                Average Rating
-              </label>
-              <p className="text-2xl font-bold">
-                {mockDriverProfile.performance.averageRating}/5
-              </p>
-            </div>
-            <div>
+
+           
+            {/* On-Time % */}
+            <div className="p-4 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
               <label className="text-sm font-medium text-muted-foreground">
                 On-Time %
               </label>
-              <p className="text-2xl font-bold">
+              <p className="text-3xl font-bold text-blue-600 mt-1">
                 {mockDriverProfile.performance.onTimePercentage}%
               </p>
             </div>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                Fuel Efficiency
-              </label>
-              <p className="text-2xl font-bold">
-                {mockDriverProfile.performance.fuelEfficiency} km/l
-              </p>
-            </div>
-            <div>
+
+          
+
+            {/* Incidents */}
+            <div className="p-4 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
               <label className="text-sm font-medium text-muted-foreground">
                 Incidents
               </label>
-              <p className="text-2xl font-bold text-green-600">
+              <p
+                className={`text-3xl font-bold mt-1 ${
+                  mockDriverProfile.performance.incidents === 0
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
                 {mockDriverProfile.performance.incidents}
+              </p>
+            </div>
+
+            {/* Compliments */}
+            <div className="p-4 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
+              <label className="text-sm font-medium text-muted-foreground">
+                Compliments
+              </label>
+              <p className="text-3xl font-bold text-green-600 mt-1">
+                {mockDriverProfile.performance.compliments}
               </p>
             </div>
           </CardContent>
@@ -277,64 +359,72 @@ export default function DriverProfile() {
       </div>
 
       {/* Current Vehicle */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Car className="h-5 w-5" />
+      <Card className="shadow-md border border-border/50 rounded-2xl bg-card">
+        <CardHeader className="border-b pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <Car className="h-5 w-5 text-primary" aria-hidden="true" />
             Current Vehicle Assignment
           </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
+            Details of your assigned vehicle
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                Vehicle
-              </label>
-              <p className="font-medium">
-                {mockDriverProfile.currentVehicle.make}{" "}
-                {mockDriverProfile.currentVehicle.model} (
-                {mockDriverProfile.currentVehicle.year})
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                License Plate
-              </label>
-              <p className="font-medium">
-                {mockDriverProfile.currentVehicle.licensePlate}
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                Fuel Type
-              </label>
-              <p>{mockDriverProfile.currentVehicle.fuelType}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                Assigned Date
-              </label>
-              <p>{mockDriverProfile.currentVehicle.assignedDate}</p>
-            </div>
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 pt-4">
+          <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
+            <label className="text-sm font-medium text-muted-foreground">
+              Vehicle
+            </label>
+            <p className="font-semibold text-foreground mt-1">
+              {mockDriverProfile.currentVehicle.make}{" "}
+              {mockDriverProfile.currentVehicle.model} (
+              {mockDriverProfile.currentVehicle.year})
+            </p>
+          </div>
+
+          <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
+            <label className="text-sm font-medium text-muted-foreground">
+              License Plate
+            </label>
+            <p className="font-semibold text-foreground mt-1">
+              {mockDriverProfile.currentVehicle.licensePlate}
+            </p>
+          </div>
+
+          <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
+            <label className="text-sm font-medium text-muted-foreground">
+              Fuel Type
+            </label>
+            <p className="font-semibold text-foreground mt-1">
+              {mockDriverProfile.currentVehicle.fuelType}
+            </p>
+          </div>
+
+          <div className="p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition">
+            <label className="text-sm font-medium text-muted-foreground">
+              Assigned Date
+            </label>
+            <p className="font-semibold text-foreground mt-1">
+              {mockDriverProfile.currentVehicle.assignedDate}
+            </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Documents */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
+      {/* Documents & Certifications */}
+      <Card className="shadow-md border border-border/50 rounded-2xl bg-card mt-6">
+        <CardHeader className="border-b pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <FileText className="h-5 w-5 text-primary" aria-hidden="true" />
             Documents & Certifications
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm text-muted-foreground">
             Keep your documents up to date to ensure compliance
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Table>
+        <CardContent className="overflow-x-auto pt-4">
+          <Table className="min-w-full border-collapse">
             <TableHeader>
-              <TableRow>
+              <TableRow className="bg-muted/50">
                 <TableHead>Document Type</TableHead>
                 <TableHead>Document Number</TableHead>
                 <TableHead>Issue Date</TableHead>
@@ -346,23 +436,28 @@ export default function DriverProfile() {
               {mockDriverProfile.documents.map((doc) => {
                 const status = getDocumentStatus(doc.expiryDate);
                 return (
-                  <TableRow key={doc.id}>
+                  <TableRow
+                    key={doc.id}
+                    className="hover:bg-muted/20 transition"
+                  >
                     <TableCell className="font-medium">{doc.type}</TableCell>
                     <TableCell>{doc.number}</TableCell>
                     <TableCell>{doc.issueDate}</TableCell>
                     <TableCell>
-                      <div
-                        className={
-                          isDocumentExpiringSoon(doc.expiryDate)
-                            ? "text-orange-600"
-                            : ""
-                        }
-                      >
-                        {doc.expiryDate}
+                      <div className="flex flex-col">
+                        <span
+                          className={
+                            isDocumentExpiringSoon(doc.expiryDate)
+                              ? "text-orange-600 font-semibold"
+                              : ""
+                          }
+                        >
+                          {doc.expiryDate}
+                        </span>
                         {isDocumentExpiringSoon(doc.expiryDate) && (
-                          <p className="text-xs text-orange-600">
+                          <span className="text-xs text-orange-600">
                             Expires soon!
-                          </p>
+                          </span>
                         )}
                       </div>
                     </TableCell>
@@ -370,6 +465,7 @@ export default function DriverProfile() {
                       <Badge
                         variant={getDocumentStatusColor(status)}
                         className="gap-1"
+                        aria-label={`Document status: ${status}`}
                       >
                         {getDocumentStatusIcon(status)}
                         {status}
