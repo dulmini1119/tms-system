@@ -1,11 +1,31 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
-
-import { Clock, MapPin, Car, Calendar, Play, Square, CheckCircle, AlertTriangle, Route, Navigation } from 'lucide-react';
+import {
+  Clock,
+  MapPin,
+  Car,
+  Calendar,
+  Play,
+  Square,
+  CheckCircle,
+  AlertTriangle,
+  Route,
+  Navigation,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+// Interfaces
 interface UserRole {
   id: string;
   name: string;
@@ -14,16 +34,51 @@ interface UserRole {
   businessUnit: string;
 }
 
+interface Stats {
+  todayTrips: number;
+  activeTrips: number;
+  completedTrips: number;
+  totalDistance: number;
+}
 
-// Mock data for driver dashboard
-const mockStats = {
+interface Trip {
+  id: string;
+  employee: string;
+  department: string;
+  destination: string;
+  fromLocation: string;
+  scheduledTime: string;
+  estimatedDuration: string;
+  status: 'scheduled' | 'active' | 'completed';
+  actualStartTime: string | null;
+  actualEndTime: string | null;
+  distance: string;
+}
+
+interface VehicleInfo {
+  make: string;
+  model: string;
+  year: string;
+  licensePlate: string;
+  fuelLevel: number;
+  mileage: number;
+  lastService: string;
+  nextService: string;
+}
+
+interface DriverDashboardProps {
+  user?: UserRole;
+}
+
+// Mock Data
+const mockStats: Stats = {
   todayTrips: 3,
   activeTrips: 1,
   completedTrips: 2,
-  totalDistance: 45
+  totalDistance: 45,
 };
 
-const mockTodayAssignments = [
+const mockTodayAssignments: Trip[] = [
   {
     id: 'TR001',
     employee: 'John Smith',
@@ -35,7 +90,7 @@ const mockTodayAssignments = [
     status: 'completed',
     actualStartTime: '09:05 AM',
     actualEndTime: '11:15 AM',
-    distance: '15 km'
+    distance: '15 km',
   },
   {
     id: 'TR002',
@@ -48,7 +103,7 @@ const mockTodayAssignments = [
     status: 'active',
     actualStartTime: '02:35 PM',
     actualEndTime: null,
-    distance: '25 km'
+    distance: '25 km',
   },
   {
     id: 'TR003',
@@ -61,11 +116,11 @@ const mockTodayAssignments = [
     status: 'scheduled',
     actualStartTime: null,
     actualEndTime: null,
-    distance: '30 km'
-  }
+    distance: '30 km',
+  },
 ];
 
-const mockVehicleInfo = {
+const mockVehicleInfo: VehicleInfo = {
   make: 'Honda',
   model: 'City',
   year: '2022',
@@ -73,72 +128,172 @@ const mockVehicleInfo = {
   fuelLevel: 75,
   mileage: 45000,
   lastService: '2024-01-01',
-  nextService: '2024-04-01'
+  nextService: '2024-04-01',
 };
 
-export default function DriverDashboard() {
-  const [currentTrip, setCurrentTrip] = useState(mockTodayAssignments.find(trip => trip.status === 'active'));
+// Utility Functions
+const getStatusColor = (status: Trip['status']): 'secondary' | 'default' | 'outline' | 'destructive' => {
+  switch (status) {
+    case 'completed':
+      return 'secondary';
+    case 'active':
+      return 'default';
+    case 'scheduled':
+      return 'outline';
+    default:
+      return 'secondary';
+  }
+};
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'secondary';
-      case 'active':
-        return 'default';
-      case 'scheduled':
-        return 'outline';
-      default:
-        return 'secondary';
-    }
+const getStatusIcon = (status: Trip['status']) => {
+  switch (status) {
+    case 'completed':
+      return <CheckCircle className="h-4 w-4" aria-hidden="true" />;
+    case 'active':
+      return <Navigation className="h-4 w-4" aria-hidden="true" />;
+    case 'scheduled':
+      return <Clock className="h-4 w-4" aria-hidden="true" />;
+    default:
+      return <Clock className="h-4 w-4" aria-hidden="true" />;
+  }
+};
+
+// Reusable Components
+interface StatsCardProps {
+  title: string;
+  value: number | string;
+  description: string;
+  icon: React.ReactNode;
+}
+
+function StatsCard({ title, value, description, icon }: StatsCardProps) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {icon}
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface TripCardProps {
+  trip: Trip;
+  onStartTrip: (trip: Trip) => void;
+}
+
+function TripCard({ trip, onStartTrip }: TripCardProps) {
+  return (
+    <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition">
+      <div className="flex-1">
+        <div className="flex items-center gap-2 mb-1">
+          <MapPin className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <span className="font-medium">{trip.destination}</span>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Employee: {trip.employee} ({trip.department})
+        </div>
+        <div className="text-sm text-muted-foreground">From: {trip.fromLocation}</div>
+        <div className="text-sm text-muted-foreground">
+          Scheduled: {trip.scheduledTime} • {trip.distance}
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Badge variant={getStatusColor(trip.status)} className="gap-1">
+          {getStatusIcon(trip.status)}
+          {trip.status}
+        </Badge>
+        {trip.status === 'scheduled' && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-1" aria-label={`Start trip ${trip.id}`}>
+                <Play className="h-3 w-3" aria-hidden="true" />
+                Start
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Start Trip</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to start trip {trip.id} to {trip.destination}?
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => console.log('Cancelled')}>
+                  Cancel
+                </Button>
+                <Button onClick={() => onStartTrip(trip)}>Confirm</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface LabelProps {
+  className?: string;
+  children: React.ReactNode;
+}
+
+function Label({ className, children }: LabelProps) {
+  return <label className={className}>{children}</label>;
+}
+
+// Main Component
+export default function DriverDashboard({ user }: DriverDashboardProps) {
+    const currentUser: UserRole = user ?? {
+    id: '0',
+    name: 'Nimal Shreak',
+    role: 'driver',
+    department: 'Operations',
+    businessUnit: 'Fleet'
+  };
+  const [currentTrip, setCurrentTrip] = useState<Trip | undefined>(
+    mockTodayAssignments.find((trip) => trip.status === 'active')
+  );
+
+  const startTrip = (trip: Trip) => {
+    console.log('Starting trip:', trip.id);
+    setCurrentTrip(trip);
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'active':
-        return <Navigation className="h-4 w-4" />;
-      case 'scheduled':
-        return <Clock className="h-4 w-4" />;
-      default:
-        return <Clock className="h-4 w-4" />;
-    }
-  };
-
-  const startTrip = (tripId: string) => {
-    // Handle trip start logic
-    console.log('Starting trip:', tripId);
-  };
-
-  const endTrip = (tripId: string) => {
-    // Handle trip end logic
-    console.log('Ending trip:', tripId);
+  const endTrip = (trip: Trip) => {
+    console.log('Ending trip:', trip.id);
+    setCurrentTrip(undefined);
   };
 
   return (
     <div className="space-y-4">
       {/* Welcome Section */}
       <div className="flex items-center justify-between">
-        <div className='p-3'>
-          <h1 className="text-2xl font-bold">Welcome,!</h1>
-          <p className="text-muted-foreground">
-             Vehicle: {mockVehicleInfo.make} {mockVehicleInfo.model}
+        <div className="p-3">
+          <h1 className="text-2xl font-bold">
+            Welcome, {currentUser.name}!
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Your dashboard for today’s trips and vehicle status
           </p>
         </div>
         <div className="flex gap-2">
           <Badge variant="outline" className="gap-1">
-            <Car className="h-3 w-3" />
+            <Car className="h-3 w-3" aria-hidden="true" />
             {mockVehicleInfo.licensePlate}
           </Badge>
         </div>
       </div>
 
       {/* Current Trip Status */}
-      {currentTrip && (
+      {currentTrip ? (
         <Card className="border-green-200 bg-green-50">
           <CardHeader>
             <CardTitle className="text-green-800 flex items-center gap-2">
-              <Navigation className="h-5 w-5" />
+              <Navigation className="h-5 w-5" aria-hidden="true" />
               Active Trip in Progress
             </CardTitle>
           </CardHeader>
@@ -162,117 +317,87 @@ export default function DriverDashboard() {
                   <p className="text-sm">Started: {currentTrip.actualStartTime}</p>
                   <p className="text-sm">Expected: {currentTrip.estimatedDuration}</p>
                 </div>
-                <Button 
-                  onClick={() => endTrip(currentTrip.id)}
-                  className="bg-red-600 hover:bg-red-700 gap-2"
-                >
-                  <Square className="h-4 w-4" />
-                  End Trip
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      className="bg-red-600 hover:bg-red-700 gap-2"
+                      aria-label={`End trip ${currentTrip.id}`}
+                    >
+                      <Square className="h-4 w-4" aria-hidden="true" />
+                      End Trip
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>End Trip</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to end trip {currentTrip.id}? This action cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-2">
+                      <Button variant="outline" onClick={() => console.log('Cancelled')}>
+                        Cancel
+                      </Button>
+                      <Button onClick={() => endTrip(currentTrip)}>Confirm</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>No Active Trip</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              No trip is currently active. Start a scheduled trip to begin.
+            </p>
           </CardContent>
         </Card>
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Todays Trips</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockStats.todayTrips}</div>
-            <p className="text-xs text-muted-foreground">
-              Total assignments
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Trips</CardTitle>
-            <Navigation className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockStats.activeTrips}</div>
-            <p className="text-xs text-muted-foreground">
-              In progress
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockStats.completedTrips}</div>
-            <p className="text-xs text-muted-foreground">
-              Today
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Distance</CardTitle>
-            <Route className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockStats.totalDistance} km</div>
-            <p className="text-xs text-muted-foreground">
-              Todays total
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <StatsCard
+          title="Today's Trips"
+          value={mockStats.todayTrips}
+          description="Total assignments"
+          icon={<Calendar className="h-4 w-4 text-muted-foreground" aria-hidden="true" />}
+        />
+        <StatsCard
+          title="Active Trips"
+          value={mockStats.activeTrips}
+          description="In progress"
+          icon={<Navigation className="h-4 w-4 text-muted-foreground" aria-hidden="true" />}
+        />
+        <StatsCard
+          title="Completed"
+          value={mockStats.completedTrips}
+          description="Today"
+          icon={<CheckCircle className="h-4 w-4 text-muted-foreground" aria-hidden="true" />}
+        />
+        <StatsCard
+          title="Distance"
+          value={`${mockStats.totalDistance} km`}
+          description="Today's total"
+          icon={<Route className="h-4 w-4 text-muted-foreground" aria-hidden="true" />}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Today's Assignments */}
         <Card>
           <CardHeader>
-            <CardTitle>Todays Trip Assignments</CardTitle>
+            <CardTitle>Today’s Trip Assignments</CardTitle>
             <CardDescription>Your scheduled trips for today</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {mockTodayAssignments.map((trip) => (
-                <div key={trip.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{trip.destination}</span>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Employee: {trip.employee} ({trip.department})
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      From: {trip.fromLocation}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Scheduled: {trip.scheduledTime} • {trip.distance}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={getStatusColor(trip.status)} className="gap-1">
-                      {getStatusIcon(trip.status)}
-                      {trip.status}
-                    </Badge>
-                    {trip.status === 'scheduled' && (
-                      <Button 
-                        size="sm" 
-                        onClick={() => startTrip(trip.id)}
-                        className="gap-1"
-                      >
-                        <Play className="h-3 w-3" />
-                        Start
-                      </Button>
-                    )}
-                  </div>
-                </div>
+                <TripCard key={trip.id} trip={trip} onStartTrip={startTrip} />
               ))}
             </div>
           </CardContent>
@@ -288,30 +413,35 @@ export default function DriverDashboard() {
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <div className="h-16 w-16 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <Car className="h-8 w-8 text-blue-600" />
+                  <Car className="h-8 w-8 text-blue-600" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-medium">
                     {mockVehicleInfo.make} {mockVehicleInfo.model} ({mockVehicleInfo.year})
                   </h3>
-                  <p className="text-sm text-muted-foreground">
-                    License: {mockVehicleInfo.licensePlate}
-                  </p>
+                  <p className="text-sm text-muted-foreground">License: {mockVehicleInfo.licensePlate}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium">Fuel Level</Label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-600 h-2 rounded-full" 
-                        style={{ width: `${mockVehicleInfo.fuelLevel}%` }}
-                      />
-                    </div>
-                    <span className="text-sm">{mockVehicleInfo.fuelLevel}%</span>
-                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="flex-1 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-green-600 h-2 rounded-full"
+                              style={{ width: `${mockVehicleInfo.fuelLevel}%` }}
+                            />
+                          </div>
+                          <span className="text-sm">{mockVehicleInfo.fuelLevel}%</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>{mockVehicleInfo.fuelLevel}% Fuel</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Mileage</Label>
@@ -319,7 +449,7 @@ export default function DriverDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium">Last Service</Label>
                   <p className="text-sm mt-1">{mockVehicleInfo.lastService}</p>
@@ -331,8 +461,8 @@ export default function DriverDashboard() {
               </div>
 
               <div className="pt-2">
-                <Button variant="outline" className="w-full gap-2">
-                  <AlertTriangle className="h-4 w-4" />
+                <Button variant="outline" className="w-full gap-2" aria-label="Report vehicle issue">
+                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                   Report Vehicle Issue
                 </Button>
               </div>
@@ -342,8 +472,4 @@ export default function DriverDashboard() {
       </div>
     </div>
   );
-}
-
-function Label({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <div className={className}>{children}</div>;
 }
