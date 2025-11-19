@@ -646,6 +646,17 @@ model roles {
   user_roles                    user_roles[]
 }
 
+model RefreshToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
 model system_alerts {
   id                                         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   alert_code                                 String    @unique @db.VarChar(100)
