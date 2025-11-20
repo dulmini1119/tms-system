@@ -647,13 +647,12 @@ model roles {
 }
 
 model RefreshToken {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  token     String   @unique
-  userId    String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token      String   @unique
+  userId     String   @db.Uuid
+  user       users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires_at DateTime
+  created_at DateTime @default(now())
 }
 
 
@@ -1039,6 +1038,7 @@ model users {
   vehicle_leases_vehicle_leases_updated_byTousers          vehicle_leases[]       @relation("vehicle_leases_updated_byTousers")
   vehicles_vehicles_created_byTousers                      vehicles[]             @relation("vehicles_created_byTousers")
   vehicles_vehicles_updated_byTousers                      vehicles[]             @relation("vehicles_updated_byTousers")
+  refreshTokens                                            RefreshToken[]
 }
 
 model vehicle_leases {
