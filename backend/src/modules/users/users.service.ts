@@ -203,7 +203,7 @@ export class UsersService {
     const userWithRoles = await prisma.users.findUnique({
       where: { id: userId },
       include: {
-        user_roles: {
+        user_roles_user_roles_assigned_byTousers: {
           include: {
             roles: {
               include: {
@@ -223,7 +223,7 @@ export class UsersService {
       throw new AppError(ERROR_CODES.NOT_FOUND, 'User not found', HTTP_STATUS.NOT_FOUND);
     }
 
-    const permissions = userWithRoles.user_roles.flatMap((userRole: any) =>
+    const permissions = userWithRoles.user_roles_user_roles_assigned_byTousers.flatMap((userRole: any) =>
       userRole.roles.role_permissions.map((rp: any) => rp.permissions.code)
     );
 
