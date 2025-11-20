@@ -8,16 +8,21 @@ import logger from '../../utils/logger';
 const SALT_ROUNDS = 10;
 
 export class AuthService {
-  /**
-   * Login user
-   */
+
+  // ------------------------------------------------------
+  // LOGIN
+  // ------------------------------------------------------
   async login(email: string, password: string) {
     const user = await prisma.users.findUnique({
       where: { email: email.toLowerCase() },
     });
 
     if (!user) {
-      throw new AppError(ERROR_CODES.INVALID_CREDENTIALS, 'Invalid email or password', HTTP_STATUS.UNAUTHORIZED);
+      throw new AppError(
+        ERROR_CODES.INVALID_CREDENTIALS,
+        'Invalid email or password',
+        HTTP_STATUS.UNAUTHORIZED
+      );
     }
 
     if (user.status !== 'Active') {
@@ -31,7 +36,11 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
-      throw new AppError(ERROR_CODES.INVALID_CREDENTIALS, 'Invalid email or password', HTTP_STATUS.UNAUTHORIZED);
+      throw new AppError(
+        ERROR_CODES.INVALID_CREDENTIALS,
+        'Invalid email or password',
+        HTTP_STATUS.UNAUTHORIZED
+      );
     }
 
     const accessToken = generateAccessToken({
@@ -45,17 +54,20 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    await prisma.refreshToken.create({
+    await (prisma as any).refreshToken.create({
       data: {
         token: refreshToken,
-        user_id: user.id,
+        userId: user.id,
         expires_at: expiresAt,
       },
     });
 
     await prisma.users.update({
       where: { id: user.id },
-      data: { last_login: new Date(), login_count: (user.login_count || 0) + 1 },
+      data: {
+        last_login: new Date(),
+        login_count: (user.login_count || 0) + 1,
+      },
     });
 
     logger.info(`User logged in: ${user.email}`);
@@ -78,9 +90,9 @@ export class AuthService {
     };
   }
 
-  /**
-   * Register new user
-   */
+  // ------------------------------------------------------
+  // REGISTER
+  // ------------------------------------------------------
   async register(data: {
     email: string;
     password: string;
@@ -92,12 +104,17 @@ export class AuthService {
     business_unit_id?: string;
     employee_id?: string;
   }) {
+
     const existingUser = await prisma.users.findUnique({
       where: { email: data.email.toLowerCase() },
     });
 
     if (existingUser) {
-      throw new AppError(ERROR_CODES.ALREADY_EXISTS, 'User with this email already exists', HTTP_STATUS.CONFLICT);
+      throw new AppError(
+        ERROR_CODES.ALREADY_EXISTS,
+        'User with this email already exists',
+        HTTP_STATUS.CONFLICT
+      );
     }
 
     const password_hash = await bcrypt.hash(data.password, SALT_ROUNDS);
@@ -132,30 +149,44 @@ export class AuthService {
     };
   }
 
-  /**
-   * Refresh access token
-   */
+  // ------------------------------------------------------
+  // REFRESH TOKEN
+  // ------------------------------------------------------
   async refreshToken(refreshToken: string) {
     try {
       const decoded = verifyRefreshToken(refreshToken);
 
-      const storedToken = await prisma.refreshToken.findUnique({
+      const storedToken = await (prisma as any).refreshToken.findUnique({
         where: { token: refreshToken },
       });
 
       if (!storedToken) {
-        throw new AppError(ERROR_CODES.UNAUTHORIZED, 'Invalid refresh token', HTTP_STATUS.UNAUTHORIZED);
+        throw new AppError(
+          ERROR_CODES.UNAUTHORIZED,
+          'Invalid refresh token',
+          HTTP_STATUS.UNAUTHORIZED
+        );
       }
 
       if (new Date() > storedToken.expires_at) {
-        await prisma.refreshToken.delete({ where: { token: refreshToken } });
-        throw new AppError(ERROR_CODES.TOKEN_EXPIRED, 'Refresh token has expired', HTTP_STATUS.UNAUTHORIZED);
+        await (prisma as any).refreshToken.delete({ where: { token: refreshToken } });
+        throw new AppError(
+          ERROR_CODES.TOKEN_EXPIRED,
+          'Refresh token expired',
+          HTTP_STATUS.UNAUTHORIZED
+        );
       }
 
-      const user = await prisma.users.findUnique({ where: { id: decoded.userId } });
+      const user = await prisma.users.findUnique({
+        where: { id: decoded.userId },
+      });
 
       if (!user || user.status !== 'Active') {
-        throw new AppError(ERROR_CODES.UNAUTHORIZED, 'User not found or inactive', HTTP_STATUS.UNAUTHORIZED);
+        throw new AppError(
+          ERROR_CODES.UNAUTHORIZED,
+          'User not found or inactive',
+          HTTP_STATUS.UNAUTHORIZED
+        );
       }
 
       const accessToken = generateAccessToken({
@@ -165,51 +196,73 @@ export class AuthService {
       });
 
       return { accessToken, expiresIn: 3600 };
-    } catch (error) {
-      if (error instanceof AppError) throw error;
 
-      throw new AppError(ERROR_CODES.UNAUTHORIZED, 'Invalid refresh token', HTTP_STATUS.UNAUTHORIZED);
+    } catch (err) {
+      if (err instanceof AppError) throw err;
+
+      throw new AppError(
+        ERROR_CODES.UNAUTHORIZED,
+        'Invalid refresh token',
+        HTTP_STATUS.UNAUTHORIZED
+      );
     }
   }
 
-  /**
-   * Logout user
-   */
+  // ------------------------------------------------------
+  // LOGOUT
+  // ------------------------------------------------------
   async logout(refreshToken: string) {
     try {
-      await prisma.refreshToken.delete({ where: { token: refreshToken } });
-      logger.info('User logged out successfully');
-    } catch (error) {
-      logger.debug('Logout: Token not found in database');
+      await (prisma as any).refreshToken.delete({
+        where: { token: refreshToken },
+      });
+      logger.info('User logged out');
+    } catch {
+      logger.debug('Logout: Token not found');
     }
   }
 
-  /**
-   * Change password
-   */
+  // ------------------------------------------------------
+  // CHANGE PASSWORD
+  // ------------------------------------------------------
   async changePassword(userId: string, currentPassword: string, newPassword: string) {
-    const user = await prisma.users.findUnique({ where: { id: userId } });
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+    });
 
-    if (!user) throw new AppError(ERROR_CODES.NOT_FOUND, 'User not found', HTTP_STATUS.NOT_FOUND);
+    if (!user) {
+      throw new AppError(ERROR_CODES.NOT_FOUND, 'User not found', HTTP_STATUS.NOT_FOUND);
+    }
 
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
-    if (!isPasswordValid) {
-      throw new AppError(ERROR_CODES.INVALID_CREDENTIALS, 'Current password is incorrect', HTTP_STATUS.UNAUTHORIZED);
+    const valid = await bcrypt.compare(currentPassword, user.password_hash);
+
+    if (!valid) {
+      throw new AppError(
+        ERROR_CODES.INVALID_CREDENTIALS,
+        'Current password incorrect',
+        HTTP_STATUS.UNAUTHORIZED
+      );
     }
 
     const password_hash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
-    await prisma.users.update({ where: { id: userId }, data: { password_hash } });
+    await prisma.users.update({
+      where: { id: userId },
+      data: { password_hash },
+    });
 
-    await prisma.refreshToken.deleteMany({ where: { user_id: userId } });
+    await (prisma as any).refreshToken.deleteMany({
+      where: { userId },
+    });
 
-    logger.info(`Password changed for user: ${user.email}`);
+    logger.info(`Password changed: ${user.email}`);
+
     return { message: 'Password changed successfully' };
   }
 
-  /**
-   * Get current user
-   */
+  // ------------------------------------------------------
+  // CURRENT USER
+  // ------------------------------------------------------
   async getCurrentUser(userId: string) {
     const user = await prisma.users.findUnique({
       where: { id: userId },
@@ -230,7 +283,9 @@ export class AuthService {
       },
     });
 
-    if (!user) throw new AppError(ERROR_CODES.NOT_FOUND, 'User not found', HTTP_STATUS.NOT_FOUND);
+    if (!user) {
+      throw new AppError(ERROR_CODES.NOT_FOUND, 'User not found', HTTP_STATUS.NOT_FOUND);
+    }
 
     return user;
   }
