@@ -1,3 +1,4 @@
+import "dotenv/config";       // 👈 REQUIRED to load .env
 import { defineConfig, env } from "prisma/config";
 
 export default defineConfig({
@@ -7,6 +8,6 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
-    url: env("DATABASE_URL"),
+    url: env("DATABASE_URL"),  // 👈 now Prisma will see it
   },
 });
