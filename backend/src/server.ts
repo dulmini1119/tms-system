@@ -1,4 +1,4 @@
-import app from './index';
+import app from './index'; // no .js
 import config from './config/environment';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import logger from './utils/logger';

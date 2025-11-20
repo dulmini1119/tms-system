@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
-import { AuthRequest } from './auth.js';
+import { AuthRequest } from './auth';
 import prisma from '../config/database';
-import logger from '../utils/logger.js';
+import logger from '../utils/logger';
 
 /**
  * Audit Log Middleware
