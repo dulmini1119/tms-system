@@ -1,10 +1,11 @@
+// src/scripts/seed.ts  (FIXED VERSION)
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting Sri Lankan seed data...');
+  console.log('Starting Sri Lankan seed data...');
 
   const users = [
     {
@@ -12,7 +13,7 @@ async function main() {
       password: 'Super@123',
       first_name: 'Super',
       last_name: 'Admin',
-      role: 'superadmin',
+      position: 'superadmin',        // ← use "position", not "role"
       employee_id: 'EMP001',
     },
     {
@@ -20,7 +21,7 @@ async function main() {
       password: 'Vehicle@123',
       first_name: 'Vehicle',
       last_name: 'Admin',
-      role: 'vehicleadmin',
+      position: 'vehicleadmin',
       employee_id: 'EMP002',
     },
     {
@@ -28,7 +29,7 @@ async function main() {
       password: 'Manager@123',
       first_name: 'Manager',
       last_name: 'User',
-      role: 'manager',
+      position: 'manager',
       employee_id: 'EMP003',
     },
     {
@@ -36,7 +37,7 @@ async function main() {
       password: 'Hod@123',
       first_name: 'Head',
       last_name: 'Department',
-      role: 'hod',
+      position: 'hod',
       employee_id: 'EMP004',
     },
     {
@@ -44,7 +45,7 @@ async function main() {
       password: 'Employee@123',
       first_name: 'Regular',
       last_name: 'Employee',
-      role: 'employee',
+      position: 'employee',
       employee_id: 'EMP005',
     },
     {
@@ -52,33 +53,43 @@ async function main() {
       password: 'Driver@123',
       first_name: 'Sri',
       last_name: 'Driver',
-      role: 'driver',
+      position: 'driver',
       employee_id: 'EMP006',
     },
   ];
 
   for (const user of users) {
+    const exists = await prisma.users.findUnique({
+      where: { email: user.email },
+    });
+
+    if (exists) {
+      console.log(`Already exists: ${user.email}`);
+      continue;
+    }
+
     const hashedPassword = await bcrypt.hash(user.password, 10);
 
     await prisma.users.create({
       data: {
-        email: user.email,
+        email: user.email.toLowerCase(),
         password_hash: hashedPassword,
         first_name: user.first_name,
         last_name: user.last_name,
+        position: user.position,           // ← THIS IS THE KEY
         employee_id: user.employee_id,
+        status: 'Active',
       },
     });
 
-    console.log(`${user.role.charAt(0).toUpperCase() + user.role.slice(1)}: ${user.email} / ${user.password}`);
+    console.log(`${user.position}: ${user.email} / ${user.password}`);
   }
 
-  console.log('✅ Sri Lankan full seed completed!');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('Seed failed:', e);
     process.exit(1);
   })
   .finally(async () => {

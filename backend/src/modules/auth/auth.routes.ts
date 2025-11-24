@@ -1,3 +1,4 @@
+// src/modules/auth/auth.routes.ts
 import { Router } from 'express';
 import { AuthController } from './auth.controllers';
 import { validateBody } from '../../middleware/validation';
@@ -14,35 +15,35 @@ const router = Router();
 const authController = new AuthController();
 
 /**
- * @route   POST /api/v1/auth/login
+ * @route   POST /auth/login
  * @desc    Login user
  * @access  Public
  */
 router.post('/login', authLimiter, validateBody(loginSchema), authController.login);
 
 /**
- * @route   POST /api/v1/auth/register
+ * @route   POST /auth/register
  * @desc    Register new user
- * @access  Public (should be protected in production)
+ * @access  Public
  */
 router.post('/register', validateBody(registerSchema), authController.register);
 
 /**
- * @route   POST /api/v1/auth/refresh
+ * @route   POST /auth/refresh
  * @desc    Refresh access token
  * @access  Public
  */
 router.post('/refresh', validateBody(refreshTokenSchema), authController.refreshToken);
 
 /**
- * @route   POST /api/v1/auth/logout
+ * @route   POST /auth/logout
  * @desc    Logout user
  * @access  Private
  */
 router.post('/logout', authenticate, authController.logout);
 
 /**
- * @route   POST /api/v1/auth/change-password
+ * @route   POST /auth/change-password
  * @desc    Change user password
  * @access  Private
  */
@@ -54,10 +55,13 @@ router.post(
 );
 
 /**
- * @route   GET /api/v1/auth/me
+ * @route   GET /auth/me
  * @desc    Get current user
  * @access  Private
  */
 router.get('/me', authenticate, authController.getCurrentUser);
+
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
 
 export default router;

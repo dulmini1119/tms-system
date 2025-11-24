@@ -1,98 +1,99 @@
 "use client";
-import Link from "next/link";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 
-function LoginForm() {
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export default function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
-  const users = [
-    { email: "admin@fleet.com", password: "admin123", role: "admin" },
-    { email: "employee@fleet.com", password: "emp123", role: "employee" },
-    { email: "driver@fleet.com", password: "driver123", role: "driver" },
-    { email: "manager@fleet.com", password: "mgr123", role: "manager" },
-    { email: "hod@fleet.com", password: "hod123", role: "hod" },
-    {
-      email: "vehicleadmin@fleet.com",
-      password: "va123",
-      role: "vehicleadmin",
-    },
-  ];
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const user = users.find(
-      (u) => u.email === email && u.password === password
-    );
-
-    if (!user) {
-      setError("Invalid email or password");
-      return;
-    }
-
     setError("");
+    setLoading(true);
 
-    switch (user.role) {
-      case "admin":
-        router.push("/admin/dashboard");
-        break;
-      case "employee":
-        router.push("/employee/dashboard");
-        break;
-      case "driver":
-        router.push("/driver/dashboard");
-        break;
-      case "manager":
-        router.push("/manager/dashboard");
-        break;
-      case "hod":
-        router.push("/hod/dashboard");
-        break;
-      case "vehicleadmin":
-        router.push("/vehicleadmin/dashboard");
-        break;
-      default:
-        router.push("/");
-    }
-  };
+    try {
+      const res = await fetch("http://localhost:3000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Important: sends cookies (for sessions/JWT in httpOnly)
+        body: JSON.stringify({ email, password, rememberMe: rememberMe }),
+      });
 
-  const handleDemoLogin = (demoEmail: string, demoPassword: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    const demoUser = users.find(
-      (u) => u.email === demoEmail && u.password === demoPassword
-    );
-    if (demoUser) {
-      router.push(`/${demoUser.role.replace(" ", "-")}/dashboard`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error?.message || "Login failed");
+      }
+
+      // Success! Redirect based on role
+      const role =
+        data.data?.user?.position || data.data?.position || "employee";
+
+      switch (role) {
+        case "superadmin":
+          router.push("/admin/dashboard");
+          break;
+        case "employee":
+          router.push("/employee/dashboard");
+          break;
+        case "driver":
+          router.push("/driver/dashboard");
+          break;
+        case "manager":
+          router.push("/manager/dashboard");
+          break;
+        case "hod":
+          router.push("/hod/dashboard");
+          break;
+        case "vehicleadmin":
+          router.push("/vehicleadmin/dashboard");
+          break;
+        default:
+          router.push("/dashboard");
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="max-w-md mx-auto p-8 rounded-lg shadow-md border dark:border-gray-800 border-gray-200">
       <h1 className="text-2xl font-bold mb-6 text-sky-400 text-center">
-        Login
+        Login to TMS
       </h1>
 
       {error && (
-        <p className="mb-4 text-sm text-red-500 text-center">{error}</p>
+        <p className="mb-4 text-sm text-red-500 text-center bg-red-50 p-3 rounded">
+          {error}
+        </p>
       )}
 
       <form onSubmit={handleLogin}>
         <div>
           <label className="block text-sm font-medium dark:text-gray-100">
-            Username
+            Email
           </label>
           <input
             type="email"
-            name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             className="mt-3 block w-full rounded-md border border-gray-500 shadow-sm text-xs p-3 dark:text-gray-400 mb-5"
-            placeholder="Enter your email"
+            placeholder="admin@fleet.com"
           />
         </div>
 
@@ -102,24 +103,30 @@ function LoginForm() {
           </label>
           <input
             type="password"
-            name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             className="mt-3 block w-full rounded-md border border-gray-500 shadow-sm text-xs p-3 dark:text-gray-400"
-            placeholder="Enter your password"
+            placeholder="••••••••"
           />
         </div>
 
         <div className="flex items-center justify-between mt-4 text-xs dark:text-gray-100">
-          <label className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2">
             <input
               type="checkbox"
-              className="w-4 h-4 rounded border-gray-500 text-sky-600 focus:ring-sky-500 cursor-pointer"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500"
             />
-            <span>Remember me</span>
-          </label>
-
+            <label
+              htmlFor="rememberMe"
+              className="text-sm text-gray-600 cursor-pointer"
+            >
+              Remember me
+            </label>
+          </div>
           <Link
             href="/forgot-password"
             className="text-blue-500 hover:underline"
@@ -130,13 +137,12 @@ function LoginForm() {
 
         <button
           type="submit"
-          className="w-full flex justify-center py-2 px-4 border border-transparent bg-sky-600 rounded-2xl mt-5 text-black font-bold cursor-pointer"
+          disabled={loading}
+          className="w-full flex justify-center py-2 px-4 border border-transparent bg-sky-600 rounded-2xl mt-5 text-black font-bold cursor-pointer disabled:opacity-70"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>
   );
 }
-
-export default LoginForm;

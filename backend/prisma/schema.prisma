@@ -1125,3 +1125,24 @@ model vehicles {
   users_vehicles_created_byTousers             users?               @relation("vehicles_created_byTousers", fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users_vehicles_updated_byTousers             users?               @relation("vehicles_updated_byTousers", fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
+
+model rate_limit {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key       String   @db.VarChar(255)        // usually the IP address
+  points    Int
+  expire    DateTime @db.Timestamp(6)
+
+  @@unique([key])
+  @@index([key])
+  @@index([expire])
+}
+
+model PasswordReset {
+  id          Int      @id @default(autoincrement())
+  email       String
+  token       String
+  expires_at  DateTime
+  created_at  DateTime @default(now())
+}
+
+

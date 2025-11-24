@@ -11,7 +11,7 @@ export const apiLimiter: RateLimitRequestHandler = rateLimit({
   message: {
     success: false,
     error: {
-      code: ERROR_CODES.INTERNAL_ERROR,
+      code: ERROR_CODES.TOO_MANY_REQUESTS,
       message: 'Too many requests from this IP, please try again later',
       timestamp: new Date().toISOString(),
     },
@@ -21,16 +21,21 @@ export const apiLimiter: RateLimitRequestHandler = rateLimit({
 });
 
 /**
- * Stricter Rate Limiter for Authentication Routes
+ * AUTH RATE LIMITER – Smart version (dev = unlimited, prod = strict)
  */
 export const authLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: config.rateLimit.windowMs,
-  max: config.rateLimit.authMax,
+  // In development: 1000 attempts = basically unlimited
+  // In production: use your strict config (e.g. 5 attempts)
+  max: config.app.env === 'development' ? 9999 : config.rateLimit.authMax,
+
+  // Don't count successful logins against the limit
   skipSuccessfulRequests: true,
+
   message: {
     success: false,
     error: {
-      code: ERROR_CODES.INTERNAL_ERROR,
+      code: ERROR_CODES.TOO_MANY_REQUESTS,
       message: 'Too many login attempts, please try again later',
       timestamp: new Date().toISOString(),
     },
@@ -40,7 +45,7 @@ export const authLimiter: RateLimitRequestHandler = rateLimit({
 });
 
 /**
- * Factory function to create custom rate limiter
+ * Factory function
  */
 export const createRateLimiter = (windowMs: number, max: number): RateLimitRequestHandler => {
   return rateLimit({
@@ -49,7 +54,7 @@ export const createRateLimiter = (windowMs: number, max: number): RateLimitReque
     message: {
       success: false,
       error: {
-        code: ERROR_CODES.INTERNAL_ERROR,
+        code: ERROR_CODES.TOO_MANY_REQUESTS,
         message: 'Rate limit exceeded',
         timestamp: new Date().toISOString(),
       },

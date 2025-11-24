@@ -1,55 +1,56 @@
-import app from './index'; // no .js
+// src/server.ts
+import app from './app';                    // no .js or .ts extension
 import config from './config/environment';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import logger from './utils/logger';
 
-const PORT = config.app.port;
+const PORT = config.app.port || 3000;
 
 async function startServer() {
   try {
     // Connect to database
     await connectDatabase();
 
-    // Start server
+    // Start the HTTP server
     const server = app.listen(PORT, () => {
-      logger.info(`🚀 Server is running on port ${PORT}`);
-      logger.info(`📝 Environment: ${config.app.env}`);
-      logger.info(`🔗 API: http://localhost:${PORT}/api/${config.app.apiVersion}`);
+      logger.info(`Server is running on port ${PORT}`);
+      logger.info(`Environment: ${config.app.env}`);
+      logger.info(`Health check: http://localhost:${PORT}/health`);
+
+      // Clean, prefix-free URLs
+      logger.info(`API base URL: http://localhost:${PORT}`);
+      // add more as you create them
     });
 
-    // Graceful shutdown
+    // Graceful shutdown handling
     const gracefulShutdown = async (signal: string) => {
       logger.info(`\n${signal} received. Starting graceful shutdown...`);
 
       server.close(async () => {
         logger.info('HTTP server closed');
-
-        // Disconnect from database
         await disconnectDatabase();
-
-        logger.info('Graceful shutdown complete');
+        logger.info('Database disconnected – graceful shutdown complete');
         process.exit(0);
       });
 
-      // Force shutdown after 10 seconds
+      // Force exit after 10 seconds if connections don't close
       setTimeout(() => {
-        logger.error('Forced shutdown after timeout');
+        logger.error('Could not close connections in time – forcing shutdown');
         process.exit(1);
-      }, 10000);
+      }, 10_000);
     };
 
-    // Handle shutdown signals
-    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM')); // Docker/K8s
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));   // Ctrl+C
 
-    // Handle uncaught errors
-    process.on('uncaughtException', (error) => {
-      logger.error('Uncaught Exception:', error);
+    // Catch unhandled errors (safety net)
+    process.on('uncaughtException', (err) => {
+      logger.error('Uncaught Exception:', err);
       gracefulShutdown('uncaughtException');
     });
 
-    process.on('unhandledRejection', (reason, promise) => {
-      logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    process.on('unhandledRejection', (reason) => {
+      logger.error('Unhandled Promise Rejection:', reason);
       gracefulShutdown('unhandledRejection');
     });
 
@@ -59,5 +60,5 @@ async function startServer() {
   }
 }
 
-// Start the server
+// Start it!
 startServer();

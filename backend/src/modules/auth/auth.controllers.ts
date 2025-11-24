@@ -1,94 +1,72 @@
-import { Response, NextFunction } from 'express';
-import { AuthRequest } from '../../middleware/auth';
-import { AuthService } from './auth.service';
+import { Request, Response, NextFunction } from 'express';
+import prisma from '../../config/database';
+import { AppError } from '../../middleware/errorHandler';
+import { ERROR_CODES, HTTP_STATUS } from '../../utils/constants';
+import bcrypt from 'bcrypt';
 import ApiResponse from '../../utils/response';
-import { HTTP_STATUS } from '../../utils/constants';
+
+interface ForgotPasswordBody {
+  email: string;
+}
+
+interface ResetPasswordBody {
+  email: string;
+  otp: string;
+  newPassword: string;
+}
 
 export class AuthController {
-  private authService: AuthService;
+  // ... your other methods ...
 
-  constructor() {
-    this.authService = new AuthService();
-  }
-
-  /**
-   * Login
-   */
-  login = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  forgotPassword = async (
+    req: Request<{}, {}, ForgotPasswordBody>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const { email, password } = req.body;
-      const result = await this.authService.login(email, password);
+      const { email } = req.body;
 
-      ApiResponse.success(res, result, 'Login successful');
+      const user = await prisma.users.findUnique({ where: { email } });
+      if (!user) {
+        throw new AppError(ERROR_CODES.NOT_FOUND, 'Email not found', HTTP_STATUS.NOT_FOUND);
+      }
+
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+      await prisma.passwordReset.create({
+        data: { email, token: otp, expires_at: expires }
+      });
+
+      console.log(`OTP for ${email}: ${otp}`); // Remove later
+
+      ApiResponse.success(res, {}, 'OTP sent to email');
     } catch (error) {
       next(error);
     }
   };
 
-  /**
-   * Register
-   */
-  register = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  resetPassword = async (
+    req: Request<{}, {}, ResetPasswordBody>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const user = await this.authService.register(req.body);
-      ApiResponse.created(res, { user }, 'User registered successfully');
-    } catch (error) {
-      next(error);
-    }
-  };
+      const { email, otp, newPassword } = req.body;
 
-  /**
-   * Refresh Token
-   */
-  refreshToken = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { refreshToken } = req.body;
-      const result = await this.authService.refreshToken(refreshToken);
+      const reset = await prisma.passwordReset.findFirst({
+        where: { email, token: otp, expires_at: { gt: new Date() } }
+      });
 
-      ApiResponse.success(res, result, 'Token refreshed successfully');
-    } catch (error) {
-      next(error);
-    }
-  };
+      if (!reset) {
+        throw new AppError(ERROR_CODES.UNAUTHORIZED, 'Invalid or expired OTP', HTTP_STATUS.UNAUTHORIZED);
+      }
 
-  /**
-   * Logout
-   */
-  logout = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { refreshToken } = req.body;
-      await this.authService.logout(refreshToken);
+      const password_hash = await bcrypt.hash(newPassword, 10);
+      await prisma.users.update({ where: { email }, data: { password_hash } });
+      await prisma.passwordReset.delete({ where: { id: reset.id } });
 
-      ApiResponse.success(res, null, 'Logout successful');
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Change Password
-   */
-  changePassword = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { currentPassword, newPassword } = req.body;
-      if (!req.user) throw new Error('User not authenticated');
-
-      const result = await this.authService.changePassword(req.user.id, currentPassword, newPassword);
-      ApiResponse.success(res, result, 'Password changed successfully');
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Get Current User
-   */
-  getCurrentUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      if (!req.user) throw new Error('User not authenticated');
-
-      const user = await this.authService.getCurrentUser(req.user.id);
-      ApiResponse.success(res, { user }, 'Current user fetched successfully');
+      ApiResponse.success(res, {}, 'Password reset successful');
     } catch (error) {
       next(error);
     }
