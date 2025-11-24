@@ -1,4 +1,4 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
 import config from '../config/environment';
 
 export interface TokenPayload {
@@ -33,6 +33,9 @@ export const verifyRefreshToken = (token: string): RefreshTokenPayload => {
   return jwt.verify(token, config.jwt.refreshSecret) as RefreshTokenPayload;
 };
 
-export const decodeToken = (token: string): any => {
-  return jwt.decode(token);
+// Improved decodeToken: returns TokenPayload | RefreshTokenPayload | null
+export const decodeToken = (token: string): TokenPayload | RefreshTokenPayload | null => {
+  const decoded = jwt.decode(token);
+  if (!decoded || typeof decoded === 'string') return null;
+  return decoded as TokenPayload | RefreshTokenPayload;
 };

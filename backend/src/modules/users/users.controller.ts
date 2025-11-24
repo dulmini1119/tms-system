@@ -83,34 +83,5 @@ export class UsersController {
     }
   };
 
-  /**
-   * Get user permissions
-   */
-  getUserPermissions = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { userId } = req.params;
-
-      const result = await this.usersService.getUserPermissions(userId);
-
-      ApiResponse.success(res, result);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Update user permissions
-   */
-  updateUserPermissions = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { userId } = req.params;
-      const { permissions } = req.body;
-
-      const result = await this.usersService.updateUserPermissions(userId, permissions);
-
-      ApiResponse.success(res, result, 'Permissions updated successfully');
-    } catch (error) {
-      next(error);
-    }
-  };
+  
 }

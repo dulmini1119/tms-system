@@ -24,7 +24,7 @@ export default function LoginForm() {
           "Content-Type": "application/json",
         },
         credentials: "include", // Important: sends cookies (for sessions/JWT in httpOnly)
-        body: JSON.stringify({ email, password, rememberMe: rememberMe }),
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       const data = await res.json();
@@ -33,6 +33,10 @@ export default function LoginForm() {
         throw new Error(data.error?.message || "Login failed");
       }
 
+      const token = data.data?.token; // make sure backend sends { data: { token: "..." } }
+      if (token) {
+        localStorage.setItem("token", token);
+      }
       // Success! Redirect based on role
       const role =
         data.data?.user?.position || data.data?.position || "employee";

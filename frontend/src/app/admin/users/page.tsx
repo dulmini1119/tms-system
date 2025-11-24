@@ -1,12 +1,12 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import {
   Plus,
   Search,
   MoreHorizontal,
   Edit,
   Trash2,
-  UserX,
   RefreshCw,
   Mail,
   Phone,
@@ -51,238 +51,241 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 interface User {
-  id: number;
-  name: string;
+  id: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  phone: string;
-  role: string;
-  department: string;
+  phone: string | null;
+  position: string;
+  department?: string;
+  business_unit?: string;
   status: string;
-  lastLogin: string;
-  businessUnit: string;
+  last_login: string | null;
+  employee_id: string;
 }
 
-const initialUsers: User[] = [
-  {
-    id: 1,
-    name: "John Smith",
-    email: "john.smith@company.com",
-    phone: "078 7654346",
-    role: "Admin",
-    department: "IT",
-    businessUnit: "Technology",
-    status: "Active",
-    lastLogin: "2024-01-15 10:30 AM",
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    email: "sarah.johnson@company.com",
-    phone: "076 5432111",
-    role: "Manager",
-    department: "Marketing",
-    businessUnit: "Sales & Marketing",
-    status: "Active",
-    lastLogin: "2024-01-15 09:15 AM",
-  },
-  {
-    id: 3,
-    name: "Mike Wilson",
-    email: "mike.wilson@company.com",
-    phone: "076 5143212",
-    role: "Employee",
-    department: "HR",
-    businessUnit: "Administration",
-    status: "Inactive",
-    lastLogin: "2024-01-12 03:45 PM",
-  },
-  {
-    id: 4,
-    name: "Emily Davis",
-    email: "emily.davis@company.com",
-    phone: "076 5043213",
-    role: "Employee",
-    department: "Finance",
-    businessUnit: "Finance",
-    status: "Active",
-    lastLogin: "2024-01-15 08:20 AM",
-  },
-  {
-    id: 5,
-    name: "David Brown",
-    email: "david.brown@company.com",
-    phone: "076 5143214",
-    role: "Driver",
-    department: "Operations",
-    businessUnit: "Operations",
-    status: "Active",
-    lastLogin: "2024-01-15 07:00 AM",
-  },
-];
-
-const roles = ["Admin", "Manager", "Employee", "Driver", "HOD"];
-const departments = ["IT", "Marketing", "HR", "Finance", "Operations"];
-const businessUnits = [
-  "Technology",
-  "Sales & Marketing",
-  "Administration",
-  "Finance",
-  "Operations",
-];
+interface Role {
+  id: string;
+  name: string;
+}
 
 export default function Users() {
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all-roles");
-  const [departmentFilter, setDepartmentFilter] = useState("all-departments");
   const [statusFilter, setStatusFilter] = useState("all-status");
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [formData, setFormData] = useState<Partial<User>>({
-    name: "",
+
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
     email: "",
     phone: "",
-    role: "",
-    department: "",
-    businessUnit: "",
-    status: "Active",
+    position: "",
+    employee_id: "",
+    password: "",
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
-  // Handle form input changes
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement> | string,
-    field: keyof User
-  ) => {
-    if (typeof e === "string") {
-      // Handle Select component changes
-      setFormData((prev) => ({ ...prev, [field]: e }));
-    } else {
-      // Handle Input component changes
-      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+  /** Fetch Users */
+  useEffect(() => {
+    Promise.all([fetchUsers(), fetchRoles()]);
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found. Please login.");
+      const res = await fetch("/users", {
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (!res.ok) throw new Error("Failed to fetch users");
+      const data = await res.json();
+      setUsers(data.users || []);
+    } catch (err) {
+      toast.error("Failed to load users");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Handle form submission for creating or updating a user
-  const handleSubmit = () => {
-    if (editingUser) {
-      // Update existing user
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.id === editingUser.id ? { ...user, ...formData } : user
-        )
-      );
-    } else {
-      // Create new user
-      const newUser: User = {
-        id: users.length + 1, // Simple ID generation (replace with UUID or backend-generated ID)
-        lastLogin: new Date().toLocaleString(),
-        ...formData,
-      } as User;
-      setUsers((prev) => [...prev, newUser]);
+  /** Fetch Roles */
+  const fetchRoles = async () => {
+    try {
+      const res = await fetch("/roles", { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json();
+      setRoles(data);
+    } catch (err) {
+      console.error("Failed to load roles", err);
+      toast.error("Failed to load roles");
     }
-    setIsDialogOpen(false);
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      role: "",
-      department: "",
-      businessUnit: "",
-      status: "Active",
-    });
   };
 
-  // Handle editing a user
-  const handleEditUser = (user: User) => {
-    setEditingUser(user);
-    setFormData(user);
-    setIsDialogOpen(true);
+  /** Create / Update User */
+  const handleSubmit = async () => {
+    const url = editingUser ? `/users/${editingUser.id}` : "/users";
+    const method = editingUser ? "PUT" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          ...formData,
+          ...(editingUser ? {} : { password: formData.password }),
+        }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result.message || result.error || "Request failed");
+      }
+
+      toast.success(editingUser ? "User updated" : "User created");
+
+      await fetchUsers();
+      setIsDialogOpen(false);
+      resetForm();
+    } catch (err: unknown) {
+      console.log(err);
+
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Something went wrong");
+      }
+    }
   };
 
-  // Handle creating a new user
-  const handleCreateUser = () => {
+  /** Delete User */
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this user permanently?")) return;
+
+    try {
+      const res = await fetch(`/users/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error("Failed to delete user");
+
+      toast.success("User deleted");
+      fetchUsers();
+    } catch {
+      toast.error("Failed to delete user");
+    }
+  };
+
+  /** Reset Password */
+  const handleResetPassword = async (email: string) => {
+    try {
+      const res = await fetch("/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) throw new Error("Failed");
+
+      toast.success("Password reset email sent");
+    } catch {
+      toast.error("Failed to send reset email");
+    }
+  };
+
+  const resetForm = () => {
     setEditingUser(null);
     setFormData({
-      name: "",
+      first_name: "",
+      last_name: "",
       email: "",
       phone: "",
-      role: "",
-      department: "",
-      businessUnit: "",
-      status: "Active",
+      position: "",
+      employee_id: "",
+      password: "",
+    });
+  };
+
+  /** Edit Dialog */
+  const openEditDialog = (user: User) => {
+    setEditingUser(user);
+    setFormData({
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      phone: user.phone || "",
+      position: user.position,
+      employee_id: user.employee_id,
+      password: "",
     });
     setIsDialogOpen(true);
   };
 
-  // Handle deactivating a user
-  const handleDeactivateUser = (userId: number) => {
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === userId ? { ...user, status: "Inactive" } : user
-      )
-    );
+  /** Create Dialog */
+  const openCreateDialog = () => {
+    resetForm();
+    setIsDialogOpen(true);
   };
 
-  // Handle resetting a user's password
-  const handleResetPassword = (userId: number) => {
-    // Simulate password reset (replace with actual API call)
-    console.log(`Resetting password for user ID: ${userId}`);
-    alert(`Password reset initiated for user ID: ${userId}`);
-    // Example API call:
-    // fetch(`/api/users/${userId}/reset-password`, { method: "POST" })
-    //   .then((res) => res.json())
-    //   .then(() => alert("Password reset email sent"));
-  };
+  /** Filtering */
+  const filteredUsers = users.filter((user) => {
+    const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+    const matchesSearch =
+      fullName.includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-  // Handle deleting a user
-  const handleDeleteUser = (userId: number) => {
-    setUsers((prev) => prev.filter((user) => user.id !== userId));
-  };
+    const matchesRole =
+      roleFilter === "all-roles" || user.position === roleFilter;
 
-  const filteredUsers = users.filter(
-    (user) =>
-      (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (roleFilter === "all-roles" || user.role === roleFilter) &&
-      (departmentFilter === "all-departments" ||
-        user.department === departmentFilter) &&
-      (statusFilter === "all-status" || user.status === statusFilter)
+    const matchesStatus =
+      statusFilter === "all-status" || user.status === statusFilter;
+
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
+  const getStatusBadge = (status: string) => (
+    <Badge variant={status === "Active" ? "default" : "secondary"}>
+      {status}
+    </Badge>
   );
 
-  const getStatusBadge = (status: string) => {
+  /** Loading Screen */
+  if (loading) {
     return (
-      <Badge variant={status === "Active" ? "default" : "secondary"}>
-        {status}
-      </Badge>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">Loading users...</div>
+      </div>
     );
-  };
-
-  const totalPages =
-    pageSize > 0 ? Math.ceil(filteredUsers.length / pageSize) : 1;
-  const paginatedDocuments = filteredUsers.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  }
 
   return (
-    <div className="space-y-4 space-x-4">
+    <div className="space-y-6">
+      {/* HEADER */}
       <div className="flex items-center justify-between">
-        <div className="p-3">
-          <h1 className="text-2xl">USER MANAGEMENT</h1>
-          <p className="text-muted-foreground text-xs">
+        <div>
+          <h1 className="text-3xl font-bold">User Management</h1>
+          <p className="text-muted-foreground">
             Manage users, their roles, and access permissions
           </p>
         </div>
-        <Button onClick={handleCreateUser} className="hover:bg-cyan-700">
-          <Plus className="h-4 w-4" />
-          Add User
+        <Button onClick={openCreateDialog}>
+          <Plus className="mr-2 h-4 w-4" /> Add User
         </Button>
       </div>
 
+      {/* TABLE CARD */}
       <Card>
         <CardHeader>
           <CardTitle>Users</CardTitle>
@@ -290,49 +293,37 @@ export default function Users() {
             A list of all users in your organization
           </CardDescription>
         </CardHeader>
+
         <CardContent>
-          <div className="flex items-center space-x-4 mb-6">
+          {/* FILTERS */}
+          <div className="flex flex-col gap-4 mb-6 lg:flex-row">
             <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search users..."
+                className="pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8"
               />
             </div>
+
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by role" />
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="All Roles" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all-roles">All Roles</SelectItem>
-                {roles.map((role) => (
-                  <SelectItem key={role} value={role}>
-                    {role}
+                {roles.map((r) => (
+                  <SelectItem key={r.id} value={r.name}>
+                    {r.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Select
-              value={departmentFilter}
-              onValueChange={setDepartmentFilter}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all-departments">All Departments</SelectItem>
-                {departments.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by status" />
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all-status">All Status</SelectItem>
@@ -342,80 +333,82 @@ export default function Users() {
             </Select>
           </div>
 
-          {/* Desktop Table View */}
-          <div className="hidden sm:block w-full overflow-x-auto">
-            <Table className="min-w-full table-auto text-sm">
+          {/* TABLE (DESKTOP) */}
+          <div className="hidden lg:block overflow-x-auto rounded-md border">
+            <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Contact</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead>Department</TableHead>
-                  <TableHead>Business Unit</TableHead>
+                  <TableHead>Employee ID</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Last Login</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
-                {paginatedDocuments.map((user) => (
+                {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
-                      <div>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-muted-foreground flex items-center mt-1">
-                          <Mail className="h-3 w-3 mr-1" />
-                          {user.email}
-                        </div>
+                      <div className="font-medium">
+                        {user.first_name} {user.last_name}
+                      </div>
+                      <div className="text-sm text-muted-foreground flex items-center mt-1">
+                        <Mail className="h-3 w-3 mr-1" />
+                        {user.email}
                       </div>
                     </TableCell>
+
                     <TableCell>
                       <div className="text-sm flex items-center">
                         <Phone className="h-3 w-3 mr-1" />
-                        {user.phone}
+                        {user.phone || "-"}
                       </div>
                     </TableCell>
+
                     <TableCell>
-                      <Badge variant="outline">{user.role}</Badge>
+                      <Badge variant="outline">{user.position}</Badge>
                     </TableCell>
-                    <TableCell>{user.department}</TableCell>
-                    <TableCell>{user.businessUnit}</TableCell>
+
+                    <TableCell>{user.employee_id}</TableCell>
+
                     <TableCell>{getStatusBadge(user.status)}</TableCell>
+
                     <TableCell className="text-sm text-muted-foreground">
-                      {user.lastLogin}
+                      {user.last_login
+                        ? new Date(user.last_login).toLocaleString()
+                        : "Never"}
                     </TableCell>
+
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
+                          <Button variant="ghost" size="icon">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
+
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => handleEditUser(user)}
+                            onClick={() => openEditDialog(user)}
                           >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit User
+                            <Edit className="mr-2 h-4 w-4" /> Edit
                           </DropdownMenuItem>
+
                           <DropdownMenuItem
-                            onClick={() => handleResetPassword(user.id)}
+                            onClick={() => handleResetPassword(user.email)}
                           >
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            Reset Password
+                            <RefreshCw className="mr-2 h-4 w-4" /> Reset
+                            Password
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDeactivateUser(user.id)}
-                          >
-                            <UserX className="h-4 w-4 mr-2" />
-                            Deactivate
-                          </DropdownMenuItem>
+
                           <DropdownMenuItem
                             className="text-destructive"
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => handleDelete(user.id)}
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete User
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -426,79 +419,67 @@ export default function Users() {
             </Table>
           </div>
 
-          {/* Mobile Card View */}
-          <div className="sm:hidden space-y-4">
-            {paginatedDocuments.map((user) => (
+          {/* MOBILE CARDS */}
+          <div className="lg:hidden space-y-4">
+            {filteredUsers.map((user) => (
               <div
                 key={user.id}
-                className="border rounded-xl p-4 bg-card shadow-sm flex flex-col gap-3"
+                className="border rounded-xl p-4 bg-card shadow-sm"
               >
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-start mb-3">
                   <div>
-                    <div className="font-semibold text-base">{user.name}</div>
-                    <div className="text-xs text-muted-foreground flex items-center mt-1">
+                    <div className="font-semibold">
+                      {user.first_name} {user.last_name}
+                    </div>
+                    <div className="text-sm text-muted-foreground flex items-center mt-1">
                       <Mail className="h-3 w-3 mr-1" />
                       {user.email}
                     </div>
                   </div>
-                  <Badge variant="outline">{user.role}</Badge>
+                  <Badge variant="outline">{user.position}</Badge>
                 </div>
 
-                <div className="text-sm flex items-center">
-                  <Phone className="h-3 w-3 mr-1" />
-                  {user.phone}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Dept:</span>{" "}
-                    {user.department}
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center">
+                    <Phone className="h-3 w-3 mr-2" />
+                    {user.phone || "No phone"}
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">Unit:</span>{" "}
-                    {user.businessUnit}
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Status:</span>{" "}
-                    {getStatusBadge(user.status)}
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Last Login:</span>{" "}
-                    {user.lastLogin}
+                  <div>Employee ID: {user.employee_id}</div>
+                  <div className="flex items-center justify-between">
+                    <span>Status: {getStatusBadge(user.status)}</span>
+                    <span className="text-muted-foreground text-xs">
+                      Last login:{" "}
+                      {user.last_login
+                        ? new Date(user.last_login).toLocaleDateString()
+                        : "Never"}
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="mt-4 flex justify-end">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm">
-                        Actions
-                        <MoreHorizontal className="ml-2 h-4 w-4" />
+                        Actions <MoreHorizontal className="ml-2 h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
+
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEditUser(user)}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit User
+                      <DropdownMenuItem onClick={() => openEditDialog(user)}>
+                        <Edit className="mr-2 h-4 w-4" /> Edit User
                       </DropdownMenuItem>
+
                       <DropdownMenuItem
-                        onClick={() => handleResetPassword(user.id)}
+                        onClick={() => handleResetPassword(user.email)}
                       >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Reset Password
+                        <RefreshCw className="mr-2 h-4 w-4" /> Reset Password
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleDeactivateUser(user.id)}
-                      >
-                        <UserX className="h-4 w-4 mr-2" />
-                        Deactivate
-                      </DropdownMenuItem>
+
                       <DropdownMenuItem
                         className="text-destructive"
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDelete(user.id)}
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete User
+                        <Trash2 className="mr-2 h-4 w-4" /> Delete User
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -506,207 +487,80 @@ export default function Users() {
               </div>
             ))}
           </div>
-
-          {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Show</span>
-              <Select
-                value={pageSize.toString()}
-                onValueChange={(v) => {
-                  setPageSize(Number(v));
-                  setCurrentPage(1);
-                }}
-              >
-                <SelectTrigger className="w-16">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[10, 25, 50, 100].map((s) => (
-                    <SelectItem key={s} value={s.toString()}>
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <span className="text-muted-foreground">
-                of {filteredUsers.length} documents
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                Page {currentPage} of {totalPages}
-              </span>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setCurrentPage(1)}
-                  disabled={currentPage === 1}
-                >
-                  First
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                >
-                  Prev
-                </Button>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let num;
-                  if (totalPages <= 5) num = i + 1;
-                  else if (currentPage <= 3) num = i + 1;
-                  else if (currentPage >= totalPages - 2)
-                    num = totalPages - 4 + i;
-                  else num = currentPage - 2 + i;
-                  return num;
-                }).map((num) => (
-                  <Button
-                    key={num}
-                    variant={currentPage === num ? "default" : "outline"}
-                    size="icon"
-                    onClick={() => setCurrentPage(num)}
-                    className="w-9 h-9"
-                  >
-                    {num}
-                  </Button>
-                ))}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setCurrentPage(totalPages)}
-                  disabled={currentPage === totalPages}
-                >
-                  Last
-                </Button>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
+      {/* CREATE/EDIT DIALOG */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editingUser ? "Edit User" : "Create New User"}
+              {editingUser ? "Edit User" : "Create User"}
             </DialogTitle>
             <DialogDescription>
               {editingUser
-                ? "Update user information and settings"
-                : "Add a new user to the system"}
+                ? "Update user details below"
+                : "Fill in the details to create a new user"}
             </DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4 py-4">
+            {[
+              ["First Name", "first_name"],
+              ["Last Name", "last_name"],
+              ["Email", "email"],
+              ["Phone", "phone"],
+              ["Employee ID", "employee_id"],
+            ].map(([label, key]) => (
+              <div key={key} className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">{label}</Label>
+                <Input
+                  className="col-span-3"
+                  value={formData[key as keyof typeof formData]}
+                  type={key === "email" ? "email" : "text"}
+                  onChange={(e) =>
+                    setFormData({ ...formData, [key]: e.target.value })
+                  }
+                />
+              </div>
+            ))}
+
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={formData.name || ""}
-                onChange={(e) => handleChange(e, "name")}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="email" className="text-right">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email || ""}
-                onChange={(e) => handleChange(e, "email")}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="phone" className="text-right">
-                Phone
-              </Label>
-              <Input
-                id="phone"
-                value={formData.phone || ""}
-                onChange={(e) => handleChange(e, "phone")}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="role" className="text-right">
-                Role
-              </Label>
+              <Label className="text-right">Role</Label>
               <Select
-                value={formData.role || ""}
-                onValueChange={(value) => handleChange(value, "role")}
+                value={formData.position}
+                onValueChange={(v) => setFormData({ ...formData, position: v })}
               >
                 <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a role" />
+                  <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map((role) => (
-                    <SelectItem key={role} value={role}>
-                      {role}
+                  {roles.map((r) => (
+                    <SelectItem key={r.id} value={r.name}>
+                      {r.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="department" className="text-right">
-                Department
-              </Label>
-              <Select
-                value={formData.department || ""}
-                onValueChange={(value) => handleChange(value, "department")}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a department" />
-                </SelectTrigger>
-                <SelectContent>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept} value={dept}>
-                      {dept}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="businessUnit" className="text-right">
-                Business Unit
-              </Label>
-              <Select
-                value={formData.businessUnit || ""}
-                onValueChange={(value) => handleChange(value, "businessUnit")}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a business unit" />
-                </SelectTrigger>
-                <SelectContent>
-                  {businessUnits.map((bu) => (
-                    <SelectItem key={bu} value={bu}>
-                      {bu}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
+            {!editingUser && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Password</Label>
+                <Input
+                  type="password"
+                  className="col-span-3"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                />
+              </div>
+            )}
           </div>
+
           <DialogFooter>
-            <Button type="submit" onClick={handleSubmit}>
+            <Button onClick={handleSubmit}>
               {editingUser ? "Update User" : "Create User"}
             </Button>
           </DialogFooter>

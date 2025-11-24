@@ -21,12 +21,7 @@ const authController = new AuthController();
  */
 router.post('/login', authLimiter, validateBody(loginSchema), authController.login);
 
-/**
- * @route   POST /auth/register
- * @desc    Register new user
- * @access  Public
- */
-router.post('/register', validateBody(registerSchema), authController.register);
+
 
 /**
  * @route   POST /auth/refresh

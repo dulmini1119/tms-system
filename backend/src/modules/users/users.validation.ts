@@ -39,10 +39,4 @@ export const getUsersQuerySchema = Joi.object({
   sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
 });
 
-export const updatePermissionsSchema = Joi.object({
-  permissions: Joi.array().items(Joi.string()).required(),
-});
 
-export const userIdSchema = Joi.object({
-  userId: Joi.string().uuid().required(),
-});

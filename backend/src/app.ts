@@ -11,6 +11,7 @@ import config from './config/environment';
 // Import routes
 import authRoutes from './modules/auth/auth.routes';
 import usersRoutes from './modules/users/users.routes';
+import permissioRoutes from './modules/permissions/permission.routes';
 // import other routes later...
 
 const app: Application = express();
@@ -57,6 +58,7 @@ app.get('/health', (req, res) => {
 // ROUTES WITHOUT ANY PREFIX
 app.use('/auth', authRoutes);     // → POST /auth/register, etc.
 app.use('/users', usersRoutes);   // → GET /users/me, etc.
+app.use('/permissions', permissioRoutes); // → GET /permissions, etc.
 
 // Add future routes exactly like this:
 // app.use('/trips', tripsRoutes);

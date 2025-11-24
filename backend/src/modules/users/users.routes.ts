@@ -24,10 +24,6 @@ router.put('/:id', validateQuery, usersController.updateUser.bind(usersControlle
 // DELETE /users/:id - Delete user
 router.delete('/:id', usersController.deleteUser.bind(usersController));
 
-// GET /users/:id/permissions - Get user permissions
-router.get('/:id/permissions', usersController.getUserPermissions.bind(usersController));
 
-// PUT /users/:id/permissions - Update user permissions
-router.put('/:id/permissions', usersController.updateUserPermissions.bind(usersController));
 
 export default router;

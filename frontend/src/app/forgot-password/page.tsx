@@ -40,17 +40,25 @@ export default function ForgotPassword() {
     if (!res.ok) return setError(data.error?.message || "Failed");
 
     setMessage("Password reset successful! Redirecting to login...");
-    setTimeout(() => window.location.href = "/login", 2000);
+    setTimeout(() => (window.location.href = "/login"), 2000);
   };
 
   return (
-    <div className="max-w-md mx-auto p-8 mt-20 bg-white rounded-lg shadow-lg">
-      <h1 className="text-2xl font-bold text-center mb-8 text-sky-600">
+    <div className="max-w-md mx-auto p-8 mt-20 bg-white dark:bg-gray-800 rounded-lg shadow-lg transition-colors duration-300">
+      <h1 className="text-2xl font-bold text-center mb-8 text-sky-600 dark:text-sky-400">
         {step === 1 ? "Forgot Password" : "Enter OTP"}
       </h1>
 
-      {error && <p className="text-red-500 text-center bg-red-50 p-3 rounded">{error}</p>}
-      {message && <p className="text-green-600 text-center bg-green-50 p-3 rounded">{message}</p>}
+      {error && (
+        <p className="text-red-500 text-center bg-red-50 dark:bg-red-900 dark:text-red-300 p-3 rounded transition-colors duration-300">
+          {error}
+        </p>
+      )}
+      {message && (
+        <p className="text-green-600 text-center bg-green-50 dark:bg-green-900 dark:text-green-300 p-3 rounded transition-colors duration-300">
+          {message}
+        </p>
+      )}
 
       {step === 1 ? (
         <form onSubmit={sendOtp} className="space-y-6">
@@ -58,11 +66,14 @@ export default function ForgotPassword() {
             type="email"
             placeholder="Enter your company email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full p-3 border rounded-lg"
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 transition-colors duration-300"
           />
-          <button type="submit" className="w-full bg-sky-600 text-white py-3 rounded-lg font-bold">
+          <button
+            type="submit"
+            className="w-full bg-sky-600 dark:bg-sky-500 text-white py-3 rounded-lg font-bold hover:bg-sky-700 dark:hover:bg-sky-600 transition-colors duration-300"
+          >
             Send OTP
           </button>
         </form>
@@ -72,27 +83,32 @@ export default function ForgotPassword() {
             type="text"
             placeholder="Enter 6-digit OTP"
             value={otp}
-            onChange={e => setOtp(e.target.value)}
+            onChange={(e) => setOtp(e.target.value)}
             required
             maxLength={6}
-            className="w-full p-3 border rounded-lg text-center text-2xl tracking-widest"
+            className="w-full p-3 border rounded-lg text-center text-2xl tracking-widest bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors duration-300"
           />
           <input
             type="password"
             placeholder="New Password"
             value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
+            onChange={(e) => setNewPassword(e.target.value)}
             required
-            className="w-full p-3 border rounded-lg"
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors duration-300"
           />
-          <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-lg font-bold">
+          <button
+            type="submit"
+            className="w-full bg-green-600 dark:bg-green-500 text-white py-3 rounded-lg font-bold hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300"
+          >
             Reset Password
           </button>
         </form>
       )}
 
-      <p className="text-center mt-6">
-        <a href="/login" className="text-sky-600 hover:underline">Back to Login</a>
+      <p className="text-center mt-6 text-gray-700 dark:text-gray-300">
+        <a href="/login" className="text-sky-600 dark:text-sky-400 hover:underline">
+          Back to Login
+        </a>
       </p>
     </div>
   );
