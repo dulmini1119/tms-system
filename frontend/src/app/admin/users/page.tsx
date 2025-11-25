@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Plus,
   Search,
@@ -53,6 +53,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
+
 interface User {
   id: string;
   first_name: string;
@@ -94,57 +95,128 @@ export default function Users() {
     password: "",
   });
 
-  /** Fetch Users */
-  useEffect(() => {
-    Promise.all([fetchUsers(), fetchRoles()]);
-  }, []);
+  // --- ADDED: Helper function to get authentication headers ---
+const getAuthHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem("authToken");
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+};
 
-  const fetchUsers = async () => {
+  // --- END OF ADDED SECTION ---
+
+  const fetchUsers = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token found. Please login.");
       const res = await fetch("/users", {
-        credentials: "include",
+        method: "GET",
+        headers: getAuthHeaders(),
         cache: "no-store",
       });
-      if (!res.ok) throw new Error("Failed to fetch users");
+
+      if (!res.ok) {
+        const text = await res.text();
+        toast.error(`Failed to fetch users: ${text}`);
+        setUsers([]);
+        return;
+      }
+
       const data = await res.json();
-      setUsers(data.users || []);
+      const usersArray: User[] = Array.isArray(data.users)
+        ? data.users
+        : Array.isArray(data.data)
+        ? data.data
+        : [];
+
+      setUsers(usersArray);
     } catch (err) {
-      toast.error("Failed to load users");
       console.error(err);
+      toast.error("Failed to fetch users");
+      setUsers([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   /** Fetch Roles */
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
-      const res = await fetch("/roles", { credentials: "include" });
-      if (!res.ok) return;
-      const data = await res.json();
-      setRoles(data);
+      const res = await fetch("/roles", {
+        headers: getAuthHeaders(),
+      });
+
+      if (!res.ok) {
+        console.error("Failed to fetch roles:", res.status, await res.text());
+        toast.error("Failed to load roles");
+        return;
+      }
+
+      const response = await res.json();
+
+      // Use response.data instead of response directly
+      const rolesArray = Array.isArray(response.data) ? response.data : [];
+      if (rolesArray.length === 0) {
+        console.warn("Roles array is empty or invalid", response);
+      }
+
+      setRoles(rolesArray);
     } catch (err) {
       console.error("Failed to load roles", err);
       toast.error("Failed to load roles");
     }
+  }, []);
+
+  /** Fetch Users */
+  useEffect(() => {
+    Promise.all([fetchUsers(), fetchRoles()]);
+  }, [fetchUsers, fetchRoles]);
+
+  const validateForm = () => {
+    const { first_name, last_name, email, position, employee_id, password } =
+      formData;
+    if (!first_name.trim()) return "First name is required";
+    if (!last_name.trim()) return "Last name is required";
+    if (!email.trim()) return "Email is required";
+    if (!position.trim()) return "Role is required";
+    if (!employee_id.trim()) return "Employee ID is required";
+    if (!editingUser && !password.trim()) return "Password is required";
+    return null;
   };
 
   /** Create / Update User */
   const handleSubmit = async () => {
+    const validationError = validateForm();
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
     const url = editingUser ? `/users/${editingUser.id}` : "/users";
     const method = editingUser ? "PUT" : "POST";
 
+    const payload = editingUser
+    ? {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        phone: formData.phone || null,
+        position: formData.position,
+        employee_id: formData.employee_id,
+      }
+    : {
+        ...formData,
+        phone: formData.phone || null,
+      };
+
     try {
+      setLoading(true);
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          ...formData,
-          ...(editingUser ? {} : { password: formData.password }),
-        }),
+        headers: getAuthHeaders(), // <--- FIX
+        body: JSON.stringify(payload),
       });
 
       const result = await res.json();
@@ -165,6 +237,8 @@ export default function Users() {
       } else {
         toast.error("Something went wrong");
       }
+    } finally{
+      setLoading(false);
     }
   };
 
@@ -175,7 +249,7 @@ export default function Users() {
     try {
       const res = await fetch(`/users/${id}`, {
         method: "DELETE",
-        credentials: "include",
+        headers: getAuthHeaders(), // <--- FIX
       });
 
       if (!res.ok) throw new Error("Failed to delete user");
@@ -192,12 +266,15 @@ export default function Users() {
     try {
       const res = await fetch("/auth/forgot-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: {"Content-Type": "application/json"}, // <--- FIX
         body: JSON.stringify({ email }),
       });
 
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Failed");
+      }
+        
 
       toast.success("Password reset email sent");
     } catch {
@@ -271,12 +348,12 @@ export default function Users() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* HEADER */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">
+        <div className="p-3">
+          <h1 className="text-2xl">USER MANAGEMENT</h1>
+          <p className="text-muted-foreground text-xs">
             Manage users, their roles, and access permissions
           </p>
         </div>

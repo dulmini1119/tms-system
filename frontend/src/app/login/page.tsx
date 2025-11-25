@@ -18,7 +18,7 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/auth/login", {
+      const res = await fetch("http://localhost:3001/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,11 +33,11 @@ export default function LoginForm() {
         throw new Error(data.error?.message || "Login failed");
       }
 
-      const token = data.data?.token; // make sure backend sends { data: { token: "..." } }
-      if (token) {
-        localStorage.setItem("token", token);
+      //const token = data.data?.token; 
+      if (data.token) {
+        localStorage.setItem("token", data.token);
       }
-      // Success! Redirect based on role
+      
       const role =
         data.data?.user?.position || data.data?.position || "employee";
 
