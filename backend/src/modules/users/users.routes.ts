@@ -9,7 +9,7 @@ const usersController = new UsersController();
 // All routes require authentication
 router.use(authenticate);
 
-// GET /users - Get all users with pagination and filters
+// GET /users - Get all users
 router.get('/', usersController.getUsers.bind(usersController));
 
 // GET /users/:id - Get user by ID
@@ -23,7 +23,5 @@ router.put('/:id', validateQuery, usersController.updateUser.bind(usersControlle
 
 // DELETE /users/:id - Delete user
 router.delete('/:id', usersController.deleteUser.bind(usersController));
-
-
 
 export default router;

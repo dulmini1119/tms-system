@@ -7,33 +7,29 @@ import logger from "../../utils/logger";
 const SALT_ROUNDS = 10;
 
 export class UsersService {
+  /**
+   * Get all users with optional filters and pagination
+   */
   async getUsers(filters: {
-    page: number;
-    limit: number;
+    page?: number;
+    limit?: number;
     search?: string;
-    role?: string;
     status?: string;
-    departmentId?: string;
-    businessUnitId?: string;
-    sortBy: string;
-    sortOrder: "asc" | "desc";
+    organizationId?: string;
+    sortBy?: "created_at" | "first_name" | "last_name" | "email";
+    sortOrder?: "asc" | "desc";
   }) {
     const {
-      page,
-      limit,
+      page = 1,
+      limit = 20,
       search,
-      role,
       status,
-      departmentId,
-      businessUnitId,
-      sortBy,
-      sortOrder,
+      organizationId,
+      sortBy = "created_at",
+      sortOrder = "desc",
     } = filters;
 
-    const where: any = {
-      deleted_at: null,
-    };
-
+    const where: any = { deleted_at: null };
     if (search) {
       where.OR = [
         { email: { contains: search, mode: "insensitive" } },
@@ -44,8 +40,7 @@ export class UsersService {
     }
 
     if (status) where.status = status;
-    if (departmentId) where.department_id = departmentId;
-    if (businessUnitId) where.business_unit_id = businessUnitId;
+    if (organizationId) where.business_unit_id = organizationId;
 
     const [users, total] = await Promise.all([
       prisma.users.findMany({
@@ -56,14 +51,21 @@ export class UsersService {
           first_name: true,
           last_name: true,
           phone: true,
-          status: true,
-          department_id: true,
-          business_unit_id: true,
           employee_id: true,
-          position: true,
-          last_login: true,
+          status: true,
           created_at: true,
           updated_at: true,
+          user_roles_user_roles_user_idTousers: {
+            select: {
+              roles: {
+                select: {
+                  id: true,
+                  name: true,
+                  code: true,
+                },
+              },
+            },
+          },
         },
         orderBy: { [sortBy]: sortOrder },
         skip: (page - 1) * limit,
@@ -72,8 +74,14 @@ export class UsersService {
       prisma.users.count({ where }),
     ]);
 
+    // Map roles
+    const cleanUsers = users.map((u) => ({
+      ...u,
+      roles: u.user_roles_user_roles_user_idTousers.map((ur) => ur.roles.name),
+    }));
+
     return {
-      users,
+      users: cleanUsers,
       pagination: {
         page,
         limit,
@@ -83,9 +91,17 @@ export class UsersService {
     };
   }
 
+  /**
+   * Get user by ID
+   */
   async getUserById(userId: string) {
     const user = await prisma.users.findUnique({
       where: { id: userId },
+      include: {
+        user_roles_user_roles_user_idTousers: {
+          include: { roles: true },
+        },
+      },
     });
 
     if (!user) {
@@ -96,25 +112,39 @@ export class UsersService {
       );
     }
 
-    return user;
+    const { user_roles_user_roles_user_idTousers, ...userData } = user;
+
+    return {
+      ...userData,
+      roles: user_roles_user_roles_user_idTousers.map((ur) => ur.roles.name),
+    };
   }
 
+  /**
+   * Create new user
+   */
   async createUser(data: {
     email: string;
     password: string;
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
     phone?: string;
-    department_id?: string;
-    business_unit_id?: string;
-    position?: string;
-    employee_id: string;
+    organizationId?: string;
+    employeeId: string;
   }) {
+    if (!data.employeeId) {
+      throw new AppError(
+        ERROR_CODES.BAD_REQUEST,
+        "Employee ID is required",
+        HTTP_STATUS.BAD_REQUEST
+      );
+    }
+
     const email = data.email.toLowerCase();
 
     const [existingUser, existingEmployee] = await Promise.all([
       prisma.users.findUnique({ where: { email } }),
-      prisma.users.findUnique({ where: { employee_id: data.employee_id } }),
+      prisma.users.findUnique({ where: { employee_id: data.employeeId } }),
     ]);
 
     if (existingUser) {
@@ -139,13 +169,11 @@ export class UsersService {
       data: {
         email,
         password_hash,
-        first_name: data.first_name,
-        last_name: data.last_name,
+        first_name: data.firstName,
+        last_name: data.lastName,
         phone: data.phone,
-        department_id: data.department_id,
-        business_unit_id: data.business_unit_id,
-        position: data.position,
-        employee_id: data.employee_id,
+        employee_id: data.employeeId,
+        business_unit_id: data.organizationId,
         status: "Active",
       },
     });
@@ -156,44 +184,46 @@ export class UsersService {
     return cleanUser;
   }
 
+  /**
+   * Update user
+   */
   async updateUser(
     userId: string,
     data: Partial<{
       email: string;
-      first_name: string;
-      last_name: string;
+      firstName: string;
+      lastName: string;
       phone: string;
       status: string;
-      department_id: string;
-      business_unit_id: string;
-      position: string;
-      employee_id: string;
+      employeeId: string;
     }>
   ) {
     const existingUser = await this.getUserById(userId);
 
-    if (data.email && data.email !== existingUser.email) {
+    if (data.email && data.email.toLowerCase() !== existingUser.email) {
       const emailExists = await prisma.users.findUnique({
         where: { email: data.email.toLowerCase() },
       });
-      if (emailExists)
+      if (emailExists) {
         throw new AppError(
           ERROR_CODES.ALREADY_EXISTS,
           "Email already in use",
           HTTP_STATUS.CONFLICT
         );
+      }
     }
 
-    if (data.employee_id && data.employee_id !== existingUser.employee_id) {
+    if (data.employeeId && data.employeeId !== existingUser.employee_id) {
       const employeeExists = await prisma.users.findUnique({
-        where: { employee_id: data.employee_id },
+        where: { employee_id: data.employeeId },
       });
-      if (employeeExists)
+      if (employeeExists) {
         throw new AppError(
           ERROR_CODES.ALREADY_EXISTS,
           "Employee ID already in use",
           HTTP_STATUS.CONFLICT
         );
+      }
     }
 
     const updatedUser = await prisma.users.update({
@@ -201,6 +231,9 @@ export class UsersService {
       data: {
         ...data,
         email: data.email?.toLowerCase(),
+        first_name: data.firstName,
+        last_name: data.lastName,
+        employee_id: data.employeeId,
       },
     });
 
@@ -208,8 +241,10 @@ export class UsersService {
     return cleanUser;
   }
 
+  /**
+   * Soft delete user
+   */
   async deleteUser(userId: string) {
-    // Ensure user exists
     await this.getUserById(userId);
 
     await prisma.users.update({
@@ -219,121 +254,5 @@ export class UsersService {
 
     logger.info(`User soft deleted: ${userId}`);
     return { message: "User deleted successfully" };
-  }
-
-  async getUserPermissions(userId: string) {
-    const user = await prisma.users.findUnique({
-      where: { id: userId },
-      include: {
-        user_roles_user_roles_assigned_byTousers: {
-          include: {
-            roles: {
-              include: {
-                role_permissions: {
-                  include: {
-                    permissions: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!user)
-      throw new AppError(
-        ERROR_CODES.NOT_FOUND,
-        "User not found",
-        HTTP_STATUS.NOT_FOUND
-      );
-
-    const permissions = user.user_roles_user_roles_assigned_byTousers.flatMap(
-      (userRole: any) =>
-        userRole.roles.role_permissions.map((rp: any) => rp.permissions.code)
-    );
-
-    return { permissions: [...new Set(permissions)] };
-  }
-
-  async updateUserPermissions(userId: string, permissionIds: string[]) {
-    // 1. Get user roles
-    const userRoles = await prisma.user_roles.findMany({
-      where: { user_id: userId },
-    });
-
-    if (userRoles.length === 0) {
-      throw new AppError(
-        ERROR_CODES.NOT_FOUND,
-        "User has no assigned roles",
-        HTTP_STATUS.NOT_FOUND
-      );
-    }
-
-    // For now, we update ALL roles assigned to this user
-    for (const userRole of userRoles) {
-      const roleId = userRole.role_id;
-
-      // 2. Delete old permissions for this role
-      await prisma.role_permissions.deleteMany({
-        where: { role_id: roleId },
-      });
-
-      // 3. Insert new permissions
-      await prisma.role_permissions.createMany({
-        data: permissionIds.map((permissionId) => ({
-          role_id: roleId,
-          permission_id: permissionId,
-        })),
-      });
-    }
-
-    return { message: "Permissions updated successfully" };
-  }
-
-  async assignUserRole(userId: string, roleId: string) {
-    await this.getUserById(userId);
-
-    const role = await prisma.roles.findUnique({ where: { id: roleId } });
-    if (!role)
-      throw new AppError(
-        ERROR_CODES.NOT_FOUND,
-        "Role not found",
-        HTTP_STATUS.NOT_FOUND
-      );
-
-    const existing = await prisma.user_roles.findUnique({
-      where: { user_id_role_id: { user_id: userId, role_id: roleId } },
-    });
-
-    if (existing)
-      throw new AppError(
-        ERROR_CODES.ALREADY_EXISTS,
-        "User already has this role",
-        HTTP_STATUS.CONFLICT
-      );
-
-    await prisma.user_roles.create({
-      data: { user_id: userId, role_id: roleId },
-    });
-
-    return { message: "Role assigned successfully" };
-  }
-
-  async removeUserRole(userId: string, roleId: string) {
-    await this.getUserById(userId);
-
-    const res = await prisma.user_roles.deleteMany({
-      where: { user_id: userId, role_id: roleId },
-    });
-
-    if (res.count === 0)
-      throw new AppError(
-        ERROR_CODES.NOT_FOUND,
-        "User does not have this role",
-        HTTP_STATUS.NOT_FOUND
-      );
-
-    return { message: "Role removed successfully" };
   }
 }
