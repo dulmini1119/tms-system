@@ -1,15 +1,22 @@
-import { Request, Response, NextFunction } from 'express';
-import prisma from '../../config/database';
-import { AppError } from '../../middleware/errorHandler';
-import { ERROR_CODES, HTTP_STATUS } from '../../utils/constants';
-import bcrypt from 'bcrypt';
-import ApiResponse from '../../utils/response';
-import { AuthRequest } from '../../middleware/auth';
-import { AuthService } from './auth.service';   // ← ADD THIS IMPORT
+import { Request, Response, NextFunction } from "express";
+import prisma from "../../config/database";
+import { AppError } from "../../middleware/errorHandler";
+import { ERROR_CODES, HTTP_STATUS } from "../../utils/constants";
+import bcrypt from "bcrypt";
+import ApiResponse from "../../utils/response";
+import { AuthRequest } from "../../middleware/auth";
+import { AuthService } from "./auth.service"; // ← ADD THIS IMPORT
+import { token } from "morgan";
 
 // Body interfaces
-interface ForgotPasswordBody { email: string; }
-interface ResetPasswordBody { email: string; otp: string; newPassword: string; }
+interface ForgotPasswordBody {
+  email: string;
+}
+interface ResetPasswordBody {
+  email: string;
+  otp: string;
+  newPassword: string;
+}
 
 export class AuthController {
   // ← ADD THIS LINE — create the service instance
@@ -17,42 +24,56 @@ export class AuthController {
 
   // ==================================================================
   // LOGIN
-  // ==================================================================
-  login = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { email, password, rememberMe = false } = req.body;
+// auth.controller.ts
+login = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { email, password, rememberMe = false } = req.body;
 
-      const result = await this.authService.login(email, password, rememberMe);
+    const result = await this.authService.login(email, password, rememberMe);
 
-      const maxAge = rememberMe
-        ? 30 * 24 * 60 * 60 * 1000   // 30 days
-        : 7 * 24 * 60 * 60 * 1000;    // 7 days
+    const maxAge = rememberMe
+      ? 30 * 24 * 60 * 60 * 1000 // 30 days
+      : 7 * 24 * 60 * 60 * 1000; // 7 days
 
-      res.cookie('refreshToken', result.tokens.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/',
-        maxAge,
-      });
+    // Access token cookie (15 mins)
+    res.cookie("accessToken", result.tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 15 * 60 * 1000,
+    });
 
-      ApiResponse.success(res, {
-        user: result.user,
-        accessToken: result.tokens.accessToken,
-        expiresIn: result.tokens.expiresIn,
-      }, 'Login successful');
-    } catch (error) {
-      next(error);
-    }
-  };
+    // Refresh token cookie
+    res.cookie("refreshToken", result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge,
+    });
+
+    // Send only safe data — no token in body!
+    ApiResponse.success(res, {
+      user: result.user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+// ==================================================================
 
   // ==================================================================
   // REGISTER (you can remove if only admin creates users)
   // ==================================================================
-  register = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  register = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const user = await this.authService.register(req.body);
-      ApiResponse.created(res, { user }, 'User registered successfully');
+      ApiResponse.created(res, { user }, "User registered successfully");
     } catch (error) {
       next(error);
     }
@@ -61,15 +82,23 @@ export class AuthController {
   // ==================================================================
   // REFRESH TOKEN
   // ==================================================================
-  refreshToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  refreshToken = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
       if (!refreshToken) {
-        throw new AppError(ERROR_CODES.UNAUTHORIZED, 'No refresh token', HTTP_STATUS.UNAUTHORIZED);
+        throw new AppError(
+          ERROR_CODES.UNAUTHORIZED,
+          "No refresh token",
+          HTTP_STATUS.UNAUTHORIZED
+        );
       }
 
       const result = await this.authService.refreshToken(refreshToken);
-      ApiResponse.success(res, result, 'Token refreshed');
+      ApiResponse.success(res, result, "Token refreshed");
     } catch (error) {
       next(error);
     }
@@ -78,14 +107,18 @@ export class AuthController {
   // ==================================================================
   // LOGOUT
   // ==================================================================
-  logout = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  logout = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
       if (refreshToken) {
         await this.authService.logout(refreshToken);
       }
-      res.clearCookie('refreshToken', { path: '/' });
-      ApiResponse.success(res, null, 'Logged out successfully');
+      res.clearCookie("refreshToken", { path: "/" });
+      ApiResponse.success(res, null, "Logged out successfully");
     } catch (error) {
       next(error);
     }
@@ -94,13 +127,26 @@ export class AuthController {
   // ==================================================================
   // CHANGE PASSWORD
   // ==================================================================
-  changePassword = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  changePassword = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const { currentPassword, newPassword } = req.body;
-      if (!req.user?.id) throw new AppError(ERROR_CODES.UNAUTHORIZED, 'Unauthorized', HTTP_STATUS.UNAUTHORIZED);
+      if (!req.user?.id)
+        throw new AppError(
+          ERROR_CODES.UNAUTHORIZED,
+          "Unauthorized",
+          HTTP_STATUS.UNAUTHORIZED
+        );
 
-      await this.authService.changePassword(req.user.id, currentPassword, newPassword);
-      ApiResponse.success(res, {}, 'Password changed successfully');
+      await this.authService.changePassword(
+        req.user.id,
+        currentPassword,
+        newPassword
+      );
+      ApiResponse.success(res, {}, "Password changed successfully");
     } catch (error) {
       next(error);
     }
@@ -109,12 +155,21 @@ export class AuthController {
   // ==================================================================
   // GET CURRENT USER
   // ==================================================================
-  getCurrentUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  getCurrentUser = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      if (!req.user?.id) throw new AppError(ERROR_CODES.UNAUTHORIZED, 'Unauthorized', HTTP_STATUS.UNAUTHORIZED);
+      if (!req.user?.id)
+        throw new AppError(
+          ERROR_CODES.UNAUTHORIZED,
+          "Unauthorized",
+          HTTP_STATUS.UNAUTHORIZED
+        );
 
       const user = await this.authService.getCurrentUser(req.user.id);
-      ApiResponse.success(res, { user }, 'User fetched');
+      ApiResponse.success(res, { user }, "User fetched");
     } catch (error) {
       next(error);
     }
@@ -133,7 +188,11 @@ export class AuthController {
 
       const user = await prisma.users.findUnique({ where: { email } });
       if (!user) {
-        throw new AppError(ERROR_CODES.NOT_FOUND, 'Email not found', HTTP_STATUS.NOT_FOUND);
+        throw new AppError(
+          ERROR_CODES.NOT_FOUND,
+          "Email not found",
+          HTTP_STATUS.NOT_FOUND
+        );
       }
 
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -146,7 +205,7 @@ export class AuthController {
 
       console.log(`OTP for ${email}: ${otp}`); // Replace with email service later
 
-      ApiResponse.success(res, {}, 'OTP sent to your email');
+      ApiResponse.success(res, {}, "OTP sent to your email");
     } catch (error) {
       next(error);
     }
@@ -168,14 +227,18 @@ export class AuthController {
       });
 
       if (!reset) {
-        throw new AppError(ERROR_CODES.UNAUTHORIZED, 'Invalid or expired OTP', HTTP_STATUS.UNAUTHORIZED);
+        throw new AppError(
+          ERROR_CODES.UNAUTHORIZED,
+          "Invalid or expired OTP",
+          HTTP_STATUS.UNAUTHORIZED
+        );
       }
 
       const password_hash = await bcrypt.hash(newPassword, 10);
       await prisma.users.update({ where: { email }, data: { password_hash } });
       await prisma.passwordReset.delete({ where: { id: reset.id } });
 
-      ApiResponse.success(res, {}, 'Password reset successful');
+      ApiResponse.success(res, {}, "Password reset successful");
     } catch (error) {
       next(error);
     }

@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimit';
@@ -12,11 +13,14 @@ import config from './config/environment';
 import authRoutes from './modules/auth/auth.routes';
 import usersRoutes from './modules/users/users.routes';
 import permissioRoutes from './modules/permissions/permission.routes';
-// import other routes later...
+import rolesRoutes from './modules/roles/roles.routes';
+
+// ADD THIS LINE — CRITICAL!
+import { authenticate } from './middleware/auth';
 
 const app: Application = express();
 
-// CORS configuration (same as before)
+// CORS
 const corsOptions = {
   origin: (origin: string | undefined, callback: Function) => {
     if (!origin || config.cors.allowedOrigins.includes(origin) || config.app.env === 'development') {
@@ -31,6 +35,7 @@ const corsOptions = {
 
 app.use(helmet());
 app.use(cors(corsOptions));
+app.use(cookieParser());           // ← correct
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -43,29 +48,20 @@ if (config.app.env === 'development') {
   }) as express.RequestHandler);
 }
 
-// Rate limiting — now applies to ALL routes (or you can move it inside specific routers if you want)
-app.use(apiLimiter);   // ← applies globally (recommended)
+app.use(apiLimiter);
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    environment: config.app.env,
-  });
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// ROUTES WITHOUT ANY PREFIX
-app.use('/auth', authRoutes);     // → POST /auth/register, etc.
-app.use('/users', usersRoutes);   // → GET /users/me, etc.
-app.use('/permissions', permissioRoutes); // → GET /permissions, etc.
+// ROUTES
+app.use('/auth', authRoutes);                                    // PUBLIC
+app.use('/users', authenticate, usersRoutes);                    // PROTECTED
+app.use('/roles', authenticate, rolesRoutes);                    // PROTECTED
+app.use('/permissions', authenticate, permissioRoutes);         // PROTECTED
 
-// Add future routes exactly like this:
-// app.use('/trips', tripsRoutes);
-// app.use('/vehicles', vehiclesRoutes);
-// etc.
-
-// 404 & Error handlers (must stay last)
+// 404 & Error handlers
 app.use(notFoundHandler);
 app.use(errorHandler);
 

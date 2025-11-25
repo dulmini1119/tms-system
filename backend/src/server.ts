@@ -4,7 +4,7 @@ import config from './config/environment';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import logger from './utils/logger';
 
-const PORT = config.app.port || 3000;
+const PORT = config.app.port || 3001;
 
 async function startServer() {
   try {
