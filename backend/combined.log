@@ -508,3 +508,18 @@
 {"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-25T09:12:30.350Z"}
 {"level":"info","message":"User logged in: superadmin@lkcompany.com | Remember Me: false","service":"tms-backend","timestamp":"2025-11-25T09:13:38.115Z"}
 {"level":"info","message":"User logged in: superadmin@lkcompany.com | Remember Me: false","service":"tms-backend","timestamp":"2025-11-25T09:18:43.326Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-25T09:19:56.774Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-25T09:19:56.778Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-25T09:19:56.779Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-25T09:19:56.779Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-25T09:19:56.780Z"}
+{"level":"info","message":"User logged in: superadmin@lkcompany.com | Remember Me: false","service":"tms-backend","timestamp":"2025-11-25T09:20:21.614Z"}
+{"level":"info","message":"User logged in: superadmin@lkcompany.com | Remember Me: false","service":"tms-backend","timestamp":"2025-11-25T09:21:23.098Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:40:51.263Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:40:51.267Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:40:51.272Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:40:51.275Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:41:24.394Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:41:24.400Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:41:24.406Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:41:24.416Z"}
