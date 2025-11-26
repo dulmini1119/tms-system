@@ -523,3 +523,317 @@
 {"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:41:24.400Z"}
 {"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:41:24.406Z"}
 {"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T09:41:24.416Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:29.627Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:29.633Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:29.642Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:29.646Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:37.971Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:37.978Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:37.988Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:38.007Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:53.783Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:53.789Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:53.797Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-25T11:28:53.812Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-25T11:30:36.976Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-25T11:30:36.987Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-25T11:30:36.988Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-25T11:30:36.988Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-25T11:30:36.989Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T02:58:04.379Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T02:58:04.389Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T02:58:04.390Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T02:58:04.391Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T02:58:04.392Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:30:20.761Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:30:20.770Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:30:20.772Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:30:20.772Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:30:20.773Z"}
+{"level":"info","message":"User logged in: superadmin@lkcompany.com | Remember Me: false","service":"tms-backend","timestamp":"2025-11-26T03:33:37.596Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:36:21.404Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:36:21.414Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:36:21.415Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:36:21.416Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:36:21.417Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:36:40.764Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:36:40.774Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:36:40.775Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:36:40.776Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:36:40.777Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:37:05.417Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:37:05.423Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:37:05.424Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:37:05.424Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:37:05.425Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:44:03.339Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:44:03.345Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:44:03.346Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:44:03.346Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:44:03.347Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:44:18.725Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:44:18.734Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:44:18.735Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:44:18.735Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:44:18.736Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:44:32.240Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:44:32.246Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:44:32.247Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:44:32.248Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:44:32.248Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:44:42.337Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:44:42.345Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:44:42.346Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:44:42.347Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:44:42.348Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:44:53.035Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:44:53.041Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:44:53.041Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:44:53.042Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:44:53.042Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:45:00.287Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:45:00.293Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:45:00.293Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:45:00.294Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:45:00.294Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:45:28.160Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:45:28.166Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:45:28.166Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:45:28.167Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:45:28.167Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:45:46.743Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:45:46.750Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:45:46.751Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:45:46.751Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:45:46.752Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:46:08.539Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:46:08.548Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:46:08.549Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:46:08.550Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:46:08.551Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:46:20.141Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:46:20.149Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:46:20.150Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:46:20.151Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:46:20.153Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:46:36.582Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:46:36.589Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:46:36.590Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:46:36.590Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:46:36.591Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:46:43.128Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:46:43.135Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:46:43.135Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:46:43.136Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:46:43.137Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:46:54.380Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:46:54.387Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:46:54.388Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:46:54.388Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:46:54.389Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:47:29.422Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:47:29.431Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:47:29.433Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:47:29.433Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:47:29.434Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:49:44.555Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:49:44.560Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:49:44.560Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:49:44.561Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:49:44.561Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:49:59.733Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:49:59.737Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:49:59.740Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:49:59.741Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:49:59.741Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:51:45.223Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:51:45.228Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:51:45.228Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:51:45.228Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:51:45.229Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T03:52:17.365Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T03:52:17.370Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T03:52:17.370Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T03:52:17.370Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T03:52:17.371Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T04:28:35.806Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T04:28:35.811Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T04:28:35.811Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T04:28:35.812Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T04:28:35.812Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T04:29:32.925Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T04:29:32.930Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T04:29:32.930Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T04:29:32.931Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T04:29:32.931Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T04:41:49.836Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T04:41:49.841Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T04:41:49.841Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T04:41:49.842Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T04:41:49.842Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T04:44:02.262Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T04:44:02.266Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T04:44:02.267Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T04:44:02.267Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T04:44:02.268Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T04:44:51.487Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T04:44:51.491Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T04:44:51.492Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T04:44:51.492Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T04:44:51.492Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:44:58.658Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:44:58.667Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:44:58.675Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:44:58.681Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T04:45:12.168Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T04:45:12.172Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T04:45:12.172Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T04:45:12.173Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T04:45:12.173Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:45:14.073Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:45:14.083Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:45:14.092Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:45:14.099Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T04:45:45.244Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T04:45:45.248Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T04:45:45.249Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T04:45:45.249Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T04:45:45.250Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:45:50.230Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:45:50.243Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:45:50.249Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:45:50.255Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:46:16.367Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T04:46:16.376Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T05:13:32.757Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T05:13:32.761Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T05:13:32.762Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T05:13:32.762Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T05:13:32.762Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:14:20.723Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:14:20.730Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T05:27:51.899Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T05:27:51.907Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T05:27:51.908Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T05:27:51.909Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T05:27:51.910Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:28:08.856Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:28:08.866Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:28:08.878Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:28:08.888Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T05:30:26.879Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T05:30:26.889Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T05:30:26.890Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T05:30:26.891Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T05:30:26.892Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:41:56.331Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:41:56.342Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:41:56.473Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:41:56.488Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:42:16.813Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:42:16.826Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T05:49:46.584Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T05:49:46.591Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T05:49:46.592Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T05:49:46.593Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T05:49:46.593Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:50:01.551Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:50:01.591Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:50:04.738Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:50:04.744Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:50:04.751Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:50:04.756Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:53:14.302Z"}
+{"level":"warn","message":"Invalid access token","service":"tms-backend","timestamp":"2025-11-26T05:53:14.312Z"}
+{"level":"info","message":"\nSIGINT received. Starting graceful shutdown...","service":"tms-backend","timestamp":"2025-11-26T06:02:14.221Z"}
+{"level":"info","message":"HTTP server closed","service":"tms-backend","timestamp":"2025-11-26T06:02:14.228Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T06:03:40.706Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T06:03:40.711Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T06:03:40.711Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T06:03:40.712Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T06:03:40.712Z"}
+{"level":"info","message":"User logged in: superadmin@lkcompany.com | Remember Me: false","service":"tms-backend","timestamp":"2025-11-26T06:04:04.258Z"}
+{"level":"info","message":"User logged in: superadmin@lkcompany.com | Remember Me: false","service":"tms-backend","timestamp":"2025-11-26T06:46:47.289Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T07:01:56.149Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T07:01:56.158Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T07:01:56.159Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T07:01:56.159Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T07:01:56.160Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T07:23:23.996Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T07:23:24.001Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T07:23:24.001Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T07:23:24.002Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T07:23:24.002Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T07:35:57.533Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T07:35:57.543Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T07:35:57.544Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T07:35:57.544Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T07:35:57.545Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T07:36:02.357Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T07:36:02.367Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T07:36:02.368Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T07:36:02.369Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T07:36:02.370Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T07:57:57.176Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T07:57:57.184Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T07:57:57.185Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T07:57:57.186Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T07:57:57.186Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T08:55:17.368Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T08:55:17.372Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T08:55:17.373Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T08:55:17.373Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T08:55:17.374Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T08:59:28.310Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T08:59:28.314Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T08:59:28.314Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T08:59:28.315Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T08:59:28.315Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T09:11:59.544Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T09:11:59.549Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T09:11:59.549Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T09:11:59.550Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T09:11:59.550Z"}
+{"level":"info","message":"User logged in: superadmin@lkcompany.com | Remember Me: false","service":"tms-backend","timestamp":"2025-11-26T09:12:47.148Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T09:25:03.734Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T09:25:03.739Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T09:25:03.740Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T09:25:03.740Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T09:25:03.740Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T09:33:57.990Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T09:33:57.995Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T09:33:57.995Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T09:33:57.996Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T09:33:57.996Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T09:34:05.409Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T09:34:05.413Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T09:34:05.414Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T09:34:05.414Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T09:34:05.414Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T09:45:20.916Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T09:45:20.922Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T09:45:20.923Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T09:45:20.927Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T09:45:20.928Z"}
+{"level":"info","message":"User logged in: superadmin@lkcompany.com | Remember Me: false","service":"tms-backend","timestamp":"2025-11-26T09:50:43.369Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T10:26:05.006Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T10:26:05.011Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T10:26:05.011Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T10:26:05.012Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T10:26:05.012Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T10:26:07.922Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T10:26:07.926Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T10:26:07.927Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T10:26:07.927Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T10:26:07.927Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T10:27:07.112Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T10:27:07.116Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T10:27:07.116Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T10:27:07.116Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T10:27:07.117Z"}
+{"level":"info","message":"✅ Database connected successfully","service":"tms-backend","timestamp":"2025-11-26T10:27:47.058Z"}
+{"level":"info","message":"Server is running on port 3001","service":"tms-backend","timestamp":"2025-11-26T10:27:47.064Z"}
+{"level":"info","message":"Environment: development","service":"tms-backend","timestamp":"2025-11-26T10:27:47.064Z"}
+{"level":"info","message":"Health check: http://localhost:3001/health","service":"tms-backend","timestamp":"2025-11-26T10:27:47.064Z"}
+{"level":"info","message":"API base URL: http://localhost:3001","service":"tms-backend","timestamp":"2025-11-26T10:27:47.065Z"}
+{"error":"Cannot delete role: 1 user(s) are assigned to it","ip":"::1","level":"error","message":"Error occurred:","method":"DELETE","path":"/roles/804c41f9-93c1-4288-8d49-31ef36b8b3dd","service":"tms-backend","stack":"Error: Cannot delete role: 1 user(s) are assigned to it\n    at RolesService.delete (C:\\Users\\admin\\Desktop\\new\\tms\\backend\\src\\modules\\roles\\roles.service.ts:165:13)\n    at async RolesController.delete (C:\\Users\\admin\\Desktop\\new\\tms\\backend\\src\\modules\\roles\\roles.controllers.ts:47:7)","timestamp":"2025-11-26T11:24:12.375Z"}

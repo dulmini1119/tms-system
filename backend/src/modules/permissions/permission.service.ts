@@ -1,4 +1,4 @@
-import prisma from '../../config/database';
+import prisma from '../../config/database.js';
 
 export class PermissionsService {
   // Get everything needed for the permissions matrix

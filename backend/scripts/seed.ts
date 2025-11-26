@@ -5,148 +5,83 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Starting seed data...');
+  console.log('Starting seed...');
 
-  // --- 1. SEED ROLES ---
-  console.log('Seeding roles...');
-  const rolesToCreate = [
-    { name: 'Super Admin', code: 'superadmin' },       // <-- ADDED 'code'
-    { name: 'Vehicle Admin', code: 'vehicleadmin' },   // <-- ADDED 'code'
-    { name: 'Manager', code: 'manager' },               // <-- ADDED 'code'
-    { name: 'Head of Department', code: 'hod' },        // <-- ADDED 'code'
-    { name: 'Employee', code: 'employee' },             // <-- ADDED 'code'
-    { name: 'Driver', code: 'driver' },                 // <-- ADDED 'code'
+  // 1. ROLES
+  const roles = [
+    { name: 'Super Admin', code: 'superadmin' },
+    { name: 'Vehicle Admin', code: 'vehicleadmin' },
+    { name: 'Manager', code: 'manager' },
+    { name: 'Head of Department', code: 'hod' },
+    { name: 'Employee', code: 'employee' },
+    { name: 'Driver', code: 'driver' },
   ];
 
-  for (const roleData of rolesToCreate) {
-    const exists = await prisma.roles.findUnique({
-      where: { code: roleData.code }, // Check for existence by unique 'code'
+  for (const r of roles) {
+    await prisma.roles.upsert({
+      where: { code: r.code },
+      update: {},
+      create: r,
     });
-
-    if (!exists) {
-      await prisma.roles.create({
-        data: roleData,
-      });
-      console.log(`Created role: ${roleData.name} (${roleData.code})`);
-    } else {
-      console.log(`Role already exists: ${roleData.name} (${roleData.code})`);
-    }
+    console.log(`Role: ${r.name}`);
   }
 
-  // --- 2. SEED USERS ---
-  console.log('\nSeeding users...');
-  const usersToCreate = [
-    {
-      email: 'superadmin@lkcompany.com',
-      password: 'admin123',
-      first_name: 'Super',
-      last_name: 'Admin',
-      position: 'superadmin',
-      employee_id: 'EMP001',
-    },
-    {
-      email: 'vehicleadmin@lkcompany.com',
-      password: 'Vehicle@123',
-      first_name: 'Vehicle',
-      last_name: 'Admin',
-      position: 'vehicleadmin',
-      employee_id: 'EMP002',
-    },
-    {
-      email: 'manager@lkcompany.com',
-      password: 'Manager@123',
-      first_name: 'Manager',
-      last_name: 'User',
-      position: 'manager',
-      employee_id: 'EMP003',
-    },
-    {
-      email: 'hod@lkcompany.com',
-      password: 'Hod@123',
-      first_name: 'Head',
-      last_name: 'Department',
-      position: 'hod',
-      employee_id: 'EMP004',
-    },
-    {
-      email: 'employee@lkcompany.com',
-      password: 'Employee@123',
-      first_name: 'Regular',
-      last_name: 'Employee',
-      position: 'employee',
-      employee_id: 'EMP005',
-    },
-    {
-      email: 'driver@lkcompany.com',
-      password: 'Driver@123',
-      first_name: 'Sri',
-      last_name: 'Driver',
-      position: 'driver',
-      employee_id: 'EMP006',
-    },
+  // 2. USERS
+  const users = [
+    { email: 'superadmin@lkcompany.com', password: 'admin123', first_name: 'Super', last_name: 'Admin', employee_id: 'EMP001', roleCode: 'superadmin' },
+    { email: 'vehicleadmin@lkcompany.com', password: 'Vehicle@123', first_name: 'Vehicle', last_name: 'Admin', employee_id: 'EMP002', roleCode: 'vehicleadmin' },
+    { email: 'manager@lkcompany.com', password: 'Manager@123', first_name: 'Manager', last_name: 'User', employee_id: 'EMP003', roleCode: 'manager' },
+    { email: 'hod@lkcompany.com', password: 'Hod@123', first_name: 'Head', last_name: 'Department', employee_id: 'EMP004', roleCode: 'hod' },
+    { email: 'employee@lkcompany.com', password: 'Employee@123', first_name: 'Regular', last_name: 'Employee', employee_id: 'EMP005', roleCode: 'employee' },
+    { email: 'driver@lkcompany.com', password: 'Driver@123', first_name: 'Sri', last_name: 'Driver', employee_id: 'EMP006', roleCode: 'driver' },
   ];
 
-  for (const userData of usersToCreate) {
-    const exists = await prisma.users.findUnique({
-      where: { email: userData.email },
+  for (const u of users) {
+    const hashed = await bcrypt.hash(u.password, 12);
+    await prisma.users.upsert({
+      where: { email: u.email },
+      update: {},
+      create: {
+        email: u.email.toLowerCase(),
+        password_hash: hashed,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        employee_id: u.employee_id,
+        status: 'Active',
+        // position field exists in your schema → safe to use
+        position: u.roleCode.toUpperCase(),
+      },
     });
+    console.log(`User: ${u.email}`);
+  }
 
-    if (!exists) {
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
-      await prisma.users.create({
-        data: {
-          email: userData.email.toLowerCase(),
-          password_hash: hashedPassword,
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-          position: userData.position,
-          employee_id: userData.employee_id,
+  // 3. LINK USERS → ROLES (Correct Table Name!)
+  for (const u of users) {
+    const user = await prisma.users.findUnique({ where: { email: u.email } });
+    const role = await prisma.roles.findUnique({ where: { code: u.roleCode } });
+
+    if (user && role) {
+      await prisma.user_roles.upsert({
+        where: {
+          user_id_role_id: { user_id: user.id, role_id: role.id },
+        },
+        update: {},
+        create: {
+          user_id: user.id,
+          role_id: role.id,
           status: 'Active',
         },
       });
-      console.log(`Created user: ${userData.email}`);
-    } else {
-      console.log(`User already exists: ${userData.email}`);
+      console.log(`Linked: ${u.email} → ${role.name}`);
     }
   }
 
-  // --- 3. LINK USERS TO ROLES ---
-  console.log('\nLinking users to roles...');
-  for (const userData of usersToCreate) {
-    const user = await prisma.users.findUnique({ where: { email: userData.email } });
-    // Find the role by its unique CODE
-    const role = await prisma.roles.findUnique({ where: { code: userData.position } });
-
-    if (user && role) {
-      const existingLink = await prisma.user_roles.findUnique({
-        where: {
-          user_id_role_id: {
-            user_id: user.id,
-            role_id: role.id,
-          },
-        },
-      });
-
-      if (!existingLink) {
-        await prisma.user_roles.create({
-          data: {
-            user_id: user.id,
-            role_id: role.id,
-          },
-        });
-        console.log(`Linked user ${user.email} to role ${role.name}`);
-      } else {
-        console.log(`User ${user.email} already linked to role ${role.name}`);
-      }
-    }
-  }
-
-  console.log('\nSeeding finished successfully!');
+  console.log('\nSEED COMPLETED SUCCESSFULLY!');
 }
 
 main()
-  .catch((e) => {
-    console.error('Seed failed:', e);
+  .catch(e => {
+    console.error('SEED FAILED:', e);
     process.exit(1);
   })
   .finally(async () => {

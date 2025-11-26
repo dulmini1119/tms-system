@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { authenticate } from '../../middleware/auth';
-import { PermissionsController } from './permission.controllers';
-import { validateBody } from '../../middleware/validation';
-import { saveRolePermissionsSchema } from './permission.validation';
+import { authenticate } from '../../middleware/auth.js';
+import { PermissionsController } from './permission.controllers.js';
+import { validateBody } from '../../middleware/validation.js';
+import { saveRolePermissionsSchema } from './permission.validation.js';
 
 const router = Router();
 const controller = new PermissionsController();
