@@ -4,19 +4,19 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 
-import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-import { apiLimiter } from './middleware/rateLimit';
-import logger from './utils/logger';
-import config from './config/environment';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { apiLimiter } from './middleware/rateLimit.js';
+import logger from './utils/logger.js';
+import config from './config/environment.js';
 
 // Import routes
-import authRoutes from './modules/auth/auth.routes';
-import usersRoutes from './modules/users/users.routes';
-import permissioRoutes from './modules/permissions/permission.routes';
-import rolesRoutes from './modules/roles/roles.routes';
+import authRoutes from './modules/auth/auth.routes.js';
+import usersRoutes from './modules/users/users.routes.js';
+import permissioRoutes from './modules/permissions/permission.routes.js';
+import rolesRoutes from './modules/roles/roles.routes.js';
 
 // ADD THIS LINE — CRITICAL!
-import { authenticate } from './middleware/auth';
+import { authenticate } from './middleware/auth.js';
 
 const app: Application = express();
 
