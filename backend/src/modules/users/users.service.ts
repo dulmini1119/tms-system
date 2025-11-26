@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
-import prisma from "../../config/database";
-import { AppError } from "../../middleware/errorHandler";
-import { ERROR_CODES, HTTP_STATUS } from "../../utils/constants";
-import logger from "../../utils/logger";
+import prisma from "../../config/database.js";
+import { AppError } from "../../middleware/errorHandler.js";
+import { ERROR_CODES, HTTP_STATUS } from "../../utils/constants.js";
+import logger from "../../utils/logger.js";
 
 const SALT_ROUNDS = 10;
 
@@ -75,10 +75,28 @@ export class UsersService {
     ]);
 
     // Map roles
-    const cleanUsers = users.map((u) => ({
-      ...u,
-      roles: u.user_roles_user_roles_user_idTousers.map((ur) => ur.roles.name),
-    }));
+const cleanUsers = users.map((u) => {
+  const roleRelations = u.user_roles_user_roles_user_idTousers;
+  const primaryRole = roleRelations.length > 0 
+    ? roleRelations[0].roles.name 
+    : "VIEWER";
+
+  return {
+    id: u.id,
+    first_name: u.first_name,
+    last_name: u.last_name,
+    email: u.email,
+    phone: u.phone || null,
+    employee_id: u.employee_id,
+    status: u.status,
+    last_login: u.updated_at,                 // optional, but nice
+    position: primaryRole,                    // ← THIS FIXES EMPTY TABLE
+    department: null,
+    business_unit: null,
+    // Optional: keep full roles array for future
+    roles: roleRelations.map(r => r.roles.name),
+  };
+});
 
     return {
       users: cleanUsers,

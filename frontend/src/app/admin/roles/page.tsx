@@ -1,485 +1,350 @@
 "use client";
-import React, { useState } from "react";
 
-import {
-  Plus,
-  Search,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Users,
-  Shield,
-} from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Plus, Search, MoreHorizontal, Edit, Trash2, Users, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner"; 
+import api from "@/lib/api";
 
-interface Roles {
-  id: number;
+interface Role {
+  id: string;
   name: string;
-  description: string;
-  userCount: number;
-  createdAt: string;
+  description: string | null;
+  code: string;
+  created_at: string;
+  _count: {
+    user_roles: number;
+  };
 }
 
-const initialRole: Roles[] = [
-  {
-    id: 1,
-    name: "Admin",
-    description: "Full system access with all administrative privileges",
-    userCount: 3,
-
-    createdAt: "2024-01-01",
-  },
-  {
-    id: 2,
-    name: "Manager",
-    description: "Department-level management with approval rights",
-    userCount: 12,
-    //permissions: ["trip_approval", "user_view", "vehicle_view", "reports"],
-    createdAt: "2024-01-01",
-  },
-  {
-    id: 3,
-    name: "Employee",
-    description: "Standard user with trip request capabilities",
-    userCount: 156,
-    //permissions: ["trip_request", "profile_edit", "trip_view"],
-    createdAt: "2024-01-01",
-  },
-  {
-    id: 4,
-    name: "Driver",
-    description: "Driver-specific access for trip execution",
-    userCount: 45,
-    //permissions: ["trip_execution", "vehicle_status", "trip_logs"],
-    createdAt: "2024-01-01",
-  },
-  {
-    id: 5,
-    name: "HOD",
-    description: "Head of Department with departmental oversight",
-    userCount: 8,
-    //permissions: ["trip_approval", "department_reports", "user_view", "budget_view"],
-    createdAt: "2024-01-01",
-  },
-];
-
-export default function Roles() {
-  const [roles, setRoles] = useState<Roles[]>(initialRole);
+export default function RolesPage() {
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<Roles | null>(null);
-  const [formData, setFormData] = useState<Partial<Roles>>({
-    name: "",
-    description: "",
-    userCount: 0,
-    createdAt: new Date().toISOString().split("T")[0],
-  });
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
+  const [formData, setFormData] = useState({ name: "", description: "" });
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  //const [total, setTotal] = useState(10);
+  const pageSize = 10;
+
+
+  const fetchRoles = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await api.get<{ success: boolean; data: Role[] }>("/roles");
+      setRoles(response.data.data || []);
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+      toast.error("Failed to load roles");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRoles();
+  }, [fetchRoles]);
 
   const filteredRoles = roles.filter(
     (role) =>
       role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      role.description.toLowerCase().includes(searchTerm.toLowerCase())
+      (role.description ?? "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    field: keyof Roles
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-  };
+  const paginatedRoles = filteredRoles.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = Math.ceil(filteredRoles.length / pageSize);
 
-  const handleSubmit = () => {
-    if (!formData.name || !formData.description) {
-      alert("name and description are required");
+  const handleSubmit = async () => {
+    if (!formData.name.trim()) {
+      toast.error("Role name is required");
       return;
     }
-    if (editingRole) {
-      setRoles((prev) =>
-        prev.map((role) =>
-          role.id === editingRole.id ? { ...role, ...formData } : role
-        )
-      );
-    } else {
-      const newRole: Roles = {
-        id: roles.length + 1,
-        userCount: 0,
-        createdAt: new Date().toISOString().split("T")[0],
-        description: formData.description,
-        name: formData.name,
-      } as Roles;
-      setRoles((prev) => [...prev, newRole]);
+
+    setSaving(true);
+    try {
+      if (editingRole) {
+        await api.put(`/roles/${editingRole.id}`, formData);
+        toast.success("Role updated successfully");
+      } else {
+        await api.post("/roles", formData);
+        toast.success("Role created successfully");
+      }
+      setIsDialogOpen(false);
+      setFormData({ name: "", description: "" });
+      setEditingRole(null);
+      fetchRoles();
+    } catch (error: unknown) {
+      console.error("Error saving role:", error);
+      toast.error("Operation failed. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    setIsDialogOpen(false);
-    setFormData({
-      name: "",
-      description: "",
-      userCount: 0,
-      createdAt: new Date().toISOString().split("T")[0],
-    });
   };
 
-  const handleEditRole = (role: Roles) => {
+  const handleEdit = (role: Role) => {
+    if (role.code === "SUPERADMIN") {
+      toast.error("Super Admin role cannot be edited");
+      return;
+    }
     setEditingRole(role);
-    setFormData({
-      name: role.name,
-      description: role.description,
-      userCount: role.userCount,
-      createdAt: role.createdAt,
-    });
+    setFormData({ name: role.name, description: role.description || "" });
     setIsDialogOpen(true);
   };
 
-  const handleCreateRole = () => {
-    setEditingRole(null);
-    setFormData({
-      name: "",
-      description: "",
-      userCount: 0,
-      createdAt: new Date().toISOString().split("T")[0],
-    });
-    setIsDialogOpen(true);
-  };
+  const handleDelete = async (role: Role) => {
+    if (role.code === "SUPERADMIN") {
+      toast.error("Super Admin role cannot be deleted");
+      return;
+    }
 
-  const handleDeleteRole = (roleId: number) => {
-    if (confirm("Are you sure you want to delete this role?")) {
-      setRoles((prev) => prev.filter((role) => role.id !== roleId));
+    if (!confirm(`Delete role "${role.name}" permanently?`)) return;
+
+    try {
+      await api.delete(`/roles/${role.id}`);
+      toast.success("Role deleted successfully");
+      fetchRoles();
+    } catch (error: unknown) {
+      console.error("Error deleting role:", error);
+      toast.error("Cannot delete role — users are assigned or it's protected");
     }
   };
 
-  const totalPages =
-    pageSize > 0 ? Math.ceil(filteredRoles.length / pageSize) : 1;
-  const paginatedDocuments = filteredRoles.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const openCreateDialog = () => {
+    setEditingRole(null);
+    setFormData({ name: "", description: "" });
+    setIsDialogOpen(true);
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="p-3">
           <h1 className="text-2xl">ROLE MANAGEMENT</h1>
-          <p className="text-muted-foreground text-xs">
-            Manage user roles and their associated permissions
-          </p>
+          <p className="text-muted-foreground text-xs">Manage system roles and permissions</p>
         </div>
-        <Button onClick={handleCreateRole} className="hover:bg-cyan-700">
-          <Plus className="h-4 w-4" />
-          Add Role
+        <Button onClick={openCreateDialog}>
+          <Plus className="mr-2 h-4 w-4" /> Add Role
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Roles</CardTitle>
-          <CardDescription>
-            System roles and their configurations
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Search */}
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle>Roles</CardTitle>
+              <CardDescription>List of all system roles</CardDescription>
+            </div>
+            <div className="relative max-w-sm w-full">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search roles..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8"
+                className="pl-10"
               />
             </div>
           </div>
+        </CardHeader>
 
-          {/* Roles Table */}
-          {/* Desktop Table View */}
-          <div className="hidden sm:block w-full overflow-x-auto">
-            <Table className="min-w-full table-auto text-sm">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Role Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Users</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedDocuments.map((role) => (
-                  <TableRow key={role.id}>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Shield className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{role.name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="max-w-xs">
-                      <p className="text-sm text-muted-foreground truncate">
-                        {role.description}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-1">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>{role.userCount}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {role.createdAt}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleEditRole(role)}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Role
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => handleDeleteRole(role.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete Role
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Mobile Card View */}
-          <div className="sm:hidden space-y-4">
-            {paginatedDocuments.map((role) => (
-              <div
-                key={role.id}
-                className="border rounded-xl p-4 bg-card shadow-sm flex flex-col gap-3"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <Shield className="h-5 w-5 text-muted-foreground" />
-                    <span className="font-semibold text-base">{role.name}</span>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        Actions
-                        <MoreHorizontal className="ml-2 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEditRole(role)}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Role
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => handleDeleteRole(role.id)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete Role
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <div className="text-sm text-muted-foreground">
-                  {role.description || "No description available"}
-                </div>
-
-                <div className="flex items-center justify-between text-sm mt-2">
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 text-muted-foreground mr-1" />
-                    <span>{role.userCount} Users</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Created: {role.createdAt}
-                  </div>
-                </div>
+        <CardContent>
+          {loading ? (
+            <div className="text-center py-12 text-muted-foreground">Loading roles...</div>
+          ) : (
+            <>
+              {/* Desktop Table */}
+              <div className="hidden md:block rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Users</TableHead>
+                      <TableHead>Code</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedRoles.map((role) => (
+                      <TableRow key={role.id}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <Shield className="h-4 w-4" />
+                            {role.name}
+                            {role.code === "SUPERADMIN" && (
+                              <Badge variant="secondary">Protected</Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <p className="text-sm text-muted-foreground max-w-md">
+                            {role.description || "No description"}
+                          </p>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Users className="h-4 w-4" />
+                            {role._count.user_roles}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
+                            {role.code}
+                          </code>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onSelect={() => handleEdit(role)}>
+                                <Edit className="mr-2 h-4 w-4" /> Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onSelect={() => handleDelete(role)}
+                                disabled={role.code === "SUPERADMIN"}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-            ))}
-          </div>
 
-          {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Show</span>
-              <Select
-                value={pageSize.toString()}
-                onValueChange={(v) => {
-                  setPageSize(Number(v));
-                  setCurrentPage(1);
-                }}
-              >
-                <SelectTrigger className="w-16">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[10, 25, 50, 100].map((s) => (
-                    <SelectItem key={s} value={s.toString()}>
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <span className="text-muted-foreground">
-                of {filteredRoles.length} documents
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                Page {currentPage} of {totalPages}
-              </span>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setCurrentPage(1)}
-                  disabled={currentPage === 1}
-                >
-                  First
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                >
-                  Prev
-                </Button>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let num;
-                  if (totalPages <= 5) num = i + 1;
-                  else if (currentPage <= 3) num = i + 1;
-                  else if (currentPage >= totalPages - 2)
-                    num = totalPages - 4 + i;
-                  else num = currentPage - 2 + i;
-                  return num;
-                }).map((num) => (
-                  <Button
-                    key={num}
-                    variant={currentPage === num ? "default" : "outline"}
-                    size="icon"
-                    onClick={() => setCurrentPage(num)}
-                    className="w-9 h-9"
-                  >
-                    {num}
-                  </Button>
+              {/* Mobile Cards */}
+              <div className="md:hidden space-y-4">
+                {paginatedRoles.map((role) => (
+                  <Card key={role.id}>
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center gap-2">
+                            <Shield className="h-5 w-5" />
+                            <h3 className="font-semibold">{role.name}</h3>
+                            {role.code === "SUPERADMIN" && <Badge>Protected</Badge>}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {role.description || "No description"}
+                          </p>
+                          <div className="flex gap-4 text-sm">
+                            <span className="flex items-center gap-1">
+                              <Users className="h-4 w-4" /> {role._count.user_roles}
+                            </span>
+                            <code className="text-xs bg-muted px-2 py-1 rounded">
+                              {role.code}
+                            </code>
+                          </div>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={() => handleEdit(role)}>
+                              <Edit className="mr-2 h-4 w-4" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onSelect={() => handleDelete(role)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setCurrentPage(totalPages)}
-                  disabled={currentPage === totalPages}
-                >
-                  Last
-                </Button>
               </div>
-            </div>
-          </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-8">
+                  <p className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
 
-      {/* Create/Edit Role Dialog */}
+      {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editingRole ? "Edit Role" : "Create New Role"}
-            </DialogTitle>
+            <DialogTitle>{editingRole ? "Edit Role" : "Create New Role"}</DialogTitle>
             <DialogDescription>
-              {editingRole
-                ? "Update role information and permissions"
-                : "Create a new role with specific permissions"}
+              {editingRole ? "Update role details" : "Add a new role to the system"}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="roleName" className="text-right">
-                Name
-              </Label>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Role Name</Label>
               <Input
-                id="roleName"
-                value={formData.name || ""}
-                onChange={(e) => handleChange(e, "name")}
-                className="col-span-3"
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="e.g. Finance Manager"
+                disabled={saving}
               />
             </div>
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="description" className="text-right mt-2">
-                Description
-              </Label>
+            <div className="space-y-2">
+              <Label htmlFor="desc">Description (Optional)</Label>
               <Textarea
-                id="description"
-                value={formData.description || ""}
-                onChange={(e) => handleChange(e, "description")}
-                className="col-span-3"
+                id="desc"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="What can this role do?"
                 rows={3}
+                disabled={saving}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" onClick={handleSubmit}>
-              {editingRole ? "Update Role" : "Create Role"}
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={saving}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={saving}>
+              {saving ? "Saving..." : editingRole ? "Update" : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>

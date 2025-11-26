@@ -6,7 +6,7 @@ export const createUserSchema = Joi.object({
   firstName: Joi.string().min(2).max(50).required(),
   lastName: Joi.string().min(2).max(50).required(),
   phone: Joi.string().optional().allow(null, ''),
-  role: Joi.string().valid('ADMIN', 'FLEET_MANAGER', 'DRIVER', 'FINANCE', 'VIEWER').required(),
+  position: Joi.string().valid('ADMIN', 'FLEET_MANAGER', 'DRIVER', 'FINANCE', 'VIEWER').required(),
   organizationId: Joi.string().uuid().optional().allow(null),
   employeeId: Joi.string().optional().allow(null, ''),
   licenseNumber: Joi.string().optional().allow(null, ''),

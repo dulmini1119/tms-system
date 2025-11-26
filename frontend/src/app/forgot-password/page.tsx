@@ -13,7 +13,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError(""); setMessage("");
 
-    const res = await fetch("http://localhost:3000/auth/forgot-password", {
+    const res = await fetch("http://localhost:3001/auth/forgot-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -30,7 +30,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError(""); setMessage("");
 
-    const res = await fetch("http://localhost:3000/auth/reset-password", {
+    const res = await fetch("http://localhost:3001/auth/reset-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp, newPassword }),
