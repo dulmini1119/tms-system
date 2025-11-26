@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { RolesService } from './roles.service';
-import ApiResponse from '../../utils/response';
-import { CreateRoleDto, UpdateRoleDto } from './roles.validation';
+import { RolesService } from './roles.service.js';
+import ApiResponse from '../../utils/response.js';
+import { CreateRoleDto, UpdateRoleDto } from './roles.validation.js';
 
 export class RolesController {
   private service = new RolesService();

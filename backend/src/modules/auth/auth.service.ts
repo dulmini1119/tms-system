@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
-import prisma from '../../config/database';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/jwt';
-import { AppError } from '../../middleware/errorHandler';
-import { ERROR_CODES, HTTP_STATUS } from '../../utils/constants';
-import logger from '../../utils/logger';
-import config from '../../config/environment';
+import prisma from '../../config/database.js';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/jwt.js';
+import { AppError } from '../../middleware/errorHandler.js';
+import { ERROR_CODES, HTTP_STATUS } from '../../utils/constants.js';
+import logger from '../../utils/logger.js';
+import config from '../../config/environment.js';
 
 const SALT_ROUNDS = 10;
 

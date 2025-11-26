@@ -1,15 +1,15 @@
 // src/modules/auth/auth.routes.ts
 import { Router } from 'express';
-import { AuthController } from './auth.controllers';
-import { validateBody } from '../../middleware/validation';
-import { authenticate } from '../../middleware/auth';
-import { authLimiter } from '../../middleware/rateLimit';
+import { AuthController } from './auth.controllers.js';
+import { validateBody } from '../../middleware/validation.js';
+import { authenticate } from '../../middleware/auth.js';
+import { authLimiter } from '../../middleware/rateLimit.js';
 import {
   loginSchema,
   registerSchema,
   refreshTokenSchema,
   changePasswordSchema,
-} from './auth.validation';
+} from './auth.validation.js';
 
 const router = Router();
 const authController = new AuthController();

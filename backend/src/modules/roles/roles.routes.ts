@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { authenticate } from '../../middleware/auth';
-import { RolesController } from './roles.controllers';
-import { validateBody } from '../../middleware/validation';
+import { authenticate } from '../../middleware/auth.js';
+import { RolesController } from './roles.controllers.js';
+import { validateBody } from '../../middleware/validation.js';
 import {
   createRoleSchema,
   updateRoleSchema,
-} from './roles.validation';
+} from './roles.validation.js';
 
 const router = Router();
 const controller = new RolesController();

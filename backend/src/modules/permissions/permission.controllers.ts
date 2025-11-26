@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { PermissionsService } from './permission.service';
-import ApiResponse from '../../utils/response';
+import { PermissionsService } from './permission.service.js';
+import ApiResponse from '../../utils/response.js';
 
 export class PermissionsController {
   private service = new PermissionsService();
