@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import Joi, { ObjectSchema } from 'joi';
-import { ERROR_CODES, HTTP_STATUS } from '../utils/constants';
-import ApiResponse from '../utils/response';
+import { ERROR_CODES, HTTP_STATUS } from '../utils/constants.js';
+import ApiResponse from '../utils/response.js';
 
 /**
  * Validate request body against Joi schema

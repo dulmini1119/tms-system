@@ -1,6 +1,6 @@
 import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit';
-import config from '../config/environment';
-import { ERROR_CODES } from '../utils/constants';
+import config from '../config/environment.js';
+import { ERROR_CODES } from '../utils/constants.js';
 
 /**
  * General API Rate Limiter

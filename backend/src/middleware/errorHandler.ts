@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
-import { ERROR_CODES, HTTP_STATUS } from '../utils/constants';
-import ApiResponse from '../utils/response';
-import logger from '../utils/logger';
+import { ERROR_CODES, HTTP_STATUS } from '../utils/constants.js';
+import ApiResponse from '../utils/response.js';
+import logger from '../utils/logger.js';
 
 /**
  * Custom Application Error Class

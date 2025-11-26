@@ -1,11 +1,9 @@
-// middleware/auth.ts
+// src/middleware/auth.ts — REPLACE ENTIRE FILE WITH THIS
 import { Request, Response, NextFunction } from 'express';
-import { verifyAccessToken, verifyRefreshToken } from '../utils/jwt';
-import { ERROR_CODES, HTTP_STATUS } from '../utils/constants';
-import ApiResponse from '../utils/response';
-import prisma from '../config/database';
-import logger from '../utils/logger';
 import jwt from 'jsonwebtoken';
+import prisma from '../config/database.js';
+import ApiResponse from '../utils/response.js';
+import logger from '../utils/logger.js';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -19,6 +17,11 @@ export interface AuthRequest extends Request {
   };
 }
 
+const generateAccessToken = (userId: string): string => {
+  const secret = process.env.JWT_ACCESS_SECRET!;
+  return jwt.sign({ userId }, secret, { expiresIn: '15m' });
+};
+
 export const authenticate = async (
   req: AuthRequest,
   res: Response,
@@ -29,13 +32,13 @@ export const authenticate = async (
     const refreshToken = req.cookies.refreshToken;
 
     if (!accessToken && !refreshToken) {
-      return ApiResponse.error(res, ERROR_CODES.UNAUTHORIZED, 'No token provided', HTTP_STATUS.UNAUTHORIZED);
+      return ApiResponse.error(res, 'UNAUTHORIZED', 'No token provided', 401);
     }
 
-    // Try access token first
+    // Try access token
     if (accessToken) {
       try {
-        const decoded = verifyAccessToken(accessToken);
+        const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET!) as { userId: string };
         const user = await prisma.users.findUnique({
           where: { id: decoded.userId },
           select: {
@@ -47,6 +50,7 @@ export const authenticate = async (
             business_unit_id: true,
             manager_id: true,
             status: true,
+            
           },
         });
 
@@ -62,18 +66,16 @@ export const authenticate = async (
           };
           return next();
         }
-      } catch (error: any) {
-        if (error.name !== 'TokenExpiredError') {
-          logger.warn('Invalid access token');
-        }
-        // Continue to try refresh token
+      } catch (err) {
+        // Expired or invalid → fall through to refresh token
+        logger.debug('Access token invalid or expired');
       }
     }
 
-    // If access token missing or expired → try refresh token
+    // Try refresh token
     if (refreshToken) {
       try {
-        const decoded = verifyRefreshToken(refreshToken);
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as { userId: string };
         const user = await prisma.users.findUnique({
           where: { id: decoded.userId },
           select: { id: true, email: true, status: true },
@@ -82,43 +84,29 @@ export const authenticate = async (
         if (!user || user.status !== 'Active') {
           res.clearCookie('accessToken');
           res.clearCookie('refreshToken');
-          return ApiResponse.error(res, ERROR_CODES.UNAUTHORIZED, 'Invalid session', HTTP_STATUS.UNAUTHORIZED);
+          return ApiResponse.error(res, 'UNAUTHORIZED', 'Invalid session', 401);
         }
 
-        // Generate new access token
-        const newAccessToken = generateAccessToken(user.id); // implement this
-
+        const newAccessToken = generateAccessToken(user.id);
         res.cookie('accessToken', newAccessToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
-          path: '/',
           maxAge: 15 * 60 * 1000,
         });
 
         req.user = { id: user.id, email: user.email };
         return next();
-      } catch (error) {
+      } catch (err) {
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
-        return ApiResponse.error(res, ERROR_CODES.UNAUTHORIZED, 'Session expired', HTTP_STATUS.UNAUTHORIZED);
+        return ApiResponse.error(res, 'TOKEN_EXPIRED', 'Session expired', 401);
       }
     }
 
-    return ApiResponse.error(res, ERROR_CODES.UNAUTHORIZED, 'Authentication failed', HTTP_STATUS.UNAUTHORIZED);
+    return ApiResponse.error(res, 'UNAUTHORIZED', 'Authentication failed', 401);
   } catch (error) {
-    logger.error('Authentication error:', error);
-    return ApiResponse.error(res, ERROR_CODES.INTERNAL_ERROR, 'Server error', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    logger.error('Auth middleware error:', error);
+    return ApiResponse.error(res, 'INTERNAL_ERROR', 'Authentication failed', 500);
   }
-};
-
-  // Add this at the end of src/middleware/auth.ts
-const generateAccessToken = (userId: string): string => {
-  const secret = process.env.JWT_ACCESS_SECRET;
-  if (!secret) {
-    logger.error('JWT_ACCESS_SECRET is missing in environment');
-    throw new Error('Server configuration error');
-  }
-
-  return jwt.sign({ userId }, secret, { expiresIn: '15m' });
 };

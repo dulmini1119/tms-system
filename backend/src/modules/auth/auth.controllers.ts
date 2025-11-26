@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import prisma from "../../config/database";
-import { AppError } from "../../middleware/errorHandler";
-import { ERROR_CODES, HTTP_STATUS } from "../../utils/constants";
+import prisma from "../../config/database.js";
+import { AppError } from "../../middleware/errorHandler.js";
+import { ERROR_CODES, HTTP_STATUS } from "../../utils/constants.js";
 import bcrypt from "bcrypt";
-import ApiResponse from "../../utils/response";
-import { AuthRequest } from "../../middleware/auth";
-import { AuthService } from "./auth.service"; // ← ADD THIS IMPORT
+import ApiResponse from "../../utils/response.js";
+import { AuthRequest } from "../../middleware/auth.js";
+import { AuthService } from "./auth.service.js"; // ← ADD THIS IMPORT
 import { token } from "morgan";
 
 // Body interfaces
