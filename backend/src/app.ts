@@ -12,7 +12,7 @@ import config from './config/environment.js';
 // Import routes
 import authRoutes from './modules/auth/auth.routes.js';
 import usersRoutes from './modules/users/users.routes.js';
-import permissioRoutes from './modules/permissions/permission.routes.js';
+import permissionRoutes from './modules/permissions/permission.routes.js';
 import rolesRoutes from './modules/roles/roles.routes.js';
 
 // ADD THIS LINE — CRITICAL!
@@ -59,7 +59,7 @@ app.get('/health', (req, res) => {
 app.use('/auth', authRoutes);                                    // PUBLIC
 app.use('/users', authenticate, usersRoutes);                    // PROTECTED
 app.use('/roles', authenticate, rolesRoutes);                    // PROTECTED
-app.use('/permissions', authenticate, permissioRoutes);         // PROTECTED
+app.use('/permissions', authenticate, permissionRoutes);         // PROTECTED
 
 // 404 & Error handlers
 app.use(notFoundHandler);
