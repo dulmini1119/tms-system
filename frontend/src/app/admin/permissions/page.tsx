@@ -1,204 +1,227 @@
-"use client"
-import React, { useState } from 'react';
+"use client";
 
-import { 
-  Shield, 
-  CheckSquare, 
-  Save
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useEffect, useCallback } from "react";
+import { Shield, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import api from "@/lib/api";
 
-const permissions = [
-  { id: 'user_create', name: 'Create Users', category: 'User Management' },
-  { id: 'user_edit', name: 'Edit Users', category: 'User Management' },
-  { id: 'user_delete', name: 'Delete Users', category: 'User Management' },
-  { id: 'user_view', name: 'View Users', category: 'User Management' },
-  { id: 'vehicle_create', name: 'Create Vehicles', category: 'Vehicle Management' },
-  { id: 'vehicle_edit', name: 'Edit Vehicles', category: 'Vehicle Management' },
-  { id: 'vehicle_delete', name: 'Delete Vehicles', category: 'Vehicle Management' },
-  { id: 'vehicle_view', name: 'View Vehicles', category: 'Vehicle Management' },
-  { id: 'trip_request', name: 'Request Trips', category: 'Trip Management' },
-  { id: 'trip_approve', name: 'Approve Trips', category: 'Trip Management' },
-  { id: 'trip_assign', name: 'Assign Trips', category: 'Trip Management' },
-  { id: 'trip_execute', name: 'Execute Trips', category: 'Trip Management' },
-  { id: 'reports_view', name: 'View Reports', category: 'Reporting' },
-  { id: 'reports_export', name: 'Export Reports', category: 'Reporting' },
-  { id: 'settings_manage', name: 'Manage Settings', category: 'System Administration' },
-  { id: 'audit_view', name: 'View Audit Logs', category: 'System Administration' }
+interface Permission {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  module: string;
+  action: string;
+  resource: string;
+}
+
+const ROLES = [
+  { id: "1", name: "Super Admin" },
+  { id: "2", name: "Vehicle Admin" },
+  { id: "3", name: "Manager" },
+  { id: "4", name: "HOD" },
+  { id: "5", name: "Employee" },
+  { id: "6", name: "Driver" },
 ];
 
-const roles = [
-  { id: 'admin', name: 'Admin' },
-  {id:'vehicleadmin', name:"VehicleAdmin"},
-  { id: 'manager', name: 'Manager' },
-  { id: 'employee', name: 'Employee' },
-  { id: 'driver', name: 'Driver' },
-  { id: 'hod', name: 'HOD' }
-];
+export default function PermissionMatrixPage() {
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [rolePermissions, setRolePermissions] = useState<Record<string, string[]>>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-const initialPermissions: Record<string, string[]> = {
-  admin: permissions.map(p => p.id),
-  vehicleadmin: ['trip_assign'],
-  manager: ['user_view', 'trip_approve', 'reports_view'],
-  employee: ['trip_request'],
-  driver: ['trip_execute'],
-  hod: ['user_view', 'trip_approve', 'reports_view', 'reports_export']
-};
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await api.get<{ success: boolean; data: Permission[] }>("/permissions/all");
+      const perms = res.data.data || [];
+      setPermissions(perms);
 
-export default function Permissions() {
-  const [rolePermissions, setRolePermissions] = useState(initialPermissions);
+ 
+      const defaultRoleMap: Record<string, string[]> = {
+        "1": perms.map((p) => p.id),
+      };
 
-  const handlePermissionChange = (roleId: string, permissionId: string, checked: boolean) => {
-    setRolePermissions(prev => ({
+      // Others empty
+      ROLES.forEach((r) => {
+        if (!defaultRoleMap[r.id]) defaultRoleMap[r.id] = [];
+      });
+
+      setRolePermissions(defaultRoleMap);
+    } catch (err) {
+      toast.error("Failed to load permissions");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const togglePermission = (roleId: string, permissionId: string, checked: boolean) => {
+    setRolePermissions((prev) => ({
       ...prev,
-      [roleId]: checked 
-        ? [...prev[roleId], permissionId]
-        : prev[roleId].filter(p => p !== permissionId)
+      [roleId]: checked
+        ? [...(prev[roleId] || []), permissionId]
+        : (prev[roleId] || []).filter((id) => id !== permissionId),
     }));
   };
 
-  //backend connection for the save button
-  // const handleSaveChanges = async () => {
-  //   try {
-  //     // Example: Save to backend
-  //     await fetch("/api/permissions", {
-  //       method: "POST",
-  //       body: JSON.stringify(rolePermissions),
-  //       headers: { "Content-Type": "application/json" },
-  //     });
-  //     toast.success("Permissions saved successfully");
-  //   } catch (error) {
-  //     console.error("Failed to save permissions:", error);
-  //     toast.error("Failed to save permissions");
-  //   }
-  // };
+  const handleSave = async () => {
+    setSaving(true);
 
-  const hasPermission = (roleId: string, permissionId: string) => {
-    return rolePermissions[roleId]?.includes(permissionId) || false;
+    // TODO: replace with real API endpoint
+    await new Promise((r) => setTimeout(r, 1000));
+
+    toast.success("Permissions saved! (demo mode)");
+    setSaving(false);
   };
 
-  const getPermissionsByCategory = () => {
-    const categories: Record<string, typeof permissions> = {};
-    permissions.forEach(permission => {
-      if (!categories[permission.category]) {
-        categories[permission.category] = [];
-      }
-      categories[permission.category].push(permission);
-    });
-    return categories;
-  };
+  // GROUP PERMISSIONS BY CATEGORY (module)
+  const grouped = permissions.reduce((acc, perm) => {
+    const category = perm.module || "Other";
+    (acc[category] ||= []).push(perm);
+    return acc;
+  }, {} as Record<string, Permission[]>);
 
-  const permissionsByCategory = getPermissionsByCategory();
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-12 w-12 animate-spin text-cyan-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className='p-3'>
-          <h1 className='text-2xl'>PERMISSION MANAGEMENT</h1>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="p-3">
+            <h1 className="text-2xl">PERMISSION MANAGEMENT</h1>
           <p className="text-muted-foreground text-xs">
-            Assign permissions to roles using the matrix below
+            Categorized by module — User Management, Vehicle Management, Trip Management, Finance, etc.
           </p>
         </div>
-        <Button className='hover:bg-cyan-700'>
-          <Save className="h-4 w-4" />
-          Save Changes
+
+        <Button
+          size="lg"
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white shadow-sm"
+        >
+          {saving ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+              <span>Saving...</span>
+            </div>
+          ) : (
+            <span>Save Changes</span>
+          )}
         </Button>
       </div>
 
-      {Object.entries(permissionsByCategory).map(([category, categoryPermissions]) => (
-        <Card key={category}>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <CheckSquare className="h-5 w-5" />
-              <span>{category}</span>
-            </CardTitle>
-            <CardDescription>
-              Manage {category.toLowerCase()} permissions for each role
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[250px]">Permission</TableHead>
-                    {roles.map(role => (
-                      <TableHead key={role.id} className="text-center">
-                        <div className="flex flex-col items-center space-y-1">
-                          <Shield className="h-4 w-4" />
-                          <span>{role.name}</span>
-                        </div>
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {categoryPermissions.map(permission => (
-                    <TableRow key={permission.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{permission.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {permission.id}
-                          </div>
-                        </div>
-                      </TableCell>
-                      {roles.map(role => (
-                        <TableCell key={role.id} className="text-center">
-                          <Checkbox
-                            checked={hasPermission(role.id, permission.id)}
-                            onCheckedChange={(checked) => 
-                              handlePermissionChange(role.id, permission.id, checked as boolean)
-                            }
-                          />
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-
-      {/* Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Permission Summary</CardTitle>
-          <CardDescription>
-            Overview of permissions assigned to each role
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {roles.map(role => (
-              <div key={role.id} className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Shield className="h-4 w-4" />
-                  <span className="font-medium">{role.name}</span>
-                  <Badge variant="secondary">
-                    {rolePermissions[role.id]?.length || 0} permissions
+      {/* Matrix by category */}
+      {Object.entries(grouped)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([category, perms]) => (
+          <Card
+            key={category}
+            className="overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm"
+          >
+            <CardHeader className="bg-slate-50 dark:bg-slate-900/60 border-b">
+              <CardTitle className="flex items-center gap-3 py-4">
+                <div className="w-1.5 h-8 bg-slate-800 dark:bg-slate-200 rounded-sm" />
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                    {category.replaceAll("_", " ").toUpperCase()}
+                  </span>
+                  <Badge variant="secondary" className="ml-2">
+                    {perms.length} items
                   </Badge>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  {rolePermissions[role.id]?.slice(0, 3).map(permId => {
-                    const perm = permissions.find(p => p.id === permId);
-                    return perm?.name;
-                  }).join(', ')}
-                  {(rolePermissions[role.id]?.length || 0) > 3 && 
-                    ` +${(rolePermissions[role.id]?.length || 0) - 3} more`
-                  }
-                </div>
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-slate-100 dark:bg-slate-900/50">
+                      <TableHead className="sticky left-0 bg-white dark:bg-slate-950 z-20 w-96 font-semibold text-slate-800 dark:text-slate-100 border-r">
+                        Permission
+                      </TableHead>
+
+                      {ROLES.map((role) => (
+                        <TableHead
+                          key={role.id}
+                          className="text-center min-w-[140px] font-medium text-slate-700 dark:text-slate-200"
+                        >
+                          {role.name}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+
+                  <TableBody>
+                    {perms.map((perm) => (
+                      <TableRow
+                        key={perm.id}
+                        className="even:bg-white odd:bg-slate-50 dark:even:bg-slate-950 dark:odd:bg-slate-900/60"
+                      >
+                        <TableCell className="sticky left-0 bg-white dark:bg-slate-950 z-10 border-r">
+                          <div className="flex flex-col">
+                            <div className="font-medium text-slate-800 dark:text-slate-100">{perm.name}</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-1">
+                              {perm.code}
+                            </div>
+                            {perm.description && (
+                              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                {perm.description}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+
+                        {ROLES.map((role) => (
+                          <TableCell key={role.id} className="text-center">
+                            <div className="flex items-center justify-center">
+                              <Checkbox
+                                checked={rolePermissions[role.id]?.includes(perm.id) ?? false}
+                                onCheckedChange={(checked) =>
+                                  togglePermission(role.id, perm.id, checked as boolean)
+                                }
+                                className="h-5 w-5 data-[state=checked]:bg-slate-800 data-[state=checked]:border-slate-800 dark:data-[state=checked]:bg-slate-200 dark:data-[state=checked]:border-slate-200"
+                              />
+                            </div>
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        ))}
     </div>
   );
 }

@@ -1,78 +1,60 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
 import { useState } from "react";
 
 export default function LoginForm() {
-  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const res = await fetch("http://localhost:3001/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Important: sends cookies (for sessions/JWT in httpOnly)
-        body: JSON.stringify({ email, password, rememberMe }),
-      });
+  try {
+    const res = await fetch("http://localhost:3001/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error?.message || "Login failed");
-      }
-
-      //const token = data.data?.token; 
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-      
-      const role =
-        data.data?.user?.position || data.data?.position || "employee";
-
-      switch (role) {
-        case "superadmin":
-          router.push("/admin/dashboard");
-          break;
-        case "employee":
-          router.push("/employee/dashboard");
-          break;
-        case "driver":
-          router.push("/driver/dashboard");
-          break;
-        case "manager":
-          router.push("/manager/dashboard");
-          break;
-        case "hod":
-          router.push("/hod/dashboard");
-          break;
-        case "vehicleadmin":
-          router.push("/vehicleadmin/dashboard");
-          break;
-        default:
-          router.push("/dashboard");
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Something went wrong");
-      }
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      throw new Error(data.message || data.error || "Login failed");
     }
-  };
+
+    // THIS IS THE ONLY PART YOU NEED
+    const position = (data.data?.user?.position || data.data?.position || "employee").toLowerCase();
+
+    const redirectMap: Record<string, string> = {
+      superadmin: "/admin/dashboard",
+      vehicleadmin: "/admin/dashboard",
+      manager: "/manager/dashboard",
+      hod: "/hod/dashboard",
+      employee: "/employee/dashboard",
+      driver: "/driver/dashboard",
+    };
+
+    const redirectTo = redirectMap[position] || "/dashboard";
+    
+    // FULL RELOAD → SESSION IS RECOGNIZED → NO 404
+    window.location.href = redirectTo;
+
+  } catch (err) {
+    console.error(err)
+    setError( "Invalid email or password");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="max-w-md mx-auto p-8 rounded-lg shadow-md border dark:border-gray-800 border-gray-200">
