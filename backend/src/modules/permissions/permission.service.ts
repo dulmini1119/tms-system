@@ -1,7 +1,13 @@
+// backend/modules/permissions/permission.service.ts
+
 import prisma from '../../config/database.js';
+import { Prisma } from '@prisma/client';
 
 export class PermissionsService {
-  // Get everything needed for the permissions matrix
+  /**
+   * Get all data needed for the permissions matrix UI
+   * Returns: permissions[], roles[], roleMap { roleId: [permissionId, ...] }
+   */
   async getAllWithRoleAssignments() {
     const [permissions, rolePermissions, roles] = await Promise.all([
       prisma.permissions.findMany({
@@ -9,30 +15,37 @@ export class PermissionsService {
           id: true,
           code: true,
           name: true,
+          module: true,
+          action: true,
+          resource: true,
         },
-        orderBy: {  name: 'asc' },
+        orderBy: { name: 'asc' },
       }),
+
       prisma.role_permissions.findMany({
         select: {
           role_id: true,
           permission_id: true,
         },
       }),
+
       prisma.roles.findMany({
         select: {
           id: true,
           name: true,
+          code: true,
+          level: true,
         },
         orderBy: { name: 'asc' },
       }),
     ]);
 
-    // Build map: roleId → array of permissionIds
-    const roleMap = rolePermissions.reduce((acc, rp) => {
-      if (!acc[rp.role_id]) acc[rp.role_id] = [];
+    // Build role → permissions map
+    const roleMap = rolePermissions.reduce<Record<string, string[]>>((acc, rp) => {
+      acc[rp.role_id] ??= [];
       acc[rp.role_id].push(rp.permission_id);
       return acc;
-    }, {} as Record<string, string[]>);
+    }, {});
 
     return {
       permissions,
@@ -41,21 +54,57 @@ export class PermissionsService {
     };
   }
 
-  // Save permissions for one role
+  /**
+   * Get ALL permissions — used by Permissions Management page (CRUD list)
+   */
+  async getAllPermissions() {
+    return await prisma.permissions.findMany({
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        module: true,
+        action: true,
+        resource: true,
+        description: true,
+        created_at: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  /**
+   * Replace all permissions for a role (full overwrite)
+   * Used by the permission matrix "Save" button
+   */
   async updateRolePermissions(roleId: string, permissionIds: string[]) {
+    const roleExists = await prisma.roles.findUnique({
+      where: { id: roleId },
+      select: { id: true },
+    });
+
+    if (!roleExists) {
+      throw new Error('Role not found');
+    }
+
     await prisma.$transaction(async (tx) => {
-      // Delete old permissions
+      // 1. Remove all existing
       await tx.role_permissions.deleteMany({
         where: { role_id: roleId },
       });
 
-      // Insert new ones
+      // 2. Insert new ones
       if (permissionIds.length > 0) {
-        await tx.role_permissions.createMany({
-          data: permissionIds.map((permission_id) => ({
+        const data: Prisma.role_permissionsCreateManyInput[] = permissionIds.map(
+          (permission_id) => ({
             role_id: roleId,
             permission_id,
-          })),
+          })
+        );
+
+        await tx.role_permissions.createMany({
+          data,
+          skipDuplicates: true,
         });
       }
     });
