@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Shield, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -50,23 +50,31 @@ export default function PermissionMatrixPage() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get<{ success: boolean; data: Permission[] }>("/permissions/all");
-      const perms = res.data.data || [];
+
+      // 1. Load all permissions
+      const permsRes = await api.get("/permissions/all");
+      const perms: Permission[] = permsRes.data.data || [];
       setPermissions(perms);
 
- 
-      const defaultRoleMap: Record<string, string[]> = {
-        "1": perms.map((p) => p.id),
+      // 2. Load current role → permission assignments
+      const matrixRes = await api.get("/permissions"); // ← this is your original matrix endpoint
+      const { roleMap } = matrixRes.data.data;
+
+      // If no data from backend yet, give Super Admin all permissions by default
+      const defaultRoleMap: Record<string, string[]> = roleMap || {
+        "1": perms.map((p) => p.id), // Super Admin gets everything
       };
 
-      // Others empty
-      ROLES.forEach((r) => {
-        if (!defaultRoleMap[r.id]) defaultRoleMap[r.id] = [];
+      // Ensure every role exists in the map
+      ROLES.forEach((role) => {
+        if (!defaultRoleMap[role.id]) {
+          defaultRoleMap[role.id] = [];
+        }
       });
 
       setRolePermissions(defaultRoleMap);
     } catch (err) {
-      toast.error("Failed to load permissions");
+      toast.error( "Failed to load permissions");
       console.error(err);
     } finally {
       setLoading(false);
@@ -81,22 +89,42 @@ export default function PermissionMatrixPage() {
     setRolePermissions((prev) => ({
       ...prev,
       [roleId]: checked
-        ? [...(prev[roleId] || []), permissionId]
+        ? [...new Set([...(prev[roleId] || []), permissionId])]
         : (prev[roleId] || []).filter((id) => id !== permissionId),
     }));
   };
 
-  const handleSave = async () => {
-    setSaving(true);
+  // REAL SAVE FUNCTION — THIS WORKS WITH YOUR BACKEND
+const handleSave = async () => {
+  setSaving(true);
 
-    // TODO: replace with real API endpoint
-    await new Promise((r) => setTimeout(r, 1000));
+  try {
+    const payloads = ROLES.map((role) => ({
+      roleId: role.id,
+      permissionIds: rolePermissions[role.id] || [], // ← THIS IS CRITICAL
+    }));
 
-    toast.success("Permissions saved! (demo mode)");
+    // DEBUG: remove this in production
+    console.log("Sending to backend:", payloads);
+
+    await Promise.all(
+      payloads.map((payload) =>
+        api.post("/permissions/save", payload)
+      )
+    );
+
+    toast.success("All role permissions saved successfully!");
+  } catch (err) {
+    console.error("Save error:", err);
+    toast.error(
+      "Validation failed — check console for details"
+    );
+  } finally {
     setSaving(false);
-  };
+  }
+};
 
-  // GROUP PERMISSIONS BY CATEGORY (module)
+  // Group permissions by module
   const grouped = permissions.reduce((acc, perm) => {
     const category = perm.module || "Other";
     (acc[category] ||= []).push(perm);
@@ -112,50 +140,47 @@ export default function PermissionMatrixPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="p-3">
-            <h1 className="text-2xl">PERMISSION MANAGEMENT</h1>
-          <p className="text-muted-foreground text-xs">
-            Categorized by module — User Management, Vehicle Management, Trip Management, Finance, etc.
+        <div>
+          <h1 className="text-3xl font-bold">PERMISSION MATRIX</h1>
+          <p className="text-muted-foreground">
+            Manage role-based permissions across all modules
           </p>
         </div>
 
         <Button
           size="lg"
           onClick={handleSave}
-          disabled={saving}
-          className="bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white shadow-sm"
+          disabled={saving || loading}
+          className="min-w-40 bg-cyan-600 hover:bg-cyan-700 text-white"
         >
           {saving ? (
-            <div className="flex items-center gap-2">
-              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-              <span>Saving...</span>
-            </div>
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
           ) : (
-            <span>Save Changes</span>
+            "Save All Changes"
           )}
         </Button>
       </div>
 
-      {/* Matrix by category */}
+      {/* Matrix Cards */}
       {Object.entries(grouped)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([category, perms]) => (
-          <Card
-            key={category}
-            className="overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm"
-          >
-            <CardHeader className="bg-slate-50 dark:bg-slate-900/60 border-b">
-              <CardTitle className="flex items-center gap-3 py-4">
-                <div className="w-1.5 h-8 bg-slate-800 dark:bg-slate-200 rounded-sm" />
-                <div className="flex items-center gap-3">
-                  <span className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-                    {category.replaceAll("_", " ").toUpperCase()}
+          <Card key={category} className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-2 h-10 bg-cyan-600 rounded-full" />
+                <div>
+                  <span className="text-xl font-bold">
+                    {category.replace(/_/g, " ").toUpperCase()}
                   </span>
-                  <Badge variant="secondary" className="ml-2">
-                    {perms.length} items
+                  <Badge variant="secondary" className="ml-3">
+                    {perms.length} permissions
                   </Badge>
                 </div>
               </CardTitle>
@@ -165,53 +190,41 @@ export default function PermissionMatrixPage() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-slate-100 dark:bg-slate-900/50">
-                      <TableHead className="sticky left-0 bg-white dark:bg-slate-950 z-20 w-96 font-semibold text-slate-800 dark:text-slate-100 border-r">
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="sticky left-0 z-10 bg-background w-80 font-bold">
                         Permission
                       </TableHead>
-
                       {ROLES.map((role) => (
-                        <TableHead
-                          key={role.id}
-                          className="text-center min-w-[140px] font-medium text-slate-700 dark:text-slate-200"
-                        >
+                        <TableHead key={role.id} className="text-center font-semibold">
                           {role.name}
                         </TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
-
                   <TableBody>
                     {perms.map((perm) => (
-                      <TableRow
-                        key={perm.id}
-                        className="even:bg-white odd:bg-slate-50 dark:even:bg-slate-950 dark:odd:bg-slate-900/60"
-                      >
-                        <TableCell className="sticky left-0 bg-white dark:bg-slate-950 z-10 border-r">
-                          <div className="flex flex-col">
-                            <div className="font-medium text-slate-800 dark:text-slate-100">{perm.name}</div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-1">
+                      <TableRow key={perm.id}>
+                        <TableCell className="sticky left-0 z-10 bg-background font-medium">
+                          <div>
+                            <div className="font-semibold">{perm.name}</div>
+                            <div className="text-sm text-muted-foreground font-mono">
                               {perm.code}
                             </div>
                             {perm.description && (
-                              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                              <div className="text-xs text-muted-foreground mt-1">
                                 {perm.description}
                               </div>
                             )}
                           </div>
                         </TableCell>
-
                         {ROLES.map((role) => (
                           <TableCell key={role.id} className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Checkbox
-                                checked={rolePermissions[role.id]?.includes(perm.id) ?? false}
-                                onCheckedChange={(checked) =>
-                                  togglePermission(role.id, perm.id, checked as boolean)
-                                }
-                                className="h-5 w-5 data-[state=checked]:bg-slate-800 data-[state=checked]:border-slate-800 dark:data-[state=checked]:bg-slate-200 dark:data-[state=checked]:border-slate-200"
-                              />
-                            </div>
+                            <Checkbox
+                              checked={rolePermissions[role.id]?.includes(perm.id) ?? false}
+                              onCheckedChange={(checked) =>
+                                togglePermission(role.id, perm.id, checked as boolean)
+                              }
+                            />
                           </TableCell>
                         ))}
                       </TableRow>
