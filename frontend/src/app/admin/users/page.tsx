@@ -1,58 +1,17 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Plus,
-  Search,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  RefreshCw,
-  Mail,
-  Phone,
-} from "lucide-react";
+import { Plus, Search, MoreHorizontal, Edit, Trash2, RefreshCw, Mail, Phone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-
 
 interface User {
   id: string;
@@ -61,16 +20,14 @@ interface User {
   email: string;
   phone: string | null;
   position: string;
-  department?: string;
-  business_unit?: string;
+  employee_id: string;
   status: string;
   last_login: string | null;
-  employee_id: string;
 }
 
 interface Role {
-  id: string;
   name: string;
+  id: string;
 }
 
 export default function Users() {
@@ -86,52 +43,42 @@ export default function Users() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
-    position: "",
-    employee_id: "",
+    role: "",
+    employeeId: "",
     password: "",
   });
 
-  // --- ADDED: Helper function to get authentication headers ---
-const getAuthHeaders = (): Record<string, string> => {
-  const token = localStorage.getItem("authToken");
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+  const getAuthHeaders = (): Record<string, string> => {
+    const token = localStorage.getItem("authToken");
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    return headers;
   };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  return headers;
-};
-
-  // --- END OF ADDED SECTION ---
 
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch("/users", {
-        method: "GET",
-        headers: getAuthHeaders(),
-        cache: "no-store",
-      });
+      setLoading(true);
+      const query = new URLSearchParams();
+      if (searchTerm) query.append("search", searchTerm);
+      if (roleFilter !== "all-roles") query.append("role", roleFilter);
+      if (statusFilter !== "all-status") query.append("status", statusFilter);
+
+      const res = await fetch(`/users?${query.toString()}`, { headers: getAuthHeaders() });
+      const data = await res.json();
 
       if (!res.ok) {
-        const text = await res.text();
-        toast.error(`Failed to fetch users: ${text}`);
-        setUsers([]);
-        return;
+        if (data.details) {
+          const messages = Object.values(data.details).join(", ");
+          return toast.error(messages);
+        }
+        return toast.error(data.message || "Failed to fetch users");
       }
 
-      const data = await res.json();
-      const usersArray: User[] = Array.isArray(data.users)
-        ? data.users
-        : Array.isArray(data.data)
-        ? data.data
-        : [];
-
-      setUsers(usersArray);
+      setUsers(data.users || []);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch users");
@@ -139,121 +86,87 @@ const getAuthHeaders = (): Record<string, string> => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [searchTerm, roleFilter, statusFilter]);
 
-  /** Fetch Roles */
   const fetchRoles = useCallback(async () => {
     try {
-      const res = await fetch("/roles", {
-        headers: getAuthHeaders(),
-      });
+      const res = await fetch("/roles", { headers: getAuthHeaders() });
+      const data = await res.json();
 
-      if (!res.ok) {
-        console.error("Failed to fetch roles:", res.status, await res.text());
-        toast.error("Failed to load roles");
-        return;
-      }
-
-      const response = await res.json();
-
-      // Use response.data instead of response directly
-      const rolesArray = Array.isArray(response.data) ? response.data : [];
-      if (rolesArray.length === 0) {
-        console.warn("Roles array is empty or invalid", response);
-      }
-
-      setRoles(rolesArray);
+      if (!res.ok) return toast.error("Failed to fetch roles");
+      setRoles(Array.isArray(data.data) ? data.data : []);
     } catch (err) {
-      console.error("Failed to load roles", err);
-      toast.error("Failed to load roles");
+      console.error(err);
+      toast.error("Failed to fetch roles");
     }
   }, []);
 
-  /** Fetch Users */
   useEffect(() => {
-    Promise.all([fetchUsers(), fetchRoles()]);
-  }, [fetchUsers, fetchRoles]);
+    fetchRoles();
+    fetchUsers();
+  }, [fetchRoles, fetchUsers]);
 
   const validateForm = () => {
-    const { first_name, last_name, email, position, employee_id, password } =
-      formData;
-    if (!first_name.trim()) return "First name is required";
-    if (!last_name.trim()) return "Last name is required";
-    if (!email.trim()) return "Email is required";
-    if (!position.trim()) return "Role is required";
-    if (!employee_id.trim()) return "Employee ID is required";
-    if (!editingUser && !password.trim()) return "Password is required";
+    if (!formData.firstName.trim()) return "First Name is required";
+    if (!formData.lastName.trim()) return "Last Name is required";
+    if (!formData.email.trim()) return "Email is required";
+    if (!formData.role.trim()) return "Role is required";
+    if (!formData.employeeId.trim()) return "Employee ID is required";
+    if (!editingUser && !formData.password.trim()) return "Password is required";
     return null;
   };
 
-  /** Create / Update User */
   const handleSubmit = async () => {
-    const validationError = validateForm();
-    if (validationError) {
-      toast.error(validationError);
-      return;
-    }
+    const error = validateForm();
+    if (error) return toast.error(error);
 
     const url = editingUser ? `/users/${editingUser.id}` : "/users";
     const method = editingUser ? "PUT" : "POST";
 
-    const payload = editingUser
-    ? {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        email: formData.email,
-        phone: formData.phone || null,
-        position: formData.position,
-        employee_id: formData.employee_id,
-      }
-    : {
-        ...formData,
-        phone: formData.phone || null,
-      };
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone || null,
+      role: formData.role,
+      employeeId: formData.employeeId,
+      password: editingUser ? undefined : formData.password,
+    };
 
     try {
       setLoading(true);
       const res = await fetch(url, {
         method,
-        headers: getAuthHeaders(), // <--- FIX
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload),
       });
+      const data = await res.json();
 
-      const result = await res.json();
       if (!res.ok) {
-        throw new Error(result.message || result.error || "Request failed");
+        if (data.details) {
+          const messages = Object.values(data.details).join(", ");
+          return toast.error(messages);
+        }
+        return toast.error(data.message || "Something went wrong");
       }
 
       toast.success(editingUser ? "User updated" : "User created");
-
-      await fetchUsers();
+      fetchUsers();
       setIsDialogOpen(false);
       resetForm();
-    } catch (err: unknown) {
-      console.log(err);
-
-      if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error("Something went wrong");
-      }
-    } finally{
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong");
+    } finally {
       setLoading(false);
     }
   };
 
-  /** Delete User */
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this user permanently?")) return;
-
     try {
-      const res = await fetch(`/users/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(), // <--- FIX
-      });
-
-      if (!res.ok) throw new Error("Failed to delete user");
-
+      const res = await fetch(`/users/${id}`, { method: "DELETE", headers: getAuthHeaders() });
+      if (!res.ok) throw new Error(await res.text());
       toast.success("User deleted");
       fetchUsers();
     } catch {
@@ -261,21 +174,14 @@ const getAuthHeaders = (): Record<string, string> => {
     }
   };
 
-  /** Reset Password */
   const handleResetPassword = async (email: string) => {
     try {
       const res = await fetch("/auth/forgot-password", {
         method: "POST",
-        headers: {"Content-Type": "application/json"}, // <--- FIX
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || "Failed");
-      }
-        
-
+      if (!res.ok) throw new Error(await res.text());
       toast.success("Password reset email sent");
     } catch {
       toast.error("Failed to send reset email");
@@ -284,95 +190,59 @@ const getAuthHeaders = (): Record<string, string> => {
 
   const resetForm = () => {
     setEditingUser(null);
-    setFormData({
-      first_name: "",
-      last_name: "",
-      email: "",
-      phone: "",
-      position: "",
-      employee_id: "",
-      password: "",
-    });
+    setFormData({ firstName: "", lastName: "", email: "", phone: "", role: "", employeeId: "", password: "" });
   };
 
-  /** Edit Dialog */
   const openEditDialog = (user: User) => {
     setEditingUser(user);
     setFormData({
-      first_name: user.first_name,
-      last_name: user.last_name,
+      firstName: user.first_name,
+      lastName: user.last_name,
       email: user.email,
       phone: user.phone || "",
-      position: user.position,
-      employee_id: user.employee_id,
+      role: user.position,
+      employeeId: user.employee_id,
       password: "",
     });
     setIsDialogOpen(true);
   };
 
-  /** Create Dialog */
   const openCreateDialog = () => {
     resetForm();
     setIsDialogOpen(true);
   };
 
-  /** Filtering */
-  const filteredUsers = users.filter((user) => {
-    const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
-    const matchesSearch =
-      fullName.includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesRole =
-      roleFilter === "all-roles" || user.position === roleFilter;
-
-    const matchesStatus =
-      statusFilter === "all-status" || user.status === statusFilter;
-
+  const filteredUsers = users.filter(u => {
+    const fullName = `${u.first_name} ${u.last_name}`.toLowerCase();
+    const matchesSearch = fullName.includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = roleFilter === "all-roles" || u.position === roleFilter;
+    const matchesStatus = statusFilter === "all-status" || u.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
 
   const getStatusBadge = (status: string) => (
-    <Badge variant={status === "Active" ? "default" : "secondary"}>
-      {status}
-    </Badge>
+    <Badge variant={status.toLowerCase() === "active" ? "default" : "secondary"}>{status}</Badge>
   );
 
-  /** Loading Screen */
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading users...</div>
-      </div>
-    );
-  }
+  if (loading) return <div className="flex items-center justify-center h-64">Loading users...</div>;
 
   return (
     <div className="space-y-4">
-      {/* HEADER */}
       <div className="flex items-center justify-between">
         <div className="p-3">
           <h1 className="text-2xl">USER MANAGEMENT</h1>
-          <p className="text-muted-foreground text-xs">
-            Manage users, their roles, and access permissions
-          </p>
+          <p className="text-muted-foreground text-xs">Manage users, their roles, and access permissions</p>
         </div>
-        <Button onClick={openCreateDialog}>
-          <Plus className="mr-2 h-4 w-4" /> Add User
-        </Button>
+        <Button onClick={openCreateDialog}><Plus className="mr-2 h-4 w-4" /> Add User</Button>
       </div>
 
-      {/* TABLE CARD */}
       <Card>
         <CardHeader>
           <CardTitle>Users</CardTitle>
-          <CardDescription>
-            A list of all users in your organization
-          </CardDescription>
+          <CardDescription>A list of all users in your organization</CardDescription>
         </CardHeader>
 
         <CardContent>
-          {/* FILTERS */}
           <div className="flex flex-col gap-4 mb-6 lg:flex-row">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -380,7 +250,7 @@ const getAuthHeaders = (): Record<string, string> => {
                 placeholder="Search users..."
                 className="pl-10"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
               />
             </div>
 
@@ -390,11 +260,7 @@ const getAuthHeaders = (): Record<string, string> => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all-roles">All Roles</SelectItem>
-                {roles.map((r) => (
-                  <SelectItem key={r.id} value={r.name}>
-                    {r.name}
-                  </SelectItem>
-                ))}
+                {roles.map(r => <SelectItem key={r.id} value={r.name}>{r.name}</SelectItem>)}
               </SelectContent>
             </Select>
 
@@ -406,11 +272,11 @@ const getAuthHeaders = (): Record<string, string> => {
                 <SelectItem value="all-status">All Status</SelectItem>
                 <SelectItem value="Active">Active</SelectItem>
                 <SelectItem value="Inactive">Inactive</SelectItem>
+                <SelectItem value="Suspended">Suspended</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* TABLE (DESKTOP) */}
           <div className="hidden lg:block overflow-x-auto rounded-md border">
             <Table>
               <TableHeader>
@@ -424,69 +290,27 @@ const getAuthHeaders = (): Record<string, string> => {
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-
               <TableBody>
-                {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
+                {filteredUsers.map(u => (
+                  <TableRow key={u.id}>
                     <TableCell>
-                      <div className="font-medium">
-                        {user.first_name} {user.last_name}
-                      </div>
-                      <div className="text-sm text-muted-foreground flex items-center mt-1">
-                        <Mail className="h-3 w-3 mr-1" />
-                        {user.email}
-                      </div>
+                      <div className="font-medium">{u.first_name} {u.last_name}</div>
+                      <div className="text-sm text-muted-foreground flex items-center mt-1"><Mail className="h-3 w-3 mr-1" />{u.email}</div>
                     </TableCell>
-
-                    <TableCell>
-                      <div className="text-sm flex items-center">
-                        <Phone className="h-3 w-3 mr-1" />
-                        {user.phone || "-"}
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <Badge variant="outline">{user.position}</Badge>
-                    </TableCell>
-
-                    <TableCell>{user.employee_id}</TableCell>
-
-                    <TableCell>{getStatusBadge(user.status)}</TableCell>
-
-                    <TableCell className="text-sm text-muted-foreground">
-                      {user.last_login
-                        ? new Date(user.last_login).toLocaleString()
-                        : "Never"}
-                    </TableCell>
-
+                    <TableCell><div className="text-sm flex items-center"><Phone className="h-3 w-3 mr-1" />{u.phone || "-"}</div></TableCell>
+                    <TableCell><Badge variant="outline">{u.position}</Badge></TableCell>
+                    <TableCell>{u.employee_id}</TableCell>
+                    <TableCell>{getStatusBadge(u.status)}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{u.last_login ? new Date(u.last_login).toLocaleString() : "Never"}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
+                          <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                         </DropdownMenuTrigger>
-
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => openEditDialog(user)}
-                          >
-                            <Edit className="mr-2 h-4 w-4" /> Edit
-                          </DropdownMenuItem>
-
-                          <DropdownMenuItem
-                            onClick={() => handleResetPassword(user.email)}
-                          >
-                            <RefreshCw className="mr-2 h-4 w-4" /> Reset
-                            Password
-                          </DropdownMenuItem>
-
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => handleDelete(user.id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
-                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openEditDialog(u)}><Edit className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleResetPassword(u.email)}><RefreshCw className="mr-2 h-4 w-4" /> Reset Password</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(u.id)}><Trash2 className="mr-2 h-4 w-4" /> Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -495,128 +319,30 @@ const getAuthHeaders = (): Record<string, string> => {
               </TableBody>
             </Table>
           </div>
-
-          {/* MOBILE CARDS */}
-          <div className="lg:hidden space-y-4">
-            {filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className="border rounded-xl p-4 bg-card shadow-sm"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <div className="font-semibold">
-                      {user.first_name} {user.last_name}
-                    </div>
-                    <div className="text-sm text-muted-foreground flex items-center mt-1">
-                      <Mail className="h-3 w-3 mr-1" />
-                      {user.email}
-                    </div>
-                  </div>
-                  <Badge variant="outline">{user.position}</Badge>
-                </div>
-
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center">
-                    <Phone className="h-3 w-3 mr-2" />
-                    {user.phone || "No phone"}
-                  </div>
-                  <div>Employee ID: {user.employee_id}</div>
-                  <div className="flex items-center justify-between">
-                    <span>Status: {getStatusBadge(user.status)}</span>
-                    <span className="text-muted-foreground text-xs">
-                      Last login:{" "}
-                      {user.last_login
-                        ? new Date(user.last_login).toLocaleDateString()
-                        : "Never"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex justify-end">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        Actions <MoreHorizontal className="ml-2 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => openEditDialog(user)}>
-                        <Edit className="mr-2 h-4 w-4" /> Edit User
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                        onClick={() => handleResetPassword(user.email)}
-                      >
-                        <RefreshCw className="mr-2 h-4 w-4" /> Reset Password
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => handleDelete(user.id)}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete User
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            ))}
-          </div>
         </CardContent>
       </Card>
 
-      {/* CREATE/EDIT DIALOG */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              {editingUser ? "Edit User" : "Create User"}
-            </DialogTitle>
-            <DialogDescription>
-              {editingUser
-                ? "Update user details below"
-                : "Fill in the details to create a new user"}
-            </DialogDescription>
+            <DialogTitle>{editingUser ? "Edit User" : "Create User"}</DialogTitle>
+            <DialogDescription>{editingUser ? "Update user details" : "Fill details to create a user"}</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            {[
-              ["First Name", "first_name"],
-              ["Last Name", "last_name"],
-              ["Email", "email"],
-              ["Phone", "phone"],
-              ["Employee ID", "employee_id"],
-            ].map(([label, key]) => (
+            {[["First Name", "firstName"], ["Last Name", "lastName"], ["Email", "email"], ["Phone", "phone"], ["Employee ID", "employeeId"]].map(([label, key]) => (
               <div key={key} className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">{label}</Label>
-                <Input
-                  className="col-span-3"
-                  value={formData[key as keyof typeof formData]}
-                  type={key === "email" ? "email" : "text"}
-                  onChange={(e) =>
-                    setFormData({ ...formData, [key]: e.target.value })
-                  }
-                />
+                <Input className="col-span-3" value={formData[key as keyof typeof formData]} onChange={e => setFormData({ ...formData, [key]: e.target.value })} />
               </div>
             ))}
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">Role</Label>
-              <Select
-                value={formData.position}
-                onValueChange={(v) => setFormData({ ...formData, position: v })}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
+              <Select value={formData.role} onValueChange={v => setFormData({ ...formData, role: v })}>
+                <SelectTrigger className="col-span-3"><SelectValue placeholder="Select role" /></SelectTrigger>
                 <SelectContent>
-                  {roles.map((r) => (
-                    <SelectItem key={r.id} value={r.name}>
-                      {r.name}
-                    </SelectItem>
-                  ))}
+                  {roles.map(r => <SelectItem key={r.id} value={r.name}>{r.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -624,22 +350,13 @@ const getAuthHeaders = (): Record<string, string> => {
             {!editingUser && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">Password</Label>
-                <Input
-                  type="password"
-                  className="col-span-3"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                />
+                <Input type="password" className="col-span-3" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
               </div>
             )}
           </div>
 
           <DialogFooter>
-            <Button onClick={handleSubmit}>
-              {editingUser ? "Update User" : "Create User"}
-            </Button>
+            <Button onClick={handleSubmit}>{editingUser ? "Update User" : "Create User"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

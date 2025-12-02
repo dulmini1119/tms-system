@@ -1,13 +1,23 @@
+// src/middleware/validation.ts
 import { Request, Response, NextFunction } from 'express';
 import Joi, { ObjectSchema } from 'joi';
 import { ERROR_CODES, HTTP_STATUS } from '../utils/constants.js';
 import ApiResponse from '../utils/response.js';
 
 /**
+ * Extended Request interface with validated data
+ */
+export interface ValidatedRequest extends Request {
+  validatedBody?: any;
+  validatedQuery?: any;
+  validatedParams?: any;
+}
+
+/**
  * Validate request body against Joi schema
  */
 export const validateBody = (schema: ObjectSchema) => {
-  return (req: Request, res: Response, next: NextFunction): void | Response => {
+  return (req: ValidatedRequest, res: Response, next: NextFunction): void | Response => {
     const { error, value } = schema.validate(req.body, {
       abortEarly: false,
       stripUnknown: true,
@@ -30,7 +40,7 @@ export const validateBody = (schema: ObjectSchema) => {
       );
     }
 
-    req.body = value;
+    req.validatedBody = value;
     next();
   };
 };
@@ -39,7 +49,7 @@ export const validateBody = (schema: ObjectSchema) => {
  * Validate query parameters
  */
 export const validateQuery = (schema: ObjectSchema) => {
-  return (req: Request, res: Response, next: NextFunction): void | Response => {
+  return (req: ValidatedRequest, res: Response, next: NextFunction): void | Response => {
     const { error, value } = schema.validate(req.query, {
       abortEarly: false,
       stripUnknown: true,
@@ -62,7 +72,7 @@ export const validateQuery = (schema: ObjectSchema) => {
       );
     }
 
-    req.query = value;
+    req.validatedQuery = value;
     next();
   };
 };
@@ -71,7 +81,7 @@ export const validateQuery = (schema: ObjectSchema) => {
  * Validate route parameters
  */
 export const validateParams = (schema: ObjectSchema) => {
-  return (req: Request, res: Response, next: NextFunction): void | Response => {
+  return (req: ValidatedRequest, res: Response, next: NextFunction): void | Response => {
     const { error, value } = schema.validate(req.params, {
       abortEarly: false,
       stripUnknown: true,
@@ -94,7 +104,7 @@ export const validateParams = (schema: ObjectSchema) => {
       );
     }
 
-    req.params = value;
+    req.validatedParams = value;
     next();
   };
 };

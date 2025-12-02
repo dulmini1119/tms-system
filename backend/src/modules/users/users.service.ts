@@ -30,6 +30,7 @@ export class UsersService {
     } = filters;
 
     const where: any = { deleted_at: null };
+
     if (search) {
       where.OR = [
         { email: { contains: search, mode: "insensitive" } },
@@ -57,7 +58,7 @@ export class UsersService {
           updated_at: true,
           user_roles_user_roles_user_idTousers: {
             select: {
-              roles: {
+              role: {
                 select: {
                   id: true,
                   name: true,
@@ -74,29 +75,24 @@ export class UsersService {
       prisma.users.count({ where }),
     ]);
 
-    // Map roles
-const cleanUsers = users.map((u) => {
-  const roleRelations = u.user_roles_user_roles_user_idTousers;
-  const primaryRole = roleRelations.length > 0 
-    ? roleRelations[0].roles.name 
-    : "VIEWER";
+    // Map roles properly
+    const cleanUsers = users.map(u => {
+      const rolesRel = u.user_roles_user_roles_user_idTousers;
+      const primaryRole = rolesRel.length > 0 ? rolesRel[0].role.name : "VIEWER";
 
-  return {
-    id: u.id,
-    first_name: u.first_name,
-    last_name: u.last_name,
-    email: u.email,
-    phone: u.phone || null,
-    employee_id: u.employee_id,
-    status: u.status,
-    last_login: u.updated_at,                 // optional, but nice
-    position: primaryRole,                    // ← THIS FIXES EMPTY TABLE
-    department: null,
-    business_unit: null,
-    // Optional: keep full roles array for future
-    roles: roleRelations.map(r => r.roles.name),
-  };
-});
+      return {
+        id: u.id,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        email: u.email,
+        phone: u.phone || null,
+        employee_id: u.employee_id,
+        status: u.status,
+        last_login: u.updated_at,
+        position: primaryRole,
+        roles: rolesRel.map(r => r.role.name),
+      };
+    });
 
     return {
       users: cleanUsers,
@@ -117,7 +113,7 @@ const cleanUsers = users.map((u) => {
       where: { id: userId },
       include: {
         user_roles_user_roles_user_idTousers: {
-          include: { roles: true },
+          include: { role: true },
         },
       },
     });
@@ -134,7 +130,7 @@ const cleanUsers = users.map((u) => {
 
     return {
       ...userData,
-      roles: user_roles_user_roles_user_idTousers.map((ur) => ur.roles.name),
+      roles: user_roles_user_roles_user_idTousers.map(ur => ur.role.name),
     };
   }
 
@@ -149,6 +145,7 @@ const cleanUsers = users.map((u) => {
     phone?: string;
     organizationId?: string;
     employeeId: string;
+    position?: string;
   }) {
     if (!data.employeeId) {
       throw new AppError(
@@ -192,11 +189,25 @@ const cleanUsers = users.map((u) => {
         phone: data.phone,
         employee_id: data.employeeId,
         business_unit_id: data.organizationId,
+        position: data.position,
         status: "Active",
       },
     });
 
     logger.info(`User created: ${user.email}`);
+
+    // Assign role
+    if (data.position) {
+      const role = await prisma.roles.findUnique({ where: { code: data.position } });
+      if (role) {
+        await prisma.user_roles.create({
+          data: {
+            user_id: user.id,
+            role_id: role.id,
+          },
+        });
+      }
+    }
 
     const { password_hash: _, ...cleanUser } = user;
     return cleanUser;
@@ -205,17 +216,15 @@ const cleanUsers = users.map((u) => {
   /**
    * Update user
    */
-  async updateUser(
-    userId: string,
-    data: Partial<{
-      email: string;
-      firstName: string;
-      lastName: string;
-      phone: string;
-      status: string;
-      employeeId: string;
-    }>
-  ) {
+  async updateUser(userId: string, data: Partial<{
+    email: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    status: string;
+    employeeId: string;
+    position: string;
+  }>) {
     const existingUser = await this.getUserById(userId);
 
     if (data.email && data.email.toLowerCase() !== existingUser.email) {
@@ -247,11 +256,13 @@ const cleanUsers = users.map((u) => {
     const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: {
-        ...data,
         email: data.email?.toLowerCase(),
         first_name: data.firstName,
         last_name: data.lastName,
+        phone: data.phone,
+        status: data.status,
         employee_id: data.employeeId,
+        position: data.position,
       },
     });
 

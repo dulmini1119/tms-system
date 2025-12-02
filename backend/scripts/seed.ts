@@ -1,4 +1,3 @@
-// scripts/seed.ts  ← FINAL VERSION (COPY-PASTE THIS)
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
